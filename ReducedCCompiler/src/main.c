@@ -15,8 +15,7 @@ int main(int argc, char **argv)
 	
 	printf("File content :\n\n%s\n", file_content);
 	printf("\nToken list : \n");
-	Tokenizer tokenizer = EMPTY_TOKENIZER;
-	tokenizer.buff = file_content;
+	Tokenizer tokenizer = create_tokenizer(file_content);
 	while (tokenizer.next.type != TOK_EOF)
 	{
 		step(&tokenizer);

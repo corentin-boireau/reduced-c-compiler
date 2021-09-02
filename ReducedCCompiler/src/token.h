@@ -23,6 +23,8 @@ typedef struct
 	Token next;
 } Tokenizer;
 
+Token create_token();
+Tokenizer create_tokenizer(char* buff);
 void step(Tokenizer* tokenizer);
 int  check(Tokenizer* tokenizer);
 void accept(Tokenizer* tokenizer);
@@ -77,8 +79,5 @@ enum
 
 	TOK_EOF					// End of file
 };
-
-static const Token EMPTY_TOKEN = { TOK_NONE, 0, 0, 0 };
-static const Tokenizer EMPTY_TOKENIZER = { 0, 0, 0, 0, { TOK_NONE, 0, 0, 0 }, { TOK_NONE, 0, 0, 0 } };
 
 #endif
