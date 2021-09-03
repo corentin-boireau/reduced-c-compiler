@@ -8,6 +8,7 @@ typedef struct
     int line;
     int col;
     struct SyntacticNode** children;
+    int nb_children;
 } SyntacticNode;
 
 enum
