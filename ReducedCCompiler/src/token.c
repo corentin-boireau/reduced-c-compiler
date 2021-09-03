@@ -329,17 +329,29 @@ void tokenizer_step(Tokenizer* tokenizer)
     }
 }
 
-int tokenizer_check(Tokenizer* tokenizer)
+int tokenizer_check(Tokenizer* tokenizer, int token_type)
 {
+    int checked = 0; 
+    
+    if (tokenizer->next.type == token_type)
+    {
+        tokenizer_step(tokenizer);
+        checked = 1;
+    }
 
+    return checked;
 }
 
-void tokenizer_accept(Tokenizer* tokenizer)
+void tokenizer_accept(Tokenizer* tokenizer, int token_type)
 {
-
+    if ( ! tokenizer_check(tokenizer, token_type))
+    {
+        fprintf(stderr, "Unexpected token at %d:%d\n", tokenizer->next.line, tokenizer->next.col);
+        exit(EXIT_FAILURE);
+    }
 }
 
-void display_token(Token token)
+void token_display(Token token)
 {
     switch (token.type)
     {

@@ -28,10 +28,10 @@ Token token_create();
 Tokenizer tokenizer_create(char* buff);
 
 void tokenizer_step(Tokenizer* tokenizer);
-int  tokenizer_check(Tokenizer* tokenizer);
-void tokenizer_accept(Tokenizer* tokenizer);
+int  tokenizer_check(Tokenizer* tokenizer, int token_type);
+void tokenizer_accept(Tokenizer* tokenizer, int token_type);
 
-void display_token(Token token);
+void token_display(Token token);
 
 enum
 {
@@ -84,4 +84,4 @@ enum
     TOK_EOF					// End of file
 };
 
-#endif
+#endif // TOKEN_H
