@@ -24,12 +24,12 @@ typedef struct
     Token next;
 } Tokenizer;
 
-Token create_token();
-Tokenizer create_tokenizer(char* buff);
+Token token_create();
+Tokenizer tokenizer_create(char* buff);
 
-void step(Tokenizer* tokenizer);
-int  check(Tokenizer* tokenizer);
-void accept(Tokenizer* tokenizer);
+void tokenizer_step(Tokenizer* tokenizer);
+int  tokenizer_check(Tokenizer* tokenizer);
+void tokenizer_accept(Tokenizer* tokenizer);
 
 void display_token(Token token);
 

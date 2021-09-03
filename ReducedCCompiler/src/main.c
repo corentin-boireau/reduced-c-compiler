@@ -27,10 +27,10 @@ void test_lexical_analysis_on_file(char* path)
 
     printf("File content :\n\n%s\n", file_content);
     printf("\nToken list : \n");
-    Tokenizer tokenizer = create_tokenizer(file_content);
+    Tokenizer tokenizer = tokenizer_create(file_content);
     while (tokenizer.next.type != TOK_EOF)
     {
-        step(&tokenizer);
+        tokenizer_step(&tokenizer);
         display_token(tokenizer.current);
     }
 

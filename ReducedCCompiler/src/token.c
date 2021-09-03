@@ -4,22 +4,22 @@
 #include <stdio.h>
 #include <string.h>
 
-Token create_token() 
+Token token_create() 
 {
     Token token;
     token.type = TOK_NONE;
 
     return token;
 }
-Tokenizer create_tokenizer(char* buff)
+Tokenizer tokenizer_create(char* buff)
 {
     Tokenizer tokenizer;
     tokenizer.buff    = buff;
     tokenizer.pos     = 0;
     tokenizer.line    = 1;
     tokenizer.col     = 1;
-    tokenizer.current = create_token();
-    tokenizer.next    = create_token();
+    tokenizer.current = token_create();
+    tokenizer.next    = token_create();
 
     return tokenizer;
 }
@@ -54,7 +54,7 @@ inline int is_alphanumeric(char c)
     return is_letter(c) || is_numeric(c);
 }
 
-void step(Tokenizer* tokenizer)
+void tokenizer_step(Tokenizer* tokenizer)
 {
     if (tokenizer->current.type == TOK_IDENTIFIER
      || tokenizer->current.type == TOK_INVALID_SEQ)
@@ -329,12 +329,12 @@ void step(Tokenizer* tokenizer)
     }
 }
 
-int check(Tokenizer* tokenizer)
+int tokenizer_check(Tokenizer* tokenizer)
 {
 
 }
 
-void accept(Tokenizer* tokenizer)
+void tokenizer_accept(Tokenizer* tokenizer)
 {
 
 }
