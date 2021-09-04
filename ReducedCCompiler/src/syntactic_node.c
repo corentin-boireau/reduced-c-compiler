@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 SyntacticNode* syntactic_node_create(int type, int line, int col)
 {

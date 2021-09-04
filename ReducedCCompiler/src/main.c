@@ -12,6 +12,7 @@ char* load_file_content(char* path);
 void test_lexical_analysis_on_file(char* path);
 void test_display_syntactic_tree();
 void test_syntactical_analysis_on_file(char* path);
+void test_compile_file(char* path);
 
 int main(int argc, char **argv)
 {
@@ -29,6 +30,29 @@ int main(int argc, char **argv)
     test_syntactical_analysis_on_file(simple_expression_path);
 
     return 0;
+}
+
+void test_compile_file(char* path)
+{
+    char* file_content = load_file_content(path);
+
+    printf("File content :\n\n%s\n\n", file_content);
+
+    Tokenizer tokenizer = tokenizer_create(file_content);
+
+    tokenizer_step(&tokenizer);
+    if (tokenizer.next.type == TOK_EOF)
+    {
+        printf("The source file is empty\n");
+    }
+    else
+    {
+        SyntacticNode* program = syntactic_rule_grammar(&tokenizer);
+        
+       // if(pro)
+    }
+
+    free(file_content);
 }
 
 void test_syntactical_analysis_on_file(char* path)
