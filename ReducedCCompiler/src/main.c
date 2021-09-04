@@ -3,12 +3,15 @@
 
 #include "token.h"
 #include "syntactic_node.h"
+#include "syntactic_analysis.h"
 
 // Loads the source file content as a null terminated buffer allocated dynamically
 // TO BE FREED
 char* load_file_content(char* path); 
+
 void test_lexical_analysis_on_file(char* path);
 void test_display_syntactic_tree();
+void test_syntactical_analysis_on_file(char* path);
 
 int main(int argc, char **argv)
 {
@@ -20,9 +23,37 @@ int main(int argc, char **argv)
     // test_lexical_analysis_on_file(junk_filepath);
     // test_lexical_analysis_on_file(mix_filepath);
     
-    test_display_syntactic_tree();
+    // test_display_syntactic_tree();
+
+    char simple_expression_path[] = "res/simple_expression.c";
+    test_syntactical_analysis_on_file(simple_expression_path);
 
     return 0;
+}
+
+void test_syntactical_analysis_on_file(char* path)
+{
+    char* file_content = load_file_content(path);
+
+    printf("File content :\n\n%s\n\n", file_content);
+    
+    Tokenizer tokenizer = tokenizer_create(file_content);
+
+    tokenizer_step(&tokenizer);
+    if (tokenizer.next.type == TOK_EOF)
+    {
+        printf("The source file is empty\n");
+    }
+    else
+    {
+        printf("Syntactical analysis...\n\n");
+        SyntacticNode* program = syntactic_rule_grammar(&tokenizer);
+        
+        printf("\n\nSyntactic tree : \n\n");
+        syntactic_node_display_tree(program, 0);
+    }
+
+    free(file_content);
 }
 
 void test_display_syntactic_tree()

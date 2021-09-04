@@ -84,10 +84,12 @@
   <ItemGroup>
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\syntactic_node.c" />
+    <ClCompile Include="src\syntactic_rules.c" />
     <ClCompile Include="src\token.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\syntactic_node.h" />
+    <ClInclude Include="src\syntactic_rules.h" />
     <ClInclude Include="src\token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,6 +1,7 @@
 #include "syntactic_node.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 SyntacticNode* syntactic_node_create(int type, int line, int col)
 {
@@ -29,14 +30,23 @@ SyntacticNode* syntactic_node_create_with_value(int type, int line, int col, int
 
 void syntactic_node_add_child(SyntacticNode* const parent, const SyntacticNode* const child)
 {
-    SyntacticNode** reallocated_children = realloc(parent->children, sizeof(SyntacticNode*) * (parent->nb_children + 1));
-    if (reallocated_children == NULL)
+    if (parent == NULL)
     {
-        perror("Failed to allocate memory for the syntactic node's new child");
+        fprintf(stderr, "syntactic_node_add_child : parent can't be NULL\n");
         exit(EXIT_FAILURE);
     }
-    parent->children = reallocated_children;
-    parent->children[parent->nb_children++] = child;
+
+    if (child != NULL)
+    {
+        SyntacticNode** reallocated_children = realloc(parent->children, sizeof(SyntacticNode*) * (parent->nb_children + 1));
+        if (reallocated_children == NULL)
+        {
+            perror("Failed to allocate memory for the syntactic node's new child");
+            exit(EXIT_FAILURE);
+        }
+        parent->children = reallocated_children;
+        parent->children[parent->nb_children++] = child;
+    }
 }
 
 void syntactic_node_display(const SyntacticNode* node)
