@@ -19,6 +19,7 @@ void syntactic_node_display_tree(const SyntacticNode* root, int depth);
 
 enum
 {
+    NODE_INVALID = -1, // Created when an unexpected token is found
     NODE_CONST,        // Constant value
                        
     // Prefix operators

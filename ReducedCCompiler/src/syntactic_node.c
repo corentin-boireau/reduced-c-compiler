@@ -35,24 +35,27 @@ void syntactic_node_add_child(SyntacticNode* const parent, const SyntacticNode* 
         fprintf(stderr, "syntactic_node_add_child : parent can't be NULL\n");
         exit(EXIT_FAILURE);
     }
-
-    if (child != NULL)
+    else if (child == NULL)
     {
-        SyntacticNode** reallocated_children = realloc(parent->children, sizeof(SyntacticNode*) * (parent->nb_children + 1));
-        if (reallocated_children == NULL)
-        {
-            perror("Failed to allocate memory for the syntactic node's new child");
-            exit(EXIT_FAILURE);
-        }
-        parent->children = reallocated_children;
-        parent->children[parent->nb_children++] = child;
+        fprintf(stderr, "syntactic_node_add_child : child can't be NULL\n");
+        exit(EXIT_FAILURE);
     }
+
+    SyntacticNode** reallocated_children = realloc(parent->children, sizeof(SyntacticNode*) * (parent->nb_children + 1));
+    if (reallocated_children == NULL)
+    {
+        perror("Failed to allocate memory for the syntactic node's new child");
+        exit(EXIT_FAILURE);
+    }
+    parent->children = reallocated_children;
+    parent->children[parent->nb_children++] = child;
 }
 
 void syntactic_node_display(const SyntacticNode* node)
 {
     switch (node->type)
     {
+        case NODE_INVALID:        printf("INVALID\n");                            break;
         case NODE_CONST:          printf("CONST : value = %d\n", node->value);    break;
         case NODE_UNARY_MINUS:    printf("UNARY_MINUS\n");                        break;
         case NODE_NEGATION:       printf("NEGATION\n");                           break;
