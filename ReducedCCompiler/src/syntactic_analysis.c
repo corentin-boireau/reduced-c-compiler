@@ -20,7 +20,7 @@ SyntacticNode* syntactic_analyzer_build_tree(SyntacticAnalyzer* analyzer)
 	tokenizer_step(&(analyzer->tokenizer));
 	if ( ! (analyzer->tokenizer.next.type == TOK_EOF))
 	{
-		syntactic_rule_grammar(analyzer);
+		analyzer->syntactic_tree = syntactic_rule_grammar(analyzer);
 	}
 
 	return analyzer->syntactic_tree;

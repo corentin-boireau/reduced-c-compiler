@@ -4,7 +4,7 @@
 #include "syntactic_node.h"
 #include "token.h"
 
-#define MAX_ERROR 0 // If there are more than MAX_ERROR, we stop the syntactic analysis
+#define MAX_ERROR 3 // If there are more than MAX_ERROR, we stop the syntactic analysis
 
 typedef struct
 {

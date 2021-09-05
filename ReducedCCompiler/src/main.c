@@ -4,6 +4,7 @@
 #include "token.h"
 #include "syntactic_node.h"
 #include "syntactic_analysis.h"
+#include "code_generation.h"
 
 // Loads the source file content as a null terminated buffer allocated dynamically
 // TO BE FREED
@@ -12,7 +13,7 @@ char* load_file_content(char* path);
 void test_lexical_analysis_on_file(char* path);
 void test_display_syntactic_tree();
 void test_syntactical_analysis_on_file(char* path);
-void test_compile_file(char* path);
+void test_compile_file(char* path, int verbose);
 
 int main(int argc, char **argv)
 {
@@ -27,29 +28,40 @@ int main(int argc, char **argv)
     // test_display_syntactic_tree();
 
     char simple_expression_path[] = "res/simple_expression.c";
-    test_syntactical_analysis_on_file(simple_expression_path);
+    // test_syntactical_analysis_on_file(simple_expression_path);
+    test_compile_file(simple_expression_path, 1);
 
     return 0;
 }
 
-void test_compile_file(char* path)
+void test_compile_file(char* path, int verbose)
 {
     char* file_content = load_file_content(path);
 
-    printf("File content :\n\n%s\n\n", file_content);
+    if(verbose) printf("File content :\n\n%s\n", file_content);
 
-    Tokenizer tokenizer = tokenizer_create(file_content);
+    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content);
 
-    tokenizer_step(&tokenizer);
-    if (tokenizer.next.type == TOK_EOF)
+    if (syntactic_analyzer_build_tree(&analyzer) == NULL)
     {
-        printf("The source file is empty\n");
+        fprintf(stderr, "The source file \"%s\" is empty", path);
     }
     else
     {
-        SyntacticNode* program = syntactic_rule_grammar(&tokenizer);
-        
-       // if(pro)
+        if (analyzer.nb_errors > 0)
+        {
+            fprintf(stderr, "%d error(s) found : compilation aborted", analyzer.nb_errors);
+        }
+        else
+        {
+            if (verbose)
+            {
+                printf("\nSyntactic tree : \n\n");
+                syntactic_node_display_tree(analyzer.syntactic_tree, 0);
+                printf("\nGenerated code :\n\n");
+            }
+            generate_program(analyzer.syntactic_tree);
+        }
     }
 
     free(file_content);
@@ -60,21 +72,17 @@ void test_syntactical_analysis_on_file(char* path)
     char* file_content = load_file_content(path);
 
     printf("File content :\n\n%s\n\n", file_content);
-    
-    Tokenizer tokenizer = tokenizer_create(file_content);
 
-    tokenizer_step(&tokenizer);
-    if (tokenizer.next.type == TOK_EOF)
+    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content);
+
+    if (syntactic_analyzer_build_tree(&analyzer) == NULL)
     {
-        printf("The source file is empty\n");
+        fprintf(stderr, "The source file \"%s\" is empty", path);
     }
     else
-    {
-        printf("Syntactical analysis...\n\n");
-        SyntacticNode* program = syntactic_rule_grammar(&tokenizer);
-        
+    {   
         printf("\n\nSyntactic tree : \n\n");
-        syntactic_node_display_tree(program, 0);
+        syntactic_node_display_tree(analyzer.syntactic_tree, 0);
     }
 
     free(file_content);

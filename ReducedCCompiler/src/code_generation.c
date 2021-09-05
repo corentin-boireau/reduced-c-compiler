@@ -1,5 +1,7 @@
 #include "code_generation.h"
 
+#include <stdio.h>
+
 void generate_program(SyntacticNode* program)
 {
 	printf(".start\n");
