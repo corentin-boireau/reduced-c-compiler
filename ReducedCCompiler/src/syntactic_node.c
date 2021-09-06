@@ -29,7 +29,7 @@ SyntacticNode* syntactic_node_create_with_value(int type, int line, int col, int
     return node;
 }
 
-void syntactic_node_add_child(SyntacticNode* const parent, const SyntacticNode* const child)
+void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child)
 {
     if (parent == NULL)
     {
@@ -42,7 +42,7 @@ void syntactic_node_add_child(SyntacticNode* const parent, const SyntacticNode* 
         exit(EXIT_FAILURE);
     }
 
-    SyntacticNode** reallocated_children = realloc(parent->children, sizeof(SyntacticNode*) * (parent->nb_children + 1));
+    SyntacticNode** reallocated_children = realloc(parent->children, sizeof(SyntacticNode*) * (parent->nb_children + (size_t) 1));
     if (reallocated_children == NULL)
     {
         perror("Failed to allocate memory for the syntactic node's new child");
@@ -65,9 +65,9 @@ void syntactic_node_display(const SyntacticNode* node)
     }
 }
 
-void syntactic_node_display_tree(const SyntacticNode* root, int depth)
+void syntactic_node_display_tree(SyntacticNode* root, int depth)
 {
-    char* depth_indicator = malloc(sizeof(char) * (depth + 1));
+    char* depth_indicator = malloc(sizeof(char) * (depth + (size_t) 1));
     if (depth_indicator == NULL)
     {
         perror("Failed to allocate memory for depth_indicator in syntactic_node_display_tree");

@@ -1,7 +1,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
-typedef struct
+typedef struct Token_s Token;
+struct Token_s
 {
     int type;
     union
@@ -12,9 +13,10 @@ typedef struct
     } value;
     int line;
     int col;
-} Token;
+};
 
-typedef struct
+typedef struct Tokenizer_s Tokenizer;
+struct Tokenizer_s
 {
     char* buff;
     int   pos;
@@ -22,7 +24,7 @@ typedef struct
     int   col;
     Token current;
     Token next;
-} Tokenizer;
+};
 
 Token token_create();
 Tokenizer tokenizer_create(char* buff);

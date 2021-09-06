@@ -6,8 +6,8 @@ void generate_program(SyntacticNode* program)
 {
 	printf(".start\n");
 	generate_code(program);
-	// printf(".dbg\n");
-	printf(".halt\n");
+	printf("dbg\n");
+	printf("halt\n");
 }
 
 void generate_code(SyntacticNode* node)
@@ -18,7 +18,7 @@ void generate_code(SyntacticNode* node)
 		case NODE_NEGATION:
 		{
 			generate_code(node->children[0]);
-			printf("neg\n");
+			printf("not\n");
 			break;
 		}
 		case NODE_UNARY_MINUS:

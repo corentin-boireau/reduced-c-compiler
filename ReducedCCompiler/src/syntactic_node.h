@@ -1,21 +1,22 @@
 #ifndef SYNTACTIC_NODE_H
 #define SYNTACTIC_NODE_H
 
-typedef struct
+typedef struct SyntacticNode_s SyntacticNode;
+struct SyntacticNode_s
 {
     int type;
     int value;
     int line;
     int col;
-    struct SyntacticNode** children;
+    SyntacticNode** children;
     int nb_children;
-} SyntacticNode;
+};
 
 SyntacticNode* syntactic_node_create(int type, int line, int col);
 SyntacticNode* syntactic_node_create_with_value(int type, int line, int col, int value);
-void syntactic_node_add_child(SyntacticNode* const parent, const SyntacticNode* const child);
+void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child);
 void syntactic_node_display(const SyntacticNode* node);
-void syntactic_node_display_tree(const SyntacticNode* root, int depth);
+void syntactic_node_display_tree(SyntacticNode* root, int depth);
 
 enum
 {

@@ -15,7 +15,7 @@ void test_display_syntactic_tree();
 void test_syntactical_analysis_on_file(char* path);
 void test_compile_file(char* path, int verbose);
 
-int main(int argc, char **argv)
+int main()
 {
     // char valid_filepath[] = "res/valid.c";
     // char junk_filepath[] = "res/junk.c";
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
     char simple_expression_path[] = "res/simple_expression.c";
     // test_syntactical_analysis_on_file(simple_expression_path);
-    test_compile_file(simple_expression_path, 1);
+    test_compile_file(simple_expression_path, 0);
 
     return 0;
 }
@@ -135,7 +135,7 @@ char* load_file_content(char* path)
     }
 
     fseek(src_file, 0, SEEK_END);
-    int file_size = ftell(src_file);
+    size_t file_size = ftell(src_file);
     fseek(src_file, 0, SEEK_SET);
 
     char* file_content = malloc(sizeof(char) * file_size + 1);
