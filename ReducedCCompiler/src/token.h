@@ -37,31 +37,31 @@ void token_display(Token token);
 
 enum
 {
-    TOK_INVALID_CHAR = -2,  // Any unsupported character
-    TOK_INVALID_SEQ  = -1,	// Any unsupported character sequence
-    TOK_NONE,				// Default value
-
-    TOK_CONST,				// Numeric value
-    TOK_IDENTIFIER,			// Identifier (text that is not a keyword)
-
     // Operators
-    TOK_PLUS,				// +
-    TOK_MINUS,				// -
-    TOK_STAR,				// *
-    TOK_SLASH,				// /
-    TOK_PERCENT,			// %
-    TOK_AMPERSAND,			// &
     TOK_EQUAL,				// =
-    TOK_2_EQUAL,			// ==
-    TOK_NOT,				// !
+
+    TOK_2_PIPE,				// ||
+
+    TOK_2_AMPERSAND,		// &&
+
     TOK_NOT_EQUAL,			// !=
+    TOK_2_EQUAL,			// ==
+
     TOK_LESS,				// <
     TOK_GREATER,			// >
     TOK_LESS_OR_EQUAL,		// <=
     TOK_GREATER_OR_EQUAL,	// >=
-    TOK_2_AMPERSAND,		// &&
-    TOK_2_PIPE,				// ||
-    
+
+    TOK_PLUS,				// +
+    TOK_MINUS,				// -
+
+    TOK_STAR,				// *
+    TOK_SLASH,				// /
+    TOK_PERCENT,			// %
+
+    TOK_AMPERSAND,			// &
+    TOK_NOT,				// !
+
     // Ponctuation
     TOK_COMMA,				// ,
     TOK_SEMICOLON,			// ;
@@ -82,8 +82,16 @@ enum
     TOK_BREAK,				// break
     TOK_CONTINUE,			// continue
     TOK_RETURN,				// return
+    TOK_PRINT,              // print
 
-    TOK_EOF					// End of file
+    TOK_CONST,				// Numeric value
+    TOK_IDENTIFIER,			// Identifier (text that is not a keyword)
+
+    TOK_EOF,				// End of file
+
+    TOK_NONE,				// Default value
+    TOK_INVALID_CHAR = -2,  // Any unsupported character
+    TOK_INVALID_SEQ = -1	// Any unsupported character sequence
 };
 
 #endif // TOKEN_H

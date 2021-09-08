@@ -14,7 +14,6 @@ void test_lexical_analysis_on_file(char* path);
 void test_display_syntactic_tree();
 void test_syntactical_analysis_on_file(char* path);
 void test_compile_file(char* path, int verbose);
-
 int main()
 {
     // char valid_filepath[] = "res/valid.c";
@@ -28,7 +27,7 @@ int main()
     // test_display_syntactic_tree();
 
     char simple_expression_path[] = "res/simple_expression.c";
-    // test_syntactical_analysis_on_file(simple_expression_path);
+    //test_syntactical_analysis_on_file(simple_expression_path);
     test_compile_file(simple_expression_path, 0);
     return 0;
 }

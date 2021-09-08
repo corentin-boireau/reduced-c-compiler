@@ -49,12 +49,29 @@ void syntactic_node_display(const SyntacticNode* node)
 {
     switch (node->type)
     {
-        case NODE_INVALID:        printf("INVALID\n");                            break;
-        case NODE_CONST:          printf("CONST : value = %d\n", node->value);    break;
-        case NODE_UNARY_MINUS:    printf("UNARY_MINUS\n");                        break;
-        case NODE_NEGATION:       printf("NEGATION\n");                           break;
-        case NODE_INDIRECTION:    printf("INDIRECTION\n");                        break;
-        case NODE_ADDRESS:        printf("ADDRESS\n");                            break;
+        case NODE_INVALID:          printf("INVALID\n");                            break;
+        case NODE_CONST:            printf("CONST : value = %d\n", node->value);    break;
+        case NODE_UNARY_MINUS:      printf("UNARY_MINUS\n");                        break;
+        case NODE_NEGATION:         printf("NEGATION\n");                           break;
+        case NODE_INDIRECTION:      printf("INDIRECTION\n");                        break;
+        case NODE_ADDRESS:          printf("ADDRESS\n");                            break;
+        case NODE_ADD:              printf("ADD\n");                                break;
+        case NODE_SUB:              printf("SUB\n");                                break;
+        case NODE_MUL:              printf("MUL\n");                                break;
+        case NODE_DIV:              printf("DIV\n");                                break;
+        case NODE_MOD:              printf("MOD\n");                                break;
+        case NODE_BLOCK:            printf("BLOCK\n");                              break;
+        case NODE_PRINT:            printf("PRINT\n");                              break;
+        case NODE_EQUAL:            printf("EQUAL\n");                              break;
+        case NODE_NOT_EQUAL:        printf("NOT EQUAL\n");                          break;
+        case NODE_GREATER:          printf("GREATER\n");                            break;
+        case NODE_GREATER_OR_EQUAL: printf("GREATER OR EQUAL\n");                   break;
+        case NODE_LESS:             printf("LESS\n");                               break;
+        case NODE_LESS_OR_EQUAL:    printf("LESS OR EQUAL\n");                      break;
+        case NODE_AND:              printf("AND\n");                                break;
+        case NODE_OR:               printf("OR\n");                                 break;
+        case NODE_ASSIGNMENT:       printf("ASSIGNEMENT\n");                        break;
+        case NODE_DROP:             printf("DROP\n");                               break;
     }
 }
 

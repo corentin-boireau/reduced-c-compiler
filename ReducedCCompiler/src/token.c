@@ -306,6 +306,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                     else if (strcmp(text, "break") == 0)     tokenizer->next.type = TOK_BREAK;
                     else if (strcmp(text, "continue") == 0)  tokenizer->next.type = TOK_CONTINUE;
                     else if (strcmp(text, "return") == 0)    tokenizer->next.type = TOK_RETURN;
+                    else if (strcmp(text, "print") == 0)     tokenizer->next.type = TOK_PRINT;
 
                     else // It is an identifier
                     {
