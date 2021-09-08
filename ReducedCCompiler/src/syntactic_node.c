@@ -1,5 +1,6 @@
 #include "syntactic_node.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -31,16 +32,8 @@ SyntacticNode* syntactic_node_create_with_value(int type, int line, int col, int
 
 void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child)
 {
-    if (parent == NULL)
-    {
-        fprintf(stderr, "syntactic_node_add_child : parent can't be NULL\n");
-        exit(EXIT_FAILURE);
-    }
-    else if (child == NULL)
-    {
-        fprintf(stderr, "syntactic_node_add_child : child can't be NULL\n");
-        exit(EXIT_FAILURE);
-    }
+    assert(parent != NULL);
+    assert(child != NULL);
 
     SyntacticNode** reallocated_children = realloc(parent->children, sizeof(SyntacticNode*) * (parent->nb_children + (size_t) 1));
     if (reallocated_children == NULL)
@@ -65,7 +58,7 @@ void syntactic_node_display(const SyntacticNode* node)
     }
 }
 
-void syntactic_node_display_tree(SyntacticNode* root, int depth)
+void syntactic_node_display_tree(const SyntacticNode* root, int depth)
 {
     char* depth_indicator = malloc(sizeof(char) * (depth + (size_t) 1));
     if (depth_indicator == NULL)

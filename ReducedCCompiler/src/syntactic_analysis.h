@@ -6,16 +6,17 @@
 
 #define MAX_ERROR 3 // If there are more than MAX_ERROR, we stop the syntactic analysis
 
-typedef struct
+typedef struct SyntacticAnalyzer_s SyntacticAnalyzer;
+struct SyntacticAnalyzer_s
 {
 	Tokenizer      tokenizer;
 	SyntacticNode* syntactic_tree;
 	int            nb_errors;
-} SyntacticAnalyzer;
+};
 
 SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer);
 SyntacticNode* syntactic_analyzer_build_tree(SyntacticAnalyzer* analyzer);
-void syntactic_analyzer_report_and_exit(SyntacticAnalyzer* analyzer);
+void syntactic_analyzer_report_and_exit(const SyntacticAnalyzer* analyzer);
 
 
 // Syntactic rules

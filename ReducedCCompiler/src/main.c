@@ -30,7 +30,6 @@ int main()
     char simple_expression_path[] = "res/simple_expression.c";
     // test_syntactical_analysis_on_file(simple_expression_path);
     test_compile_file(simple_expression_path, 0);
-
     return 0;
 }
 

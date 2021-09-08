@@ -1,11 +1,14 @@
 #include "syntactic_analysis.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 
 SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer)
 {
+	assert(source_buffer != NULL);
+
 	SyntacticAnalyzer analyzer;
 	
 	analyzer.tokenizer      = tokenizer_create(source_buffer);
@@ -17,6 +20,8 @@ SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer)
 
 SyntacticNode* syntactic_analyzer_build_tree(SyntacticAnalyzer* analyzer)
 {
+	assert(analyzer != NULL);
+
 	tokenizer_step(&(analyzer->tokenizer));
 	if ( ! (analyzer->tokenizer.next.type == TOK_EOF))
 	{
@@ -27,8 +32,10 @@ SyntacticNode* syntactic_analyzer_build_tree(SyntacticAnalyzer* analyzer)
 }
 
 
-void syntactic_analyzer_report_and_exit(SyntacticAnalyzer* analyzer)
+void syntactic_analyzer_report_and_exit(const SyntacticAnalyzer* analyzer)
 {
+	assert(analyzer != NULL);
+
 	fprintf(stderr, "\nSyntactic analysis errors : %d\n", analyzer->nb_errors);
 	exit(EXIT_FAILURE);
 }
@@ -38,11 +45,15 @@ void syntactic_analyzer_report_and_exit(SyntacticAnalyzer* analyzer)
 
 SyntacticNode* syntactic_rule_grammar(SyntacticAnalyzer* analyzer)
 {
+	assert(analyzer != NULL);
+
 	return syntactic_rule_expression(analyzer);
 }
 
 SyntacticNode* syntactic_rule_prefix(SyntacticAnalyzer* analyzer)
 {
+	assert(analyzer != NULL);
+
 	SyntacticNode* node;
 
 	if (tokenizer_check(&(analyzer->tokenizer), TOK_PLUS))
@@ -93,11 +104,15 @@ SyntacticNode* syntactic_rule_prefix(SyntacticAnalyzer* analyzer)
 
 SyntacticNode* syntactic_rule_suffix(SyntacticAnalyzer* analyzer)
 {
+	assert(analyzer != NULL);
+
 	return syntactic_rule_atom(analyzer);
 }
 
 SyntacticNode* syntactic_rule_atom(SyntacticAnalyzer* analyzer)
 {
+	assert(analyzer != NULL);
+
 	SyntacticNode* node;
 
 	if (tokenizer_check(&(analyzer->tokenizer), TOK_CONST))
@@ -125,5 +140,7 @@ SyntacticNode* syntactic_rule_atom(SyntacticAnalyzer* analyzer)
 
 SyntacticNode* syntactic_rule_expression(SyntacticAnalyzer* analyzer)
 {
+	assert(analyzer != NULL);
+
 	return syntactic_rule_prefix(analyzer);
 }

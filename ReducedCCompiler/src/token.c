@@ -1,5 +1,6 @@
 #include "token.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,6 +14,8 @@ Token token_create()
 }
 Tokenizer tokenizer_create(char* buff)
 {
+    assert(buff != NULL);
+
     Tokenizer tokenizer;
     tokenizer.buff    = buff;
     tokenizer.pos     = 0;
@@ -26,6 +29,8 @@ Tokenizer tokenizer_create(char* buff)
 
 void set_next(Tokenizer* tokenizer, int type)
 {
+    assert(tokenizer != NULL);
+
     tokenizer->next.type = type;
     tokenizer->next.line = tokenizer->line;
     tokenizer->next.col = tokenizer->col;
@@ -33,6 +38,8 @@ void set_next(Tokenizer* tokenizer, int type)
 
 void token_error(Tokenizer* tokenizer)
 {
+    assert(tokenizer != NULL);
+
     fprintf(stderr, "Invalid token '%c' at %d:%d", tokenizer->buff[tokenizer->pos + 1], tokenizer->line, tokenizer->col);
     exit(EXIT_FAILURE);
 }
@@ -56,8 +63,10 @@ inline int is_alphanumeric(char c)
 
 void tokenizer_step(Tokenizer* tokenizer)
 {
+    assert(tokenizer != NULL);
+
     if (tokenizer->current.type == TOK_IDENTIFIER
-     || tokenizer->current.type == TOK_INVALID_SEQ)
+        || tokenizer->current.type == TOK_INVALID_SEQ)
         free(tokenizer->current.value.str_val);
     // str_val is dynamically allocated when a token of one 
     // of these types is created so it must be freed before
@@ -331,6 +340,8 @@ void tokenizer_step(Tokenizer* tokenizer)
 
 int tokenizer_check(Tokenizer* tokenizer, int token_type)
 {
+    assert(tokenizer != NULL);
+
     int checked = 0; 
     
     if (tokenizer->next.type == token_type)
@@ -344,6 +355,8 @@ int tokenizer_check(Tokenizer* tokenizer, int token_type)
 
 void tokenizer_accept(Tokenizer* tokenizer, int token_type)
 {
+    assert(tokenizer != NULL);
+
     if ( ! tokenizer_check(tokenizer, token_type))
     {
         fprintf(stderr, "Unexpected token at %d:%d\n", tokenizer->next.line, tokenizer->next.col);

@@ -1,17 +1,22 @@
 #include "code_generation.h"
 
+#include <assert.h>
 #include <stdio.h>
 
-void generate_program(SyntacticNode* program)
+void generate_program(const SyntacticNode* program)
 {
+	assert(program != NULL);
+
 	printf(".start\n");
 	generate_code(program);
 	printf("dbg\n");
 	printf("halt\n");
 }
 
-void generate_code(SyntacticNode* node)
+void generate_code(const SyntacticNode* node)
 {
+	assert(node != NULL);
+
 	switch (node->type)
 	{
 		

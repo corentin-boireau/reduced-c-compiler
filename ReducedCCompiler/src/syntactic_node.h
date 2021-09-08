@@ -16,7 +16,7 @@ SyntacticNode* syntactic_node_create(int type, int line, int col);
 SyntacticNode* syntactic_node_create_with_value(int type, int line, int col, int value);
 void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child);
 void syntactic_node_display(const SyntacticNode* node);
-void syntactic_node_display_tree(SyntacticNode* root, int depth);
+void syntactic_node_display_tree(const SyntacticNode* root, int depth);
 
 enum
 {
