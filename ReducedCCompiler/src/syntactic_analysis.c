@@ -53,6 +53,15 @@ inline int is_binary_op(int token_type)
 	return token_type < NB_OPERATORS && token_type >= 0;
 }
 
+void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
+{
+	analyzer->nb_errors++;
+
+	if (analyzer->nb_errors > MAX_ERROR)
+	{
+		syntactic_analyzer_report_and_exit(analyzer);
+	}
+}
 
 SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer)
 {
@@ -96,6 +105,7 @@ SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer)
 {
 	assert(analyzer != NULL);
 
+	// G ---> I
 	return sr_instruction(analyzer);
 }
 
@@ -111,7 +121,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 
 
 	if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_BRACE))
-	{
+	{ // I ---> '{' I* '}'
 		node = syntactic_node_create(NODE_BLOCK, analyzer->tokenizer.line, analyzer->tokenizer.col);
 		while (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_BRACE))
 		{
@@ -119,14 +129,14 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		}
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_PRINT))
-	{
+	{ // I ---> 'print' E ';'
 		node = syntactic_node_create(NODE_PRINT, analyzer->tokenizer.line, analyzer->tokenizer.col);
 		SyntacticNode* expr_printed = sr_expression(analyzer);
 		syntactic_node_add_child(node, expr_printed);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 	}
 	else
-	{
+	{ // I ---> E ';'
 		node = syntactic_node_create(NODE_DROP, analyzer->tokenizer.line, analyzer->tokenizer.col);
 		syntactic_node_add_child(node, sr_expression(analyzer));
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
@@ -143,7 +153,15 @@ SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer)
 SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 {
 	assert(analyzer != NULL);
-
+	
+	// E ---> P '=' E
+	// 		| P '||' E 
+	//		| P '&&' E 
+	// 		| P '==' | '!=' E 
+	// 		| P '<' | '<=' | '>' | '>='  E 
+	//		| P '+' | '-' E
+	//		| P '*' | '/' E
+	
 	SyntacticNode* node = sr_prefix(analyzer);
 	int end_expr = 0;
 	while (!end_expr)
@@ -179,45 +197,35 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
 	SyntacticNode* node;
 
 	if (tokenizer_check(&(analyzer->tokenizer), TOK_PLUS))
-	{
+	{ // P ---> '+' P
 		node = sr_prefix(analyzer);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_MINUS))
-	{
+	{ // P ---> '-' P
 		node = syntactic_node_create(NODE_UNARY_MINUS, analyzer->tokenizer.line, analyzer->tokenizer.col);
 		SyntacticNode* next_prefix_node = sr_prefix(analyzer);
 		syntactic_node_add_child(node, next_prefix_node);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_NOT))
-	{
+	{ // P ---> '!' P
 		node = syntactic_node_create(NODE_NEGATION, analyzer->tokenizer.line, analyzer->tokenizer.col);
 		SyntacticNode* next_prefix_node = sr_prefix(analyzer);
 		syntactic_node_add_child(node, next_prefix_node);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_STAR))
-	{
-		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		analyzer->nb_errors++;
+	{ // P ---> '*' P
 		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-
-		if (analyzer->nb_errors > MAX_ERROR)
-		{
-			syntactic_analyzer_report_and_exit(analyzer);
-		}
+		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		syntactic_analyzer_inc_error(analyzer);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_AMPERSAND))
-	{
-		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		analyzer->nb_errors++;
+	{ // P ---> '&' P
 		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-
-		if (analyzer->nb_errors > MAX_ERROR)
-		{
-			syntactic_analyzer_report_and_exit(analyzer);
-		}
+		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		syntactic_analyzer_inc_error(analyzer);
 	}
 	else
-	{
+	{ // P ---> S
 		node = sr_suffix(analyzer);
 	}
 
@@ -228,6 +236,7 @@ SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer)
 {
 	assert(analyzer != NULL);
 
+	// S ---> A
 	return sr_atom(analyzer);
 }
 
@@ -238,23 +247,19 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 	SyntacticNode* node;
 
 	if (tokenizer_check(&(analyzer->tokenizer), TOK_CONST))
-	{
+	{ // A ---> const
 		node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.line, analyzer->tokenizer.col, analyzer->tokenizer.current.value.int_val);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS))
-	{
+	{ // A ---> '(' E ')'
 		node = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 	}
 	else
-	{
-		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
-		analyzer->nb_errors++;
+	{ // Unexpected token
 		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
-		if (analyzer->nb_errors > MAX_ERROR)
-		{
-			syntactic_analyzer_report_and_exit(analyzer);
-		}
+		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		syntactic_analyzer_inc_error(analyzer);
 	}
 
 	return node;

@@ -27,7 +27,7 @@ int main()
     // test_display_syntactic_tree();
 
     char simple_expression_path[] = "res/simple_expression.c";
-    //test_syntactical_analysis_on_file(simple_expression_path);
+    // test_syntactical_analysis_on_file(simple_expression_path);
     test_compile_file(simple_expression_path, 0);
     return 0;
 }
@@ -36,7 +36,8 @@ void test_compile_file(char* path, int verbose)
 {
     char* file_content = load_file_content(path);
 
-    if(verbose) printf("File content :\n\n%s\n", file_content);
+    if(verbose)
+        printf("File content :\n\n%s\n", file_content);
 
     SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content);
 
@@ -143,12 +144,16 @@ char* load_file_content(char* path)
         exit(EXIT_FAILURE);
     }
 
-    if (fread(file_content, sizeof(char), file_size, src_file) != file_size)
+    size_t nb_char_loaded = fread(file_content, sizeof(char), file_size, src_file); 
+    // May be different from file_size, e.g. if line breaks are CRLF instead of LF
+
+    if (ferror(src_file))
     {
-        perror("Failed to read the whole content of the source file");
+        fprintf(stderr, "Failed to read content from the source file \"%s\"\n", path);
         exit(EXIT_FAILURE);
     }
-    file_content[file_size] = '\0';
+
+    file_content[nb_char_loaded] = '\0';
 
     fclose(src_file);
 
