@@ -65,12 +65,10 @@ void tokenizer_step(Tokenizer* tokenizer)
 {
     assert(tokenizer != NULL);
 
-    if (tokenizer->current.type == TOK_IDENTIFIER
-        || tokenizer->current.type == TOK_INVALID_SEQ)
+    // str_val is dynamically allocated when a token requiring a string is created so it must be freed before overwriting tokenizer.current
+    // str_val is not freed for TOK_IDENTIFIER because the pointer is given to the syntactic node (NODE_DECL or NODE_REF)
+    if (tokenizer->current.type == TOK_INVALID_SEQ)
         free(tokenizer->current.value.str_val);
-    // str_val is dynamically allocated when a token of one 
-    // of these types is created so it must be freed before
-    // overwriting tokenizer.current
 
     tokenizer->current = tokenizer->next;
     int found = 0;

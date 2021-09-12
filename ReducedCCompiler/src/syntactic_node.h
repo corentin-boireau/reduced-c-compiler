@@ -5,7 +5,13 @@ typedef struct SyntacticNode_s SyntacticNode;
 struct SyntacticNode_s
 {
     int type;
-    int value;
+    union
+    {
+        int int_val;
+        char* str_val;
+    } value;
+    int index;          // Only usefull for variable declaration and references
+                        // Indicates its location on the stack
     int line;
     int col;
     SyntacticNode** children;
@@ -30,7 +36,7 @@ enum
     NODE_ADDRESS,          // '&' to denote the address where the variable is stored
 
     // Binary operators
-    NODE_ASSIGNMENT,       // 
+    NODE_ASSIGNMENT,       // Assignment of a value to a variable
     NODE_OR,               //
     NODE_AND,              //
     NODE_EQUAL,            //
@@ -45,7 +51,10 @@ enum
     NODE_ADD,              //
     NODE_SUB,              //
 
+    NODE_DECL,             // Variable declaration
+    NODE_REF,              // Reference to a variable
     NODE_BLOCK,            // Code block between '{' and '}'
+    NODE_SEQUENCE,         // Code block without a new scope
     NODE_PRINT,            // Print the top of the stack
     NODE_DROP,             // Pop the stack
 };

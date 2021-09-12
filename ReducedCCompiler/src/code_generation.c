@@ -128,6 +128,7 @@ void generate_code(const SyntacticNode* node)
 			printf("dbg\n");
 			break;
 		}
+		case NODE_SEQUENCE:
 		case NODE_BLOCK:
 		{
 			for (int i = 0; i < node->nb_children; i++)
@@ -142,6 +143,6 @@ void generate_code(const SyntacticNode* node)
 			printf("drop\n");
 			break;
 		}
-		case NODE_CONST: printf("push %d\n", node->value); break;
+		case NODE_CONST: printf("push %d\n", node->value.int_val); break;
 	}
 }

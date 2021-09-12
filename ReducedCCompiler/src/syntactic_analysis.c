@@ -10,7 +10,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer); // Instruction
 SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer);  // Expression
 SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);      // Prefix 
 SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer);      // Suffix
-SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);        // Atome
+SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);        // Atom
 
 SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority); // Expression with priority
 
@@ -135,6 +135,25 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		syntactic_node_add_child(node, expr_printed);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
+	{
+		node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.line, analyzer->tokenizer.col);
+
+		tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
+		SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+		syntactic_node_add_child(node, decl);
+
+		while (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
+		{
+			tokenizer_accept(&(analyzer->tokenizer), TOK_COMMA);
+			tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
+
+            decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.line, analyzer->tokenizer.col);
+            decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+            syntactic_node_add_child(node, decl);
+		}
+	}
 	else
 	{ // I ---> E ';'
 		node = syntactic_node_create(NODE_DROP, analyzer->tokenizer.line, analyzer->tokenizer.col);
@@ -254,6 +273,11 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 	{ // A ---> '(' E ')'
 		node = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_IDENTIFIER))
+	{
+		node = syntactic_node_create(NODE_REF, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 	}
 	else
 	{ // Unexpected token
