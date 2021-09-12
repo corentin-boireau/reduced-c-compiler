@@ -92,12 +92,14 @@
   <ItemGroup>
     <ClCompile Include="src\code_generation.c" />
     <ClCompile Include="src\main.c" />
+    <ClCompile Include="src\semantic_analysis.c" />
     <ClCompile Include="src\syntactic_node.c" />
     <ClCompile Include="src\syntactic_analysis.c" />
     <ClCompile Include="src\token.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\code_generation.h" />
+    <ClInclude Include="src\semantic_analysis.h" />
     <ClInclude Include="src\syntactic_node.h" />
     <ClInclude Include="src\syntactic_analysis.h" />
     <ClInclude Include="src\token.h" />
