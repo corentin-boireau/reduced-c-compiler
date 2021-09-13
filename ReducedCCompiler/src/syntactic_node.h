@@ -1,6 +1,8 @@
 #ifndef SYNTACTIC_NODE_H
 #define SYNTACTIC_NODE_H
 
+#define INVALID_INDEX -1
+
 typedef struct SyntacticNode_s SyntacticNode;
 struct SyntacticNode_s
 {

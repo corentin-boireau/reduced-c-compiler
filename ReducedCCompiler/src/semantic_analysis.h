@@ -12,6 +12,7 @@ struct Symbol_s
 
 #define MAX_SYMBOLS 500
 #define MAX_SCOPES  20
+#define MAX_SEMANTIC_ERROR 3 // If there are more than MAX_SEMANTIC_ERROR, we stop the semantic analysis
 
 typedef struct SymbolTable_s SymbolTable;
 struct SymbolTable_s
@@ -19,9 +20,12 @@ struct SymbolTable_s
 	Symbol symbols[MAX_SYMBOLS];
 	int    scopes[MAX_SCOPES];
 	int    nb_variables;
+	int    current_scope;
+	int    nb_errors;
 };
 
-
+SymbolTable symbol_table_create();
 void semantic_analysis(SyntacticNode* tree, SymbolTable* table);
+void semantic_analysis_report_and_exit(const SymbolTable* table);
 
 #endif // SEMANTIC_ANALYSIS_H

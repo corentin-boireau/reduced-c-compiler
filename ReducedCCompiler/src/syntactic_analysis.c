@@ -57,7 +57,7 @@ void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
 {
 	analyzer->nb_errors++;
 
-	if (analyzer->nb_errors > MAX_ERROR)
+	if (analyzer->nb_errors > MAX_SYNTACTIC_ERROR)
 	{
 		syntactic_analyzer_report_and_exit(analyzer);
 	}

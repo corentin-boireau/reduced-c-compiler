@@ -4,6 +4,7 @@
 #include "token.h"
 #include "syntactic_node.h"
 #include "syntactic_analysis.h"
+#include "semantic_analysis.h"
 #include "code_generation.h"
 
 // Loads the source file content as a null terminated buffer allocated dynamically
@@ -14,6 +15,8 @@ void test_lexical_analysis_on_file(char* path);
 void test_display_syntactic_tree();
 void test_syntactical_analysis_on_file(char* path);
 void test_compile_file(char* path, int verbose);
+void test_semantic_analysis_on_file(char* path);
+
 int main()
 {
     // char valid_filepath[] = "res/valid.c";
@@ -26,8 +29,10 @@ int main()
     
     // test_display_syntactic_tree();
 
-    char simple_expression_path[] = "res/simple_expression.c";
-    test_syntactical_analysis_on_file(simple_expression_path);
+    //char simple_expression_path[] = "res/simple_expression.c";
+    char simple_expression_path[] = "res/semantic.c";
+    //test_syntactical_analysis_on_file(simple_expression_path);
+    test_semantic_analysis_on_file(simple_expression_path);
     //test_compile_file(simple_expression_path, 0);
     return 0;
 }
@@ -86,6 +91,33 @@ void test_syntactical_analysis_on_file(char* path)
 
     free(file_content);
 }
+void test_semantic_analysis_on_file(char* path)
+{
+    char* file_content = load_file_content(path);
+
+    printf("File content :\n\n%s\n\n", file_content);
+
+    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content);
+
+    if (syntactic_analyzer_build_tree(&analyzer) == NULL)
+    {
+        fprintf(stderr, "The source file \"%s\" is empty", path);
+    }
+    else
+    {   
+        printf("\n\nSyntactic tree before : \n\n");
+        syntactic_node_display_tree(analyzer.syntactic_tree, 0);
+
+        SymbolTable table = symbol_table_create();
+        semantic_analysis(analyzer.syntactic_tree, &table);
+
+        printf("\n\nSyntactic tree after : \n\n");
+        syntactic_node_display_tree(analyzer.syntactic_tree, 0);
+    }
+
+    free(file_content);
+}
+
 
 void test_display_syntactic_tree()
 {

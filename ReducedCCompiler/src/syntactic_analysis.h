@@ -4,7 +4,7 @@
 #include "syntactic_node.h"
 #include "token.h"
 
-#define MAX_ERROR 3 // If there are more than MAX_ERROR, we stop the syntactic analysis
+#define MAX_SYNTACTIC_ERROR 3 // If there are more than MAX_SYNTACTIC_ERROR, we stop the syntactic analysis
 
 typedef struct SyntacticAnalyzer_s SyntacticAnalyzer;
 struct SyntacticAnalyzer_s
