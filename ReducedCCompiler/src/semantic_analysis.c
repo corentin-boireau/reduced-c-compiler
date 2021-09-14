@@ -17,6 +17,7 @@ SymbolTable symbol_table_create()
 {
 	SymbolTable table;
 	table.scopes[0]     = 0;
+	table.nb_symbols    = 0;
 	table.nb_variables  = 0;
 	table.current_scope = 0;
 	table.nb_errors     = 0;
@@ -110,12 +111,12 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
 void startScope(SymbolTable* table)
 {
 	table->current_scope++;
-	table->scopes[table->current_scope] = table->nb_variables;
+	table->scopes[table->current_scope] = table->nb_symbols;
 }
 
 void endScope(SymbolTable* table)
 {
-	table->nb_variables = table->scopes[table->current_scope];
+	table->nb_symbols = table->scopes[table->current_scope];
 	table->current_scope--;
 }
 
@@ -123,14 +124,15 @@ int declare(SymbolTable* table, char* name)
 {
 	int index = table->scopes[table->current_scope];
 	int found = 0;
-	while (index < table->nb_variables && !found)
+	while (index < table->nb_symbols && !found)
 	{
 		found = strcmp(name, table->symbols[index].name) == 0;
 		index++;
 	}
 	if (!found)
 	{
-		table->symbols[table->nb_variables] = symbol_create(table->nb_variables, name);
+		table->symbols[table->nb_symbols] = symbol_create(table->nb_symbols, name);
+		table->nb_symbols++;
 		table->nb_variables++;
 	}
 	else
@@ -144,7 +146,7 @@ int declare(SymbolTable* table, char* name)
 int search(SymbolTable* table, char* name)
 {
 	int index;
-	int i = table->nb_variables - 1;
+	int i = table->nb_symbols - 1;
 	int found = 0;
 	while (i >= 0 && !found)
 	{

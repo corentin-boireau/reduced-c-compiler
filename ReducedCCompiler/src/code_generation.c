@@ -2,12 +2,14 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-void generate_program(const SyntacticNode* program)
+void generate_program(const SyntacticNode* program, int nb_var)
 {
 	assert(program != NULL);
 
 	printf(".start\n");
+	printf("resn %d\n", nb_var);
 	generate_code(program);
 	printf("halt\n");
 }
@@ -141,6 +143,25 @@ void generate_code(const SyntacticNode* node)
 		{
 			generate_code(node->children[0]);
 			printf("drop\n");
+			break;
+		}
+		case NODE_DECL :
+			break; 
+		case NODE_REF:
+		{
+			printf("get %d\n", node->index);
+			break;
+		}
+		case NODE_ASSIGNMENT :
+		{
+			if (node->children[0]->type != NODE_REF)
+			{
+				fprintf(stderr, "%d:%d error : Left operand of assignement must be a variable reference\n", node->line, node->col);
+				exit(EXIT_FAILURE);
+			}
+			generate_code(node->children[1]);
+			printf("dup\n");
+			printf("set %d\n", node->children[0]->index);
 			break;
 		}
 		case NODE_CONST: printf("push %d\n", node->value.int_val); break;

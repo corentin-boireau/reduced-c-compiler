@@ -32,8 +32,8 @@ int main()
     //char simple_expression_path[] = "res/simple_expression.c";
     char simple_expression_path[] = "res/semantic.c";
     //test_syntactical_analysis_on_file(simple_expression_path);
-    test_semantic_analysis_on_file(simple_expression_path);
-    //test_compile_file(simple_expression_path, 0);
+    //test_semantic_analysis_on_file(simple_expression_path);
+    test_compile_file(simple_expression_path, 1);
     return 0;
 }
 
@@ -54,17 +54,37 @@ void test_compile_file(char* path, int verbose)
     {
         if (analyzer.nb_errors > 0)
         {
-            fprintf(stderr, "%d error(s) found : compilation aborted", analyzer.nb_errors);
+            fprintf(stderr, "%d error(s) found during syntactical analysis : compilation aborted", analyzer.nb_errors);
         }
         else
         {
+            
             if (verbose)
             {
-                printf("\nSyntactic tree : \n\n");
+                printf("\nSyntactic tree before semantic analysis : \n\n");
                 syntactic_node_display_tree(analyzer.syntactic_tree, 0);
-                printf("\nGenerated code :\n\n");
             }
-            generate_program(analyzer.syntactic_tree);
+
+            SymbolTable table = symbol_table_create();
+            semantic_analysis(analyzer.syntactic_tree, &table);
+
+            if (verbose)
+            {
+                printf("\nSyntactic tree after semantic analysis : \n\n");
+                syntactic_node_display_tree(analyzer.syntactic_tree, 0);
+            }
+            if (table.nb_errors > 0)
+            {
+                fprintf(stderr, "%d error(s) found during semantic analysis : compilation aborted", table.nb_errors);
+            }
+            else
+            {
+                if (verbose)
+                {
+                    printf("\nGenerated code :\n\n");
+                }
+                generate_program(analyzer.syntactic_tree, table.nb_variables);
+            }
         }
     }
 
