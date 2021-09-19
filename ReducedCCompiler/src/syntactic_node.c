@@ -100,3 +100,18 @@ void syntactic_node_display_tree(const SyntacticNode* root, int depth)
 
     free(depth_indicator);
 }
+
+void syntactic_node_free(SyntacticNode* node)
+{
+    free(node->children);
+    free(node);
+}
+
+void syntactic_node_free_tree(SyntacticNode* tree)
+{
+    for (int i = 0; i < tree->nb_children; i++)
+    {
+        syntactic_node_free_tree(tree->children[i]);
+    }
+    syntactic_node_free(tree);
+}

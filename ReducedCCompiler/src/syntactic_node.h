@@ -26,6 +26,9 @@ void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child);
 void syntactic_node_display(const SyntacticNode* node);
 void syntactic_node_display_tree(const SyntacticNode* root, int depth);
 
+void syntactic_node_free(SyntacticNode* node);
+void syntactic_node_free_tree(SyntacticNode* tree);
+
 enum
 {
     NODE_INVALID = -1,     // Created when an unexpected token is found
@@ -38,8 +41,8 @@ enum
     NODE_ADDRESS,          // '&' to denote the address where the variable is stored
 
     // Binary operators
-    NODE_ASSIGNMENT,       // Assignment of a value to a variable
-    NODE_OR,               //
+    NODE_ASSIGNMENT,       // '=' Assignment of a value to a variable
+    NODE_OR,               // 
     NODE_AND,              //
     NODE_EQUAL,            //
     NODE_NOT_EQUAL,        //

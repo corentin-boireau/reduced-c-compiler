@@ -14,6 +14,9 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);        // Atom
 
 SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority); // Expression with priority
 
+
+SyntacticNode* opti_constant_prefix(SyntacticNode* node);
+
 #define	RIGHT_TO_LEFT   0
 #define LEFT_TO_RIGHT   1
 typedef struct OperatorInfo_s OperatorInfo;
@@ -63,7 +66,7 @@ void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
 	}
 }
 
-SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer)
+SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, unsigned char optimisations)
 {
 	assert(source_buffer != NULL);
 
@@ -72,6 +75,7 @@ SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer)
 	analyzer.tokenizer      = tokenizer_create(source_buffer);
 	analyzer.syntactic_tree = NULL;
 	analyzer.nb_errors      = 0;
+	analyzer.optimisations  = optimisations;
 
 	return analyzer;
 }
@@ -122,7 +126,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 
 	if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_BRACE))
 	{ // I ---> '{' I* '}'
-		node = syntactic_node_create(NODE_BLOCK, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		node = syntactic_node_create(NODE_BLOCK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		while (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_BRACE))
 		{
 			syntactic_node_add_child(node, sr_instruction(analyzer));
@@ -130,17 +134,17 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_PRINT))
 	{ // I ---> 'print' E ';'
-		node = syntactic_node_create(NODE_PRINT, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		node = syntactic_node_create(NODE_PRINT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode* expr_printed = sr_expression(analyzer);
 		syntactic_node_add_child(node, expr_printed);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
-	{
-		node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.line, analyzer->tokenizer.col);
+	{ // I ---> 'int' ident ';'
+		node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 
 		tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
-		SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 		syntactic_node_add_child(node, decl);
 
@@ -149,14 +153,14 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 			tokenizer_accept(&(analyzer->tokenizer), TOK_COMMA);
 			tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
 
-            decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.line, analyzer->tokenizer.col);
+            decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
             decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
             syntactic_node_add_child(node, decl);
 		}
 	}
 	else
 	{ // I ---> E ';'
-		node = syntactic_node_create(NODE_DROP, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		node = syntactic_node_create(NODE_DROP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		syntactic_node_add_child(node, sr_expression(analyzer));
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 	}
@@ -197,9 +201,66 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 				tokenizer_step(&(analyzer->tokenizer));
 				SyntacticNode* operand1 = node;
 				SyntacticNode* operand2 = sr_expression_prio(analyzer, node_info.priority + node_info.associativity);
-				node = syntactic_node_create(node_info.node_type, analyzer->tokenizer.line, analyzer->tokenizer.line);
-				syntactic_node_add_child(node, operand1);
-				syntactic_node_add_child(node, operand2);
+				
+				// Optimisation of operations on constants
+				if (is_opti_enabled(analyzer, OPTI_CONST_OPERATIONS)
+					&& node_info.node_type != NODE_ASSIGNMENT 
+			        && operand1->type == NODE_CONST && operand2->type == NODE_CONST)
+				{
+					int value = -1;
+					switch (node_info.node_type)
+					{
+						case NODE_ADD:              value = operand1->value.int_val  +   operand2->value.int_val;  break;
+						case NODE_SUB:              value = operand1->value.int_val  -   operand2->value.int_val;  break;
+						case NODE_MUL:              value = operand1->value.int_val  *   operand2->value.int_val;  break;
+						case NODE_AND:              value = operand1->value.int_val  &&  operand2->value.int_val;  break;
+						case NODE_OR:               value = operand1->value.int_val  ||  operand2->value.int_val;  break;
+						case NODE_EQUAL:            value = operand1->value.int_val  ==  operand2->value.int_val;  break;
+						case NODE_NOT_EQUAL:        value = operand1->value.int_val  !=  operand2->value.int_val;  break;
+						case NODE_LESS:             value = operand1->value.int_val  <   operand2->value.int_val;  break;
+						case NODE_LESS_OR_EQUAL:    value = operand1->value.int_val  <=  operand2->value.int_val;  break;
+						case NODE_GREATER:          value = operand1->value.int_val  >   operand2->value.int_val;  break;
+						case NODE_GREATER_OR_EQUAL: value = operand1->value.int_val  >=  operand2->value.int_val;  break;
+
+						case NODE_DIV:
+						{
+							if (operand2->value.int_val == 0)
+							{
+								node = syntactic_node_create(NODE_INVALID, operand2->line, operand2->col);
+								fprintf(stderr, "%d:%d error : Division by zero\n", operand2->line, operand2->col);
+								syntactic_analyzer_inc_error(analyzer);
+							}
+							else
+							{
+								value = operand1->value.int_val / operand2->value.int_val;
+							}
+							break;
+						}
+						case NODE_MOD:
+						{
+							if (operand2->value.int_val == 0)
+							{
+								node = syntactic_node_create(NODE_INVALID, operand2->line, operand2->col);
+								fprintf(stderr, "%d:%d error : Modulo by zero\n", operand2->line, operand2->col);
+								syntactic_analyzer_inc_error(analyzer);
+							}
+							else
+							{
+								value = operand1->value.int_val % operand2->value.int_val;
+							}
+							break;
+						}
+					}
+
+					if(node->type != NODE_INVALID)
+						node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col, value);
+				}
+				else
+				{
+					node = syntactic_node_create(node_info.node_type, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+					syntactic_node_add_child(node, operand1);
+					syntactic_node_add_child(node, operand2);
+				}
 			}
 		}
 		else
@@ -221,13 +282,13 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_MINUS))
 	{ // P ---> '-' P
-		node = syntactic_node_create(NODE_UNARY_MINUS, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		node = syntactic_node_create(NODE_UNARY_MINUS, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode* next_prefix_node = sr_prefix(analyzer);
 		syntactic_node_add_child(node, next_prefix_node);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_NOT))
 	{ // P ---> '!' P
-		node = syntactic_node_create(NODE_NEGATION, analyzer->tokenizer.line, analyzer->tokenizer.col);
+		node = syntactic_node_create(NODE_NEGATION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode* next_prefix_node = sr_prefix(analyzer);
 		syntactic_node_add_child(node, next_prefix_node);
 	}
@@ -247,7 +308,12 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
 	{ // P ---> S
 		node = sr_suffix(analyzer);
 	}
+	
+	// *** Optimistations ***
+	if(is_opti_enabled(analyzer, OPTI_CONST_OPERATIONS))
+		node = opti_constant_prefix(node);
 
+	// **********************
 	return node;
 }
 
@@ -267,7 +333,7 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 
 	if (tokenizer_check(&(analyzer->tokenizer), TOK_CONST))
 	{ // A ---> const
-		node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.line, analyzer->tokenizer.col, analyzer->tokenizer.current.value.int_val);
+		node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col, analyzer->tokenizer.current.value.int_val);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS))
 	{ // A ---> '(' E ')'
@@ -275,8 +341,8 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_IDENTIFIER))
-	{
-		node = syntactic_node_create(NODE_REF, analyzer->tokenizer.line, analyzer->tokenizer.col);
+	{ // A ---> ident
+		node = syntactic_node_create(NODE_REF, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 	}
 	else
@@ -289,3 +355,43 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 	return node;
 }
 
+// Optimisations
+
+SyntacticNode* opti_constant_prefix(SyntacticNode* node)
+{
+	SyntacticNode* optimized_node = node;
+
+	switch (node->type)
+	{
+		case NODE_UNARY_MINUS:
+		{
+			assert(node->children[0] != NULL);
+			SyntacticNode* constant = node->children[0];
+
+			if (constant->type == NODE_CONST)
+			{
+				optimized_node = constant;
+				optimized_node->value.int_val = - constant->value.int_val;
+
+				syntactic_node_free(node);
+			}
+			break;
+		}
+		case NODE_NEGATION:
+		{
+			assert(node->children[0] != NULL);
+			SyntacticNode* constant = node->children[0];
+			
+			if (constant->type == NODE_CONST)
+			{
+				optimized_node = constant;
+				optimized_node->value.int_val = ! constant->value.int_val;
+
+				syntactic_node_free(node);
+			}
+			break;
+		}
+	}
+	
+	return optimized_node;
+}

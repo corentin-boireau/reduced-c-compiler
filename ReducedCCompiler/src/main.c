@@ -13,9 +13,9 @@ char* load_file_content(char* path);
 
 void test_lexical_analysis_on_file(char* path);
 void test_display_syntactic_tree();
-void test_syntactical_analysis_on_file(char* path);
-void test_compile_file(char* path, int verbose);
-void test_semantic_analysis_on_file(char* path);
+void test_syntactical_analysis_on_file(char* path, unsigned char optimisations);
+void test_semantic_analysis_on_file(char* path, unsigned char optimisations);
+void test_compile_file(char* path, int verbose, unsigned char optimisations);
 
 int main()
 {
@@ -33,18 +33,18 @@ int main()
     char simple_expression_path[] = "res/semantic.c";
     //test_syntactical_analysis_on_file(simple_expression_path);
     //test_semantic_analysis_on_file(simple_expression_path);
-    test_compile_file(simple_expression_path, 1);
+    test_compile_file(simple_expression_path, 1, OPTI_CONST_OPERATIONS);
     return 0;
 }
 
-void test_compile_file(char* path, int verbose)
+void test_compile_file(char* path, int verbose, unsigned char optimisations)
 {
     char* file_content = load_file_content(path);
 
     if(verbose)
         printf("File content :\n\n%s\n", file_content);
 
-    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content);
+    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content, optimisations);
 
     if (syntactic_analyzer_build_tree(&analyzer) == NULL)
     {
@@ -91,13 +91,13 @@ void test_compile_file(char* path, int verbose)
     free(file_content);
 }
 
-void test_syntactical_analysis_on_file(char* path)
+void test_syntactical_analysis_on_file(char* path, unsigned char optimisations)
 {
     char* file_content = load_file_content(path);
 
     printf("File content :\n\n%s\n\n", file_content);
 
-    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content);
+    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content, optimisations);
 
     if (syntactic_analyzer_build_tree(&analyzer) == NULL)
     {
@@ -111,13 +111,13 @@ void test_syntactical_analysis_on_file(char* path)
 
     free(file_content);
 }
-void test_semantic_analysis_on_file(char* path)
+void test_semantic_analysis_on_file(char* path, unsigned char optimisations)
 {
     char* file_content = load_file_content(path);
 
     printf("File content :\n\n%s\n\n", file_content);
 
-    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content);
+    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content, optimisations);
 
     if (syntactic_analyzer_build_tree(&analyzer) == NULL)
     {
