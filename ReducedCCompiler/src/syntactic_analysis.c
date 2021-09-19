@@ -51,7 +51,7 @@ static  OperatorInfo OP_INFOS[NB_OPERATORS] =
 	{7, LEFT_TO_RIGHT, NODE_DIV},
 	{7, LEFT_TO_RIGHT, NODE_MOD},
 };
-inline int is_binary_op(int token_type)
+static inline int is_binary_op(int token_type)
 {
 	return token_type < NB_OPERATORS && token_type >= 0;
 }

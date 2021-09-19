@@ -44,19 +44,19 @@ void token_error(Tokenizer* tokenizer)
     exit(EXIT_FAILURE);
 }
 
-inline int is_numeric(char c)
+static inline int is_numeric(char c)
 {
     return c >= '0' && c <= '9';
 }
 
-inline int is_letter(char c)
+static inline int is_letter(char c)
 {
     return (c >= 'A' && c <= 'Z')
         || (c >= 'a' && c <= 'z')
         || c == '_';
 }
 
-inline int is_alphanumeric(char c)
+static inline int is_alphanumeric(char c)
 {
     return is_letter(c) || is_numeric(c);
 }
