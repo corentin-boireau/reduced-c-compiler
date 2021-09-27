@@ -33,6 +33,9 @@
     <ClCompile Include="src\semantic_analysis.c">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="vendor\argtable3\argtable3.c">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\token.h">
@@ -48,6 +51,9 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="src\semantic_analysis.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\argtable3\argtable3.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
