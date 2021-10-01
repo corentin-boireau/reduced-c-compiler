@@ -1,6 +1,8 @@
 #ifndef SYNTACTIC_NODE_H
 #define SYNTACTIC_NODE_H
 
+#include <stdio.h>
+
 #define INVALID_INDEX -1
 
 typedef struct SyntacticNode_s SyntacticNode;
@@ -24,7 +26,7 @@ SyntacticNode* syntactic_node_create(int type, int line, int col);
 SyntacticNode* syntactic_node_create_with_value(int type, int line, int col, int value);
 void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child);
 void syntactic_node_display(const SyntacticNode* node);
-void syntactic_node_display_tree(const SyntacticNode* root, int depth);
+void syntactic_node_display_tree(const SyntacticNode* root, int depth, FILE* out_file);
 
 void syntactic_node_free(SyntacticNode* node);
 void syntactic_node_free_tree(SyntacticNode* tree);

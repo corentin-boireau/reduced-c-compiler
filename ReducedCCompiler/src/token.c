@@ -363,48 +363,48 @@ void tokenizer_accept(Tokenizer* tokenizer, int token_type)
     }
 }
 
-void token_display(Token token)
+void token_display(Token token, FILE* out_file)
 {
     switch (token.type)
     {
-        case TOK_INVALID_CHAR:      printf("INVALID CHARACTER : %c\n", token.value.invalid_char); break;
-        case TOK_INVALID_SEQ:       printf("INVALID SEQUENCE : %s\n", token.value.str_val);       break;
-        case TOK_NONE:              printf("NONE\n");                                             break;
-        case TOK_CONST:             printf("CONST : %d\n", token.value.int_val);                  break;
-        case TOK_IDENTIFIER:        printf("IDENTIFIER : %s\n", token.value.str_val);             break;
-        case TOK_PLUS:              printf("PLUS\n");                                             break;
-        case TOK_MINUS:             printf("MINUS\n");                                            break;
-        case TOK_STAR:              printf("STAR\n");                                             break;
-        case TOK_SLASH:				printf("SLASH\n");                                            break;
-        case TOK_PERCENT:			printf("PERCENT\n");                                          break;
-        case TOK_AMPERSAND:			printf("AMPERSAND\n");                                        break;
-        case TOK_EQUAL:				printf("EQUAL\n");                                            break;
-        case TOK_2_EQUAL:			printf("DOUBLE EQUAL\n");                                     break;
-        case TOK_NOT:				printf("NOT\n");                                              break;
-        case TOK_NOT_EQUAL:			printf("NOT EQUAL\n");                                        break;
-        case TOK_LESS:				printf("LESS\n");                                             break;
-        case TOK_GREATER:			printf("GREATER\n");                                          break;
-        case TOK_LESS_OR_EQUAL:		printf("LESS OR EQUAL\n");                                    break;
-        case TOK_GREATER_OR_EQUAL: 	printf("GREATER OR EQUAL\n");                                 break;
-        case TOK_2_AMPERSAND:		printf("DOUBLE AMPERSAND\n");                                 break;
-        case TOK_2_PIPE:			printf("DOUBLE PIPE\n");                                      break;
-        case TOK_COMMA:				printf("COMMA\n");                                            break;
-        case TOK_SEMICOLON:			printf("SEMICOLON\n");                                        break;
-        case TOK_OPEN_PARENTHESIS:	printf("OPEN PARENTHESIS\n");                                 break;
-        case TOK_CLOSE_PARENTHESIS: printf("CLOSE PARENTHESIS\n");                                break;
-        case TOK_OPEN_BRACKET:      printf("OPEN BRACKET\n");                                     break;
-        case TOK_CLOSE_BRACKET:		printf("CLOSE BRACKET\n");                                    break;
-        case TOK_OPEN_BRACE:		printf("OPEN BRACE\n");                                       break;
-        case TOK_CLOSE_BRACE:		printf("CLOSE BRACE\n");                                      break;
-        case TOK_INT:				printf("INT\n");                                              break;
-        case TOK_IF:				printf("IF\n");                                               break;
-        case TOK_ELSE:				printf("ELSE\n");                                             break;
-        case TOK_FOR:				printf("FOR\n");                                              break;
-        case TOK_WHILE:				printf("WHILE\n");                                            break;
-        case TOK_DO:				printf("DO\n");                                               break;
-        case TOK_BREAK:				printf("BREAK\n");                                            break;
-        case TOK_CONTINUE:			printf("CONTINUE\n");                                         break;
-        case TOK_RETURN:			printf("RETURN\n");                                           break;
-        case TOK_EOF:               printf("EOF\n");                                              break;
+        case TOK_INVALID_CHAR:      fprintf(out_file, "INVALID CHARACTER : %c\n", token.value.invalid_char); break;
+        case TOK_INVALID_SEQ:       fprintf(out_file, "INVALID SEQUENCE : %s\n", token.value.str_val);       break;
+        case TOK_NONE:              fprintf(out_file, "NONE\n");                                             break;
+        case TOK_CONST:             fprintf(out_file, "CONST : %d\n", token.value.int_val);                  break;
+        case TOK_IDENTIFIER:        fprintf(out_file, "IDENTIFIER : %s\n", token.value.str_val);             break;
+        case TOK_PLUS:              fprintf(out_file, "PLUS\n");                                             break;
+        case TOK_MINUS:             fprintf(out_file, "MINUS\n");                                            break;
+        case TOK_STAR:              fprintf(out_file, "STAR\n");                                             break;
+        case TOK_SLASH:				fprintf(out_file, "SLASH\n");                                            break;
+        case TOK_PERCENT:			fprintf(out_file, "PERCENT\n");                                          break;
+        case TOK_AMPERSAND:			fprintf(out_file, "AMPERSAND\n");                                        break;
+        case TOK_EQUAL:				fprintf(out_file, "EQUAL\n");                                            break;
+        case TOK_2_EQUAL:			fprintf(out_file, "DOUBLE EQUAL\n");                                     break;
+        case TOK_NOT:				fprintf(out_file, "NOT\n");                                              break;
+        case TOK_NOT_EQUAL:			fprintf(out_file, "NOT EQUAL\n");                                        break;
+        case TOK_LESS:				fprintf(out_file, "LESS\n");                                             break;
+        case TOK_GREATER:			fprintf(out_file, "GREATER\n");                                          break;
+        case TOK_LESS_OR_EQUAL:		fprintf(out_file, "LESS OR EQUAL\n");                                    break;
+        case TOK_GREATER_OR_EQUAL: 	fprintf(out_file, "GREATER OR EQUAL\n");                                 break;
+        case TOK_2_AMPERSAND:		fprintf(out_file, "DOUBLE AMPERSAND\n");                                 break;
+        case TOK_2_PIPE:			fprintf(out_file, "DOUBLE PIPE\n");                                      break;
+        case TOK_COMMA:				fprintf(out_file, "COMMA\n");                                            break;
+        case TOK_SEMICOLON:			fprintf(out_file, "SEMICOLON\n");                                        break;
+        case TOK_OPEN_PARENTHESIS:	fprintf(out_file, "OPEN PARENTHESIS\n");                                 break;
+        case TOK_CLOSE_PARENTHESIS: fprintf(out_file, "CLOSE PARENTHESIS\n");                                break;
+        case TOK_OPEN_BRACKET:      fprintf(out_file, "OPEN BRACKET\n");                                     break;
+        case TOK_CLOSE_BRACKET:		fprintf(out_file, "CLOSE BRACKET\n");                                    break;
+        case TOK_OPEN_BRACE:		fprintf(out_file, "OPEN BRACE\n");                                       break;
+        case TOK_CLOSE_BRACE:		fprintf(out_file, "CLOSE BRACE\n");                                      break;
+        case TOK_INT:				fprintf(out_file, "INT\n");                                              break;
+        case TOK_IF:				fprintf(out_file, "IF\n");                                               break;
+        case TOK_ELSE:				fprintf(out_file, "ELSE\n");                                             break;
+        case TOK_FOR:				fprintf(out_file, "FOR\n");                                              break;
+        case TOK_WHILE:				fprintf(out_file, "WHILE\n");                                            break;
+        case TOK_DO:				fprintf(out_file, "DO\n");                                               break;
+        case TOK_BREAK:				fprintf(out_file, "BREAK\n");                                            break;
+        case TOK_CONTINUE:			fprintf(out_file, "CONTINUE\n");                                         break;
+        case TOK_RETURN:			fprintf(out_file, "RETURN\n");                                           break;
+        case TOK_EOF:               fprintf(out_file, "EOF\n");                                              break;
     }
 }

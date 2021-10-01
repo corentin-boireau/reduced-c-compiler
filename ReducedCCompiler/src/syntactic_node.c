@@ -79,7 +79,7 @@ void syntactic_node_display(const SyntacticNode* node)
     }
 }
 
-void syntactic_node_display_tree(const SyntacticNode* root, int depth)
+void syntactic_node_display_tree(const SyntacticNode* root, int depth, FILE* out_file)
 {
     char* depth_indicator = malloc(sizeof(char) * (depth + (size_t) 1));
     if (depth_indicator == NULL)
@@ -94,8 +94,8 @@ void syntactic_node_display_tree(const SyntacticNode* root, int depth)
     syntactic_node_display(root);
     for (int i = 0; i < root->nb_children; i++)
     {
-        printf("%s|--", depth_indicator);
-        syntactic_node_display_tree(root->children[i], depth + 3);
+        fprintf(out_file, "%s|--", depth_indicator);
+        syntactic_node_display_tree(root->children[i], depth + 3, out_file);
     }
 
     free(depth_indicator);

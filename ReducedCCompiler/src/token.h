@@ -1,6 +1,8 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <stdio.h>
+
 typedef struct Token_s Token;
 struct Token_s
 {
@@ -33,7 +35,7 @@ void tokenizer_step(Tokenizer* tokenizer);
 int  tokenizer_check(Tokenizer* tokenizer, int token_type);
 void tokenizer_accept(Tokenizer* tokenizer, int token_type);
 
-void token_display(Token token);
+void token_display(Token token, FILE* out_file);
 
 enum
 {
