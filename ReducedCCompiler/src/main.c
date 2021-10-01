@@ -38,15 +38,15 @@
 char* load_file_content(const char * path); 
 
 void lexical_analysis_on_file(const char * path, int verbose, FILE* out_file);
-void test_display_syntactic_tree();
-void syntactical_analysis_on_file(const char * path, int verbose, unsigned char optimisations, FILE* out_file);
-void semantic_analysis_on_file(char* path, unsigned char optimisations);
+void syntactic_analysis_on_file(const char * path, int verbose, unsigned char optimisations, FILE* out_file);
+void semantic_analysis_on_file(const char* path, int verbose, unsigned char optimisations, FILE* out_file);
 void compile_file(const char * path, int verbose, unsigned char optimisations, FILE* out_file);
 
 /* global arg_xxx structs */
-struct arg_lit *verb,  *help,  *version;
-struct arg_file *output,  *input;
+struct arg_lit *verb, *help, *version;
+struct arg_file *output, *input;
 struct arg_str *stage;
+struct arg_lit *opti_const_operations;
 struct arg_end *end;
 
 int main(int argc, char* argv[])
@@ -54,13 +54,14 @@ int main(int argc, char* argv[])
     /* the global arg_xxx structs are initialised within the argtable */
     void* argtable[] =
     {
-        help    = arg_litn("h", "help", 0, 1, "display this help and exit"),
-        version = arg_litn(NULL, "version", 0, 1, "display version info and exit"),
-        verb    = arg_litn("v", "verbose", 0, 1, "verbose output"),
-        output  = arg_filen("o", "output", "file", 0, 1, "output file"),
-        input    = arg_filen(NULL, NULL, "<file>", 1, 1, "input file"),
-        stage   = arg_strn(NULL, "stage", "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
-        end     = arg_end(20),
+        help                  = arg_litn("h", "help", 0, 1, "display this help and exit"),
+        version               = arg_litn(NULL, "version", 0, 1, "display version info and exit"),
+        verb                  = arg_litn("v", "verbose", 0, 1, "verbose output"),
+        output                = arg_filen("o", "output", "file", 0, 1, "output file"),
+        input                 = arg_filen(NULL, NULL, "<file>", 1, 1, "input file"),
+        stage                 = arg_strn(NULL, "stage", "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
+        opti_const_operations = arg_litn(NULL, "opti-const-op", 0, 1, "enable optimisations on operations depending only on constants"),
+        end                   = arg_end(20),
     };
 
     int  exitcode = EXIT_SUCCESS;
@@ -117,7 +118,10 @@ int main(int argc, char* argv[])
             if (output_file != NULL)
             {
                 // TODO activate/deactivate opti from cli
-                unsigned char opti = OPTI_CONST_OPERATIONS;
+                unsigned char opti = 0;
+                if (opti_const_operations->count > 0)
+                    opti |= OPTI_CONST_OPERATIONS;
+
                 // Stage handling
                 if (stage->count == 0)
                 {
@@ -131,12 +135,15 @@ int main(int argc, char* argv[])
                     }
                     else if (strcmp(*(stage->sval), STAGE_SYNTACTIC) == 0)
                     {
+                        syntactic_analysis_on_file(*(input->filename), verb->count, opti, output_file);
                     }
                     else if (strcmp(*(stage->sval), STAGE_SEMANTIC) == 0)
                     {
+                        semantic_analysis_on_file(*(input->filename), verb->count, opti, output_file);
                     }
                     else
                     {
+                        fprintf(stderr, "\"%s\" : Unknown stage\nValid stages : \"%s\", \"%s\", \"%s\"", *(stage->sval), STAGE_LEXICAL, STAGE_SYNTACTIC, STAGE_SEMANTIC);
                     }
                 }
             }
@@ -203,12 +210,12 @@ void compile_file(const char * path, int verbose, unsigned char optimisations, F
     free(file_content);
 }
 
-void syntactical_analysis_on_file(const char * path, int verbose, unsigned char optimisations, FILE* out_file)
+void syntactic_analysis_on_file(const char * path, int verbose, unsigned char optimisations, FILE* out_file)
 {
     char* file_content = load_file_content(path);
 
     if (verbose)
-        printf("File content :\n\n%s\n\n", file_content);
+        fprintf(out_file, "File content :\n\n%s\n\n", file_content);
 
     SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content, optimisations);
 
@@ -219,17 +226,20 @@ void syntactical_analysis_on_file(const char * path, int verbose, unsigned char 
     else
     {   
         if (verbose)
-            printf("\n\nSyntactic tree : \n\n");
+            fprintf(out_file, "\n\nSyntactic tree : \n\n");
+
         syntactic_node_display_tree(analyzer.syntactic_tree, 0, out_file);
     }
 
     free(file_content);
 }
-void semantic_analysis_on_file(char* path, unsigned char optimisations)
+
+void semantic_analysis_on_file(const char* path, int verbose, unsigned char optimisations, FILE* out_file)
 {
     char* file_content = load_file_content(path);
 
-    printf("File content :\n\n%s\n\n", file_content);
+    if (verbose)
+        fprintf(out_file, "File content :\n\n%s\n\n", file_content);
 
     SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content, optimisations);
 
@@ -239,37 +249,23 @@ void semantic_analysis_on_file(char* path, unsigned char optimisations)
     }
     else
     {   
-        printf("\n\nSyntactic tree before : \n\n");
-        syntactic_node_display_tree(analyzer.syntactic_tree, 0, stdout);
+        if (verbose)
+        {
+            fprintf(out_file, "\n\nSyntactic tree before : \n\n");
+            syntactic_node_display_tree(analyzer.syntactic_tree, 0, out_file);
+        }
+        
 
         SymbolTable table = symbol_table_create();
         semantic_analysis(analyzer.syntactic_tree, &table);
 
-        printf("\n\nSyntactic tree after : \n\n");
-        syntactic_node_display_tree(analyzer.syntactic_tree, 0, stdout);
+        if (verbose)
+            fprintf(out_file, "\n\nSyntactic tree after : \n\n");
+        
+        syntactic_node_display_tree(analyzer.syntactic_tree, 0, out_file);
     }
 
     free(file_content);
-}
-
-void test_display_syntactic_tree()
-{
-    SyntacticNode* negation_node = syntactic_node_create(NODE_NEGATION, 1, 1);
-    SyntacticNode* address_node  = syntactic_node_create(NODE_ADDRESS, 1, 2);
-    SyntacticNode* constant_node = syntactic_node_create_with_value(NODE_CONST, 1, 3, 1024);
-
-    syntactic_node_add_child(negation_node, address_node);
-    syntactic_node_add_child(negation_node, constant_node);
-
-    syntactic_node_add_child(address_node, syntactic_node_create(NODE_INDIRECTION, 1, 1));
-    syntactic_node_add_child(address_node, syntactic_node_create(NODE_NEGATION, 1, 1));
-
-    syntactic_node_add_child(constant_node, syntactic_node_create(NODE_ADDRESS, 1, 1));
-    syntactic_node_add_child(constant_node, syntactic_node_create(NODE_INDIRECTION, 1, 1));
-    syntactic_node_add_child(constant_node, syntactic_node_create(NODE_NEGATION, 1, 1));
-    syntactic_node_add_child(constant_node, syntactic_node_create(NODE_UNARY_MINUS, 1, 1));
-
-    syntactic_node_display_tree(negation_node, 0, stdout);
 }
 
 void lexical_analysis_on_file(const char * path, int verbose, FILE* out_file)
