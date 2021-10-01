@@ -12,6 +12,10 @@
 #include "code_generation.h"
 #include "argtable3/argtable3.h"
 
+#define RCC_NAME      "rcc"
+#define RCC_LONG_NAME "Reduced C Compiler"
+#define RCC_VERSION   "0.1"
+
 #if defined(_WIN32) || defined(WIN32) 
     #include <io.h>
     #define F_OK 0
@@ -65,7 +69,6 @@ int main(int argc, char* argv[])
     };
 
     int  exitcode = EXIT_SUCCESS;
-    char progname[] = "rcc";
 
     int nb_errors;
     nb_errors = arg_parse(argc, argv, argtable);
@@ -73,16 +76,20 @@ int main(int argc, char* argv[])
     /* special case: '--help' takes precedence over error reporting */
     if (help->count > 0)
     {
-        printf("Reduced C Compiler.\n\n");
-        printf("Usage: %s", progname);
+        printf("%s.\n\n", RCC_LONG_NAME);
+        printf("Usage: %s", RCC_NAME);
         arg_print_syntax(stdout, argtable, "\n");
         arg_print_glossary(stdout, argtable, "  %-40s %s\n");
+    }
+    else if (version->count > 0)
+    {
+        printf("%s %s\n", RCC_LONG_NAME, RCC_VERSION);
     }
     else if (nb_errors > 0)
     {
         /* Display the error details contained in the arg_end struct.*/
-        arg_print_errors(stdout, end, progname);
-        printf("Try '%s --help' for more information.\n", progname);
+        arg_print_errors(stdout, end, RCC_NAME);
+        printf("Try '%s --help' for more information.\n", RCC_NAME);
         exitcode = EXIT_FAILURE;
     }
     else
