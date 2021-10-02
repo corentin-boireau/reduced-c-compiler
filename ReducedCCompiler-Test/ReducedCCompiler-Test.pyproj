@@ -26,9 +26,26 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ReducedCCompiler_Test.py" />
+    <Compile Include="test_binary_ops_pkg\test_binary_ops.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="test_unary_ops_pkg\test_unary_ops.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="test_unary_ops_pkg\" />
+    <Folder Include="test_binary_ops_pkg\" />
     <Folder Include="test_lexical_pkg\" />
+    <Folder Include="test_lexical_pkg\logs\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="test_binary_ops_pkg\binary_ops.c">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="test_unary_ops_pkg\unary_ops.c">
+      <SubType>Code</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

@@ -151,6 +151,7 @@ int main(int argc, char* argv[])
                     else
                     {
                         fprintf(stderr, "\"%s\" : Unknown stage\nValid stages : \"%s\", \"%s\", \"%s\"", *(stage->sval), STAGE_LEXICAL, STAGE_SYNTACTIC, STAGE_SEMANTIC);
+                        exitcode = EXIT_FAILURE;
                     }
                 }
             }

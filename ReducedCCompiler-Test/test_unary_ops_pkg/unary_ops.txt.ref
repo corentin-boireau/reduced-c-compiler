@@ -1,0 +1,45 @@
+BLOCK
+|--DROP
+   |--NEGATION
+      |--CONST : value = 0
+|--DROP
+   |--NEGATION
+      |--CONST : value = 0
+|--DROP
+   |--NEGATION
+      |--CONST : value = 1
+|--DROP
+   |--NEGATION
+      |--CONST : value = 2
+|--DROP
+   |--UNARY_MINUS
+      |--CONST : value = 0
+|--DROP
+   |--UNARY_MINUS
+      |--CONST : value = 2
+|--DROP
+   |--UNARY_MINUS
+      |--CONST : value = 2
+|--DROP
+   |--UNARY_MINUS
+      |--UNARY_MINUS
+         |--CONST : value = 1
+|--DROP
+   |--UNARY_MINUS
+      |--UNARY_MINUS
+         |--CONST : value = 1
+|--DROP
+   |--NEGATION
+      |--UNARY_MINUS
+         |--CONST : value = 1
+|--DROP
+   |--NEGATION
+      |--UNARY_MINUS
+         |--CONST : value = 1
+|--DROP
+   |--UNARY_MINUS
+      |--NEGATION
+         |--NEGATION
+            |--NEGATION
+               |--UNARY_MINUS
+                  |--CONST : value = 4

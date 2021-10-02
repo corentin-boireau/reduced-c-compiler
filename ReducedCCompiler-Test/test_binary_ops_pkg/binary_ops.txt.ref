@@ -1,0 +1,65 @@
+BLOCK
+|--DROP
+   |--ADD
+      |--CONST : value = 1
+      |--CONST : value = 1
+|--DROP
+   |--ADD
+      |--CONST : value = 1
+      |--CONST : value = 1
+|--DROP
+   |--SUB
+      |--CONST : value = 2
+      |--CONST : value = 2
+|--DROP
+   |--SUB
+      |--CONST : value = 2
+      |--CONST : value = 2
+|--DROP
+   |--MUL
+      |--CONST : value = 3
+      |--CONST : value = 3
+|--DROP
+   |--MUL
+      |--CONST : value = 3
+      |--CONST : value = 3
+|--DROP
+   |--DIV
+      |--CONST : value = 4
+      |--CONST : value = 4
+|--DROP
+   |--MOD
+      |--CONST : value = 5
+      |--CONST : value = 5
+|--DROP
+   |--GREATER
+      |--CONST : value = 6
+      |--CONST : value = 6
+|--DROP
+   |--LESS
+      |--CONST : value = 7
+      |--CONST : value = 7
+|--DROP
+   |--GREATER OR EQUAL
+      |--CONST : value = 8
+      |--CONST : value = 8
+|--DROP
+   |--LESS OR EQUAL
+      |--CONST : value = 9
+      |--CONST : value = 9
+|--DROP
+   |--NOT EQUAL
+      |--CONST : value = 1
+      |--CONST : value = 1
+|--DROP
+   |--EQUAL
+      |--CONST : value = 2
+      |--CONST : value = 2
+|--DROP
+   |--OR
+      |--CONST : value = 3
+      |--CONST : value = 3
+|--DROP
+   |--AND
+      |--CONST : value = 4
+      |--CONST : value = 4

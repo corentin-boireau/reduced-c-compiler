@@ -27,6 +27,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
+#pragma warning( disable : 26451 )
+#pragma warning( disable : 6387 )
+#pragma warning( disable : 4100 )
 
 #include "argtable3.h"
 
@@ -1583,18 +1586,18 @@ parse_long_options(char * const *nargv, const char *options,
 		/*
 		 * If this is a known short option, don't allow
 		 * a partial match of a single character.
-		 */
-		if (short_too && current_argv_len == 1)
-			continue;
+         */
+		//if (short_too && current_argv_len == 1)
+		//	continue;
 
-		if (match == -1)	/* first partial match */
-			match = i;
-		else if ((flags & FLAG_LONGONLY) ||
-			 long_options[i].has_arg !=
-			     long_options[match].has_arg ||
-			 long_options[i].flag != long_options[match].flag ||
-			 long_options[i].val != long_options[match].val)
-			second_partial_match = 1;
+		//if (match == -1)	// first partial match
+		//	match = i;
+		//else if ((flags & FLAG_LONGONLY) ||
+		//	 long_options[i].has_arg !=
+		//	     long_options[match].has_arg ||
+		//	 long_options[i].flag != long_options[match].flag ||
+		//	 long_options[i].val != long_options[match].val)
+		//	second_partial_match = 1;
 	}
 	if (!exact_match && second_partial_match) {
 		/* ambiguous abbreviation */

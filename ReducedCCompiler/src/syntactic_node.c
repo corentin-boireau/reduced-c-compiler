@@ -46,36 +46,36 @@ void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child)
     parent->children[parent->nb_children++] = child;
 }
 
-void syntactic_node_display(const SyntacticNode* node)
+void syntactic_node_display(const SyntacticNode* node, FILE *out_file)
 {
     switch (node->type)
     {
-        case NODE_INVALID:          printf("INVALID\n");                                                         break;
-        case NODE_CONST:            printf("CONST : value = %d\n", node->value.int_val);                         break;
-        case NODE_UNARY_MINUS:      printf("UNARY_MINUS\n");                                                     break;
-        case NODE_NEGATION:         printf("NEGATION\n");                                                        break;
-        case NODE_INDIRECTION:      printf("INDIRECTION\n");                                                     break;
-        case NODE_ADDRESS:          printf("ADDRESS\n");                                                         break;
-        case NODE_ADD:              printf("ADD\n");                                                             break;
-        case NODE_SUB:              printf("SUB\n");                                                             break;
-        case NODE_MUL:              printf("MUL\n");                                                             break;
-        case NODE_DIV:              printf("DIV\n");                                                             break;
-        case NODE_MOD:              printf("MOD\n");                                                             break;
-        case NODE_BLOCK:            printf("BLOCK\n");                                                           break;
-        case NODE_SEQUENCE:         printf("SEQUENCE\n");                                                        break;
-        case NODE_PRINT:            printf("PRINT\n");                                                           break;
-        case NODE_EQUAL:            printf("EQUAL\n");                                                           break;
-        case NODE_NOT_EQUAL:        printf("NOT EQUAL\n");                                                       break;
-        case NODE_GREATER:          printf("GREATER\n");                                                         break;
-        case NODE_GREATER_OR_EQUAL: printf("GREATER OR EQUAL\n");                                                break;
-        case NODE_LESS:             printf("LESS\n");                                                            break;
-        case NODE_LESS_OR_EQUAL:    printf("LESS OR EQUAL\n");                                                   break;
-        case NODE_AND:              printf("AND\n");                                                             break;
-        case NODE_OR:               printf("OR\n");                                                              break;
-        case NODE_ASSIGNMENT:       printf("ASSIGNEMENT\n");                                                     break;
-        case NODE_DROP:             printf("DROP\n");                                                            break;
-        case NODE_DECL:             printf("DECL : name = %s, index = %d\n", node->value.str_val, node->index);  break;
-        case NODE_REF:              printf("REF : name = %s, index = %d\n", node->value.str_val, node->index);   break;
+        case NODE_INVALID:          fprintf(out_file, "INVALID\n");                                                         break;
+        case NODE_CONST:            fprintf(out_file, "CONST : value = %d\n", node->value.int_val);                         break;
+        case NODE_UNARY_MINUS:      fprintf(out_file, "UNARY_MINUS\n");                                                     break;
+        case NODE_NEGATION:         fprintf(out_file, "NEGATION\n");                                                        break;
+        case NODE_INDIRECTION:      fprintf(out_file, "INDIRECTION\n");                                                     break;
+        case NODE_ADDRESS:          fprintf(out_file, "ADDRESS\n");                                                         break;
+        case NODE_ADD:              fprintf(out_file, "ADD\n");                                                             break;
+        case NODE_SUB:              fprintf(out_file, "SUB\n");                                                             break;
+        case NODE_MUL:              fprintf(out_file, "MUL\n");                                                             break;
+        case NODE_DIV:              fprintf(out_file, "DIV\n");                                                             break;
+        case NODE_MOD:              fprintf(out_file, "MOD\n");                                                             break;
+        case NODE_BLOCK:            fprintf(out_file, "BLOCK\n");                                                           break;
+        case NODE_SEQUENCE:         fprintf(out_file, "SEQUENCE\n");                                                        break;
+        case NODE_PRINT:            fprintf(out_file, "PRINT\n");                                                           break;
+        case NODE_EQUAL:            fprintf(out_file, "EQUAL\n");                                                           break;
+        case NODE_NOT_EQUAL:        fprintf(out_file, "NOT EQUAL\n");                                                       break;
+        case NODE_GREATER:          fprintf(out_file, "GREATER\n");                                                         break;
+        case NODE_GREATER_OR_EQUAL: fprintf(out_file, "GREATER OR EQUAL\n");                                                break;
+        case NODE_LESS:             fprintf(out_file, "LESS\n");                                                            break;
+        case NODE_LESS_OR_EQUAL:    fprintf(out_file, "LESS OR EQUAL\n");                                                   break;
+        case NODE_AND:              fprintf(out_file, "AND\n");                                                             break;
+        case NODE_OR:               fprintf(out_file, "OR\n");                                                              break;
+        case NODE_ASSIGNMENT:       fprintf(out_file, "ASSIGNEMENT\n");                                                     break;
+        case NODE_DROP:             fprintf(out_file, "DROP\n");                                                            break;
+        case NODE_DECL:             fprintf(out_file, "DECL : name = %s, index = %d\n", node->value.str_val, node->index);  break;
+        case NODE_REF:              fprintf(out_file, "REF : name = %s, index = %d\n", node->value.str_val, node->index);   break;
     }
 }
 
@@ -91,7 +91,7 @@ void syntactic_node_display_tree(const SyntacticNode* root, int depth, FILE* out
     memset(depth_indicator, ' ', depth);
     depth_indicator[depth] = '\0';
 
-    syntactic_node_display(root);
+    syntactic_node_display(root, out_file);
     for (int i = 0; i < root->nb_children; i++)
     {
         fprintf(out_file, "%s|--", depth_indicator);
