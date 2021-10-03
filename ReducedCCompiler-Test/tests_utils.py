@@ -27,7 +27,7 @@ def test_compare_files(file_to_compare, reference_file, test_nb, skip_test=False
     return success
 
 
-def test_run_process(description, args, test_nb, out_filename, err_filename, skip_test=False):
+def test_run_process(description, args, test_nb, out_filename, err_filename, in_filename=None, skip_test=False):
     success = True
 
     test_nb_str = str(test_nb) if test_nb < 10 else " " + str(test_nb)
@@ -37,11 +37,17 @@ def test_run_process(description, args, test_nb, out_filename, err_filename, ski
     else:
         print("[" + test_nb_str + "] : " + description + " ...", end="")
         
-        with open(out_filename, "w") as out_file, open(err_filename, "w") as err_file:
-            process = subprocess.Popen(args, env=os.environ, stdout=out_file, stderr=err_file)
-            process.wait()
+        ret_code = 0
+        if in_filename is None:
+            with open(out_filename, "w") as out_file, open(err_filename, "w") as err_file:
+                process = subprocess.Popen(args, env=os.environ, stdout=out_file, stderr=err_file)
+                ret_code = process.wait()
+        else:
+            with open(in_filename, "r") as to_exec_file, open(out_filename, "w") as result_file, open(err_filename, "w") as err_file:
+                process = subprocess.Popen(args, env=os.environ, stdin=to_exec_file, stdout=result_file, stderr=err_file)
+                ret_code = process.wait()
         
-        if process.returncode == 0:
+        if ret_code == 0:
             print("\r[" + test_nb_str + "] : OK : " + description, end="\n")
         else:
             print("\r[" + test_nb_str + "] : KO : " + description, end="\n")
