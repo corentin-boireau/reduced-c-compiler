@@ -1,6 +1,11 @@
-import tests_utils as tu
-import os
 import subprocess
+import os
+import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+import tests_utils as tu
 
 def test_binary_ops():
     LOG_DIR = "logs"

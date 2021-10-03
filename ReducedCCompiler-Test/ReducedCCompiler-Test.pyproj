@@ -33,8 +33,12 @@
     <Compile Include="test_unary_ops_pkg\test_unary_ops.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="test_variables_pkg\test_variables.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="test_variables_pkg\" />
     <Folder Include="test_unary_ops_pkg\" />
     <Folder Include="test_binary_ops_pkg\" />
     <Folder Include="test_lexical_pkg\" />

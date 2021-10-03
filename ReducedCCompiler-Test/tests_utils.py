@@ -11,7 +11,7 @@ def are_files_equal(file_to_compare, reference_file):
 def test_compare_files(file_to_compare, reference_file, test_nb, skip_test=False):
     success = True
 
-    test_nb_str = str(test_nb) if test_nb < 10 else " " + str(test_nb)
+    test_nb_str = " " + str(test_nb) if test_nb < 10 else str(test_nb)
 
     if skip_test:
         print("[" + test_nb_str + "] : SK : Comparing \"" + file_to_compare + "\" to \"" + reference_file + "\"", end="\n")
@@ -30,7 +30,7 @@ def test_compare_files(file_to_compare, reference_file, test_nb, skip_test=False
 def test_run_process(description, args, test_nb, out_filename, err_filename, in_filename=None, skip_test=False):
     success = True
 
-    test_nb_str = str(test_nb) if test_nb < 10 else " " + str(test_nb)
+    test_nb_str = " " + str(test_nb) if test_nb < 10 else str(test_nb)
 
     if skip_test:
         print("[" + test_nb_str + "] : SK : " + description, end="\n")

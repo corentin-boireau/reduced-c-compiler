@@ -1,5 +1,10 @@
-import tests_utils as tu
 import os
+import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+import tests_utils as tu
 
 def test_lexical():
     LOG_DIR = "logs"
@@ -7,6 +12,7 @@ def test_lexical():
     FILE_PREFIXES = ["valid",
                     "mix",
                     "junk"]
+
     TEST_EXT      = ".c"
     LEXICAL_EXT   = "_lex"
     OUT_EXT       = ".txt"
