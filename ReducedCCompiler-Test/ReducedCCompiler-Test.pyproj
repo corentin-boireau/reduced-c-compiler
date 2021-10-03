@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>ReducedCCompiler-Test</Name>
     <RootNamespace>ReducedCCompiler-Test</RootNamespace>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

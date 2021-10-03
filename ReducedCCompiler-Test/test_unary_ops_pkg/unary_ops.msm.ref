@@ -1,0 +1,58 @@
+.start
+resn 0
+push 0
+not
+dbg
+push 0
+not
+dbg
+push 1
+not
+dbg
+push 2
+not
+dbg
+push 0
+push 0
+sub
+dbg
+push 0
+push 2
+sub
+dbg
+push 0
+push 2
+sub
+dbg
+push 0
+push 0
+push 1
+sub
+sub
+dbg
+push 0
+push 0
+push 1
+sub
+sub
+dbg
+push 0
+push 1
+sub
+not
+dbg
+push 0
+push 1
+sub
+not
+dbg
+push 0
+push 0
+push 4
+sub
+not
+not
+not
+sub
+dbg
+halt

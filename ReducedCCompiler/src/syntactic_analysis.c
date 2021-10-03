@@ -28,29 +28,117 @@ struct OperatorInfo_s
 };
 #define NB_OPERATORS 14
 #define MIN_PRIORITY 0
-static  OperatorInfo OP_INFOS[NB_OPERATORS] = 
+OperatorInfo get_operator_info(int token_type)
 {
-	{1, RIGHT_TO_LEFT, NODE_ASSIGNMENT},
+	OperatorInfo op_info = { -1, -1, -1 };
+	switch (token_type)
+	{
+		case TOK_EQUAL:
+		{
+			op_info.priority      = 1;
+			op_info.associativity = RIGHT_TO_LEFT;
+			op_info.node_type     = NODE_ASSIGNMENT;
+			break;
+		}
+		case TOK_2_PIPE:
+		{
+			op_info.priority      = 2;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_OR;
+			break;
+		}
+		case TOK_2_AMPERSAND:
+		{
+			op_info.priority      = 3;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_AND;
+			break;
+		}
+		case TOK_2_EQUAL:
+		{
+			op_info.priority      = 4;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_EQUAL;
+			break;
+		}
+		case TOK_NOT_EQUAL:
+		{
+			op_info.priority      = 4;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_NOT_EQUAL;
+			break;
+		}
+		case TOK_GREATER:
+		{
+			op_info.priority      = 5;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_GREATER;
+			break;
+		}
+		case TOK_GREATER_OR_EQUAL:
+		{
+			op_info.priority      = 5;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_GREATER_OR_EQUAL;
+			break;
+		}
+		case TOK_LESS:
+		{
+			op_info.priority      = 5;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_LESS;
+			break;
+		}
+		case TOK_LESS_OR_EQUAL:
+		{
+			op_info.priority      = 5;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_LESS_OR_EQUAL;
+			break;
+		}
+		case TOK_PLUS:
+		{
+			op_info.priority      = 6;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_ADD;
+			break;
+		}
+		case TOK_MINUS:
+		{
+			op_info.priority      = 6;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_SUB;
+			break;
+		}
+		case TOK_STAR:
+		{
+			op_info.priority      = 7;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_MUL;
+			break;
+		}
+		case TOK_SLASH:
+		{
+			op_info.priority      = 7;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_DIV;
+			break;
+		}
+		case TOK_PERCENT:
+		{
+			op_info.priority      = 7;
+			op_info.associativity = LEFT_TO_RIGHT;
+			op_info.node_type     = NODE_MOD;
+			break;
+		}
+	}
 
-	{2, LEFT_TO_RIGHT, NODE_OR},
+	assert(op_info.priority != -1);
+	assert(op_info.associativity != -1);
+	assert(op_info.node_type != -1);
+	return op_info;
+}
 
-	{3, LEFT_TO_RIGHT, NODE_AND},
-
-	{4, LEFT_TO_RIGHT, NODE_EQUAL},
-	{4, LEFT_TO_RIGHT, NODE_NOT_EQUAL},
-
-	{5, LEFT_TO_RIGHT, NODE_GREATER},
-	{5, LEFT_TO_RIGHT, NODE_GREATER_OR_EQUAL},
-	{5, LEFT_TO_RIGHT, NODE_LESS},
-	{5, LEFT_TO_RIGHT, NODE_LESS_OR_EQUAL},
-
-	{6, LEFT_TO_RIGHT, NODE_ADD },
-	{6, LEFT_TO_RIGHT, NODE_SUB },
-
-	{7, LEFT_TO_RIGHT, NODE_MUL},
-	{7, LEFT_TO_RIGHT, NODE_DIV},
-	{7, LEFT_TO_RIGHT, NODE_MOD},
-};
 static inline int is_binary_op(int token_type)
 {
 	return token_type < NB_OPERATORS && token_type >= 0;
@@ -191,7 +279,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 	{
 		if (is_binary_op(analyzer->tokenizer.next.type))
 		{
-			OperatorInfo node_info = OP_INFOS[analyzer->tokenizer.next.type];
+			OperatorInfo node_info = get_operator_info(analyzer->tokenizer.next.type);
 			if (node_info.priority < priority)
 			{
 				end_expr = 1;

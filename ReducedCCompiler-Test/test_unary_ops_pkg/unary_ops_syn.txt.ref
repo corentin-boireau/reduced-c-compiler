@@ -1,42 +1,42 @@
 BLOCK
-|--DROP
+|--PRINT
    |--NEGATION
       |--CONST : value = 0
-|--DROP
+|--PRINT
    |--NEGATION
       |--CONST : value = 0
-|--DROP
+|--PRINT
    |--NEGATION
       |--CONST : value = 1
-|--DROP
+|--PRINT
    |--NEGATION
       |--CONST : value = 2
-|--DROP
+|--PRINT
    |--UNARY_MINUS
       |--CONST : value = 0
-|--DROP
+|--PRINT
    |--UNARY_MINUS
       |--CONST : value = 2
-|--DROP
+|--PRINT
    |--UNARY_MINUS
       |--CONST : value = 2
-|--DROP
+|--PRINT
    |--UNARY_MINUS
       |--UNARY_MINUS
          |--CONST : value = 1
-|--DROP
+|--PRINT
    |--UNARY_MINUS
       |--UNARY_MINUS
          |--CONST : value = 1
-|--DROP
+|--PRINT
    |--NEGATION
       |--UNARY_MINUS
          |--CONST : value = 1
-|--DROP
+|--PRINT
    |--NEGATION
       |--UNARY_MINUS
          |--CONST : value = 1
-|--DROP
+|--PRINT
    |--UNARY_MINUS
       |--NEGATION
          |--NEGATION
