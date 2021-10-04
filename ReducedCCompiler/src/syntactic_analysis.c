@@ -246,6 +246,36 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
             syntactic_node_add_child(node, decl);
 		}
 	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_IF))
+	{ // I ---> 'if' '(' E ')' I ?('else' I)
+		node = syntactic_node_create(NODE_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *expr = sr_expression(analyzer);
+		syntactic_node_add_child(node, expr);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+		SyntacticNode* instruction1 = sr_instruction(analyzer);
+		syntactic_node_add_child(node, instruction1);
+		if (tokenizer_check(&(analyzer->tokenizer), TOK_ELSE))
+		{
+            SyntacticNode* instruction2 = sr_instruction(analyzer);
+            syntactic_node_add_child(node, instruction2);
+		}
+	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_WHILE))
+	{ // I ---> 'while' '(' E ')' I
+		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode *cond = syntactic_node_create(NODE_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *expr = sr_expression(analyzer);
+		syntactic_node_add_child(cond, expr);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+		SyntacticNode* instruction = sr_instruction(analyzer);
+		syntactic_node_add_child(cond, instruction);
+		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		syntactic_node_add_child(cond, node_break);
+
+		syntactic_node_add_child(node, cond);
+	}
 	else
 	{ // I ---> E ';'
 		node = syntactic_node_create(NODE_DROP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);

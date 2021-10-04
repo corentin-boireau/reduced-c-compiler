@@ -6,6 +6,6 @@
 #include "syntactic_node.h"
 
 void generate_program(const SyntacticNode* node, int nb_var, FILE * stream);
-void generate_code(const SyntacticNode* node, FILE * stream);
+void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb);
 
 #endif // CODE_GENERATION_H

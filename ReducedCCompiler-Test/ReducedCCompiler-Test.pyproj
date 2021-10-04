@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="test_conditions_pkg\test_conditions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="test_lexical_pkg\test_lexical.py" />
     <Compile Include="tests_utils.py">
       <SubType>Code</SubType>
@@ -38,6 +41,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="test_conditions_pkg\" />
     <Folder Include="test_variables_pkg\" />
     <Folder Include="test_unary_ops_pkg\" />
     <Folder Include="test_binary_ops_pkg\" />

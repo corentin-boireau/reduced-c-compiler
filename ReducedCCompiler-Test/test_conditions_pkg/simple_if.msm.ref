@@ -1,0 +1,23 @@
+.start
+		resn 1
+		push 1
+		dup
+		set 0
+		drop
+		push 0
+		jumpf endif_0
+		push 7
+		dup
+		set 0
+		drop
+.endif_0
+		push 1
+		jumpf endif_1
+		push 5
+		dup
+		set 0
+		drop
+.endif_1
+		get 0
+		dbg
+		halt

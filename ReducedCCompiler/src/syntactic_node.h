@@ -35,7 +35,7 @@ enum
 {
     NODE_INVALID = -1,     // Created when an unexpected token is found
     NODE_CONST,            // Constant value
-                           
+
     // Prefix operators    
     NODE_UNARY_MINUS,      // '-' to denote the corresponding negative value
     NODE_NEGATION,         // '!' to denote the corresponding negation
@@ -64,5 +64,9 @@ enum
     NODE_SEQUENCE,         // Code block without a new scope
     NODE_PRINT,            // Print the top of the stack
     NODE_DROP,             // Pop the stack
+    NODE_CONDITION,
+    NODE_LOOP,
+    NODE_BREAK,
+    NODE_CONTINUE,
 };
 #endif // SYNTACTIC_NODE_H

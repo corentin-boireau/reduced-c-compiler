@@ -3,7 +3,7 @@ import subprocess
 
 def are_files_equal(file_to_compare, reference_file):
     are_equal = False
-    with open(file_to_compare, "r") as to_cmp_file, open(reference_file, "r") as ref_file:
+    with open(file_to_compare, "r", errors="backslashreplace") as to_cmp_file, open(reference_file, "r", errors="backslashreplace") as ref_file:
         are_equal = to_cmp_file.read() == ref_file.read()
 
     return are_equal

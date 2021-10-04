@@ -76,6 +76,9 @@ void syntactic_node_display(const SyntacticNode* node, FILE *out_file)
         case NODE_DROP:             fprintf(out_file, "DROP\n");                                                            break;
         case NODE_DECL:             fprintf(out_file, "DECL : name = %s, index = %d\n", node->value.str_val, node->index);  break;
         case NODE_REF:              fprintf(out_file, "REF : name = %s, index = %d\n", node->value.str_val, node->index);   break;
+        case NODE_CONDITION:        fprintf(out_file, "CONDITION\n");                                                       break;
+        case NODE_LOOP:             fprintf(out_file, "LOOP\n");                                                            break;
+        case NODE_BREAK:            fprintf(out_file, "BREAK\n");                                                           break;
     }
 }
 

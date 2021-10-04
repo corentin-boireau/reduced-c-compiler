@@ -299,7 +299,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                     else if (strcmp(text, "if") == 0)        tokenizer->next.type = TOK_IF;
                     else if (strcmp(text, "else") == 0)      tokenizer->next.type = TOK_ELSE;
                     else if (strcmp(text, "for") == 0)       tokenizer->next.type = TOK_FOR;
-                    else if (strcmp(text, "while") == 0)     tokenizer->next.type = TOK_FOR;
+                    else if (strcmp(text, "while") == 0)     tokenizer->next.type = TOK_WHILE;
                     else if (strcmp(text, "do") == 0)        tokenizer->next.type = TOK_DO;
                     else if (strcmp(text, "break") == 0)     tokenizer->next.type = TOK_BREAK;
                     else if (strcmp(text, "continue") == 0)  tokenizer->next.type = TOK_CONTINUE;
