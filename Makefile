@@ -23,6 +23,7 @@ all: $(RCC) $(MSM)
 clean:
 	rm -f $(RCC_EXE_DIR)/$(RCC)
 	rm -f $(MSM_EXE_DIR)/$(MSM)
+	find . -name *.txt -exec rm {} \;
 
 test: $(RCC) $(MSM)
 	cd $(TEST_DIR); \

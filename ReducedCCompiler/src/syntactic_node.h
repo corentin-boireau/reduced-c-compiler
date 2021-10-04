@@ -33,38 +33,39 @@ void syntactic_node_free_tree(SyntacticNode* tree);
 
 enum
 {
-    NODE_INVALID = -1,     // Created when an unexpected token is found
-    NODE_CONST,            // Constant value
-
-    // Prefix operators    
-    NODE_UNARY_MINUS,      // '-' to denote the corresponding negative value
-    NODE_NEGATION,         // '!' to denote the corresponding negation
-    NODE_INDIRECTION,      // '*' to access the pointed memory
-    NODE_ADDRESS,          // '&' to denote the address where the variable is stored
-
-    // Binary operators
-    NODE_ASSIGNMENT,       // '=' Assignment of a value to a variable
-    NODE_OR,               // 
-    NODE_AND,              //
-    NODE_EQUAL,            //
-    NODE_NOT_EQUAL,        //
-    NODE_GREATER,          //
-    NODE_GREATER_OR_EQUAL, //
-    NODE_LESS,             //
-    NODE_LESS_OR_EQUAL,    //
-    NODE_MUL,              //
-    NODE_DIV,              //
-    NODE_MOD,              //
-    NODE_ADD,              //
-    NODE_SUB,              //
-
-    NODE_DECL,             // Variable declaration
-    NODE_REF,              // Reference to a variable
-    NODE_BLOCK,            // Code block between '{' and '}'
-    NODE_SEQUENCE,         // Code block without a new scope
-    NODE_PRINT,            // Print the top of the stack
-    NODE_DROP,             // Pop the stack
+    NODE_INVALID = -1,      // Created when an unexpected token is found
+    NODE_CONST,             // Constant value
+                            
+    // Prefix operators     
+    NODE_UNARY_MINUS,       // '-' to denote the corresponding negative value
+    NODE_NEGATION,          // '!' to denote the corresponding negation
+    NODE_INDIRECTION,       // '*' to access the pointed memory
+    NODE_ADDRESS,           // '&' to denote the address where the variable is stored
+                            
+    // Binary operators     
+    NODE_ASSIGNMENT,        // '=' Assignment of a value to a variable
+    NODE_OR,                // 
+    NODE_AND,               //
+    NODE_EQUAL,             //
+    NODE_NOT_EQUAL,         //
+    NODE_GREATER,           //
+    NODE_GREATER_OR_EQUAL,  //
+    NODE_LESS,              //
+    NODE_LESS_OR_EQUAL,     //
+    NODE_MUL,               //
+    NODE_DIV,               //
+    NODE_MOD,               //
+    NODE_ADD,               //
+    NODE_SUB,               //
+                            
+    NODE_DECL,              // Variable declaration
+    NODE_REF,               // Reference to a variable
+    NODE_BLOCK,             // Code block between '{' and '}'
+    NODE_SEQUENCE,          // Code block without a new scope
+    NODE_PRINT,             // Print the top of the stack
+    NODE_DROP,              // Pop the stack
     NODE_CONDITION,
+    NODE_INVERTED_CONDITION,
     NODE_LOOP,
     NODE_BREAK,
     NODE_CONTINUE,

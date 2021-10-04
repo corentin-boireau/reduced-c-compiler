@@ -263,18 +263,74 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_WHILE))
 	{ // I ---> 'while' '(' E ')' I
-		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *cond = syntactic_node_create(NODE_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
 		SyntacticNode *expr = sr_expression(analyzer);
-		syntactic_node_add_child(cond, expr);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 		SyntacticNode* instruction = sr_instruction(analyzer);
-		syntactic_node_add_child(cond, instruction);
 		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+
+		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		syntactic_node_add_child(cond, expr);
+		syntactic_node_add_child(cond, instruction);
 		syntactic_node_add_child(cond, node_break);
 
 		syntactic_node_add_child(node, cond);
+	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_DO))
+	{ // I ---> 'do' I 'while' '(' E ')' ';'
+		SyntacticNode* instruction = sr_instruction(analyzer);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_WHILE);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *expr = sr_expression(analyzer);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+
+		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+
+		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		syntactic_node_add_child(inv_cond, expr);
+		syntactic_node_add_child(inv_cond, node_break);
+
+		syntactic_node_add_child(node, instruction);
+		syntactic_node_add_child(node, inv_cond);
+	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_FOR))
+	{ // I ---> 'for' '(' E1 ';' E2 ';' E3 ')' I
+		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *expr1 = sr_expression(analyzer);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+		SyntacticNode *expr2 = sr_expression(analyzer);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+		SyntacticNode *expr3 = sr_expression(analyzer);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+		SyntacticNode* instruction = sr_instruction(analyzer);
+
+		node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode *loop = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+
+		syntactic_node_add_child(inv_cond, expr2);
+		syntactic_node_add_child(inv_cond, node_break);
+
+		syntactic_node_add_child(loop, inv_cond);
+		syntactic_node_add_child(loop, instruction);
+		syntactic_node_add_child(loop, expr3);
+		
+		syntactic_node_add_child(node, expr1);
+		syntactic_node_add_child(node, loop);
+	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_CONTINUE))
+	{ // I ---> 'continue'
+		node = syntactic_node_create(NODE_CONTINUE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_BREAK))
+	{ // I ---> 'break'
+		node = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 	}
 	else
 	{ // I ---> E ';'

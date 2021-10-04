@@ -1,0 +1,32 @@
+BLOCK
+|--SEQUENCE
+   |--DECL : name = x, index = -1
+|--DROP
+   |--ASSIGNEMENT
+      |--REF : name = x, index = -1
+      |--CONST : value = 3
+|--LOOP
+   |--BLOCK
+      |--PRINT
+         |--REF : name = x, index = -1
+      |--DROP
+         |--ASSIGNEMENT
+            |--REF : name = x, index = -1
+            |--SUB
+               |--REF : name = x, index = -1
+               |--CONST : value = 1
+   |--INVERTED CONDITION
+      |--GREATER OR EQUAL
+         |--REF : name = x, index = -1
+         |--CONST : value = 0
+      |--BREAK
+|--DROP
+   |--ASSIGNEMENT
+      |--REF : name = x, index = -1
+      |--CONST : value = 5
+|--LOOP
+   |--PRINT
+      |--REF : name = x, index = -1
+   |--INVERTED CONDITION
+      |--CONST : value = 0
+      |--BREAK

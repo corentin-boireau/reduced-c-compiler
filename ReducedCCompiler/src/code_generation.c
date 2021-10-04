@@ -185,6 +185,23 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
             fprintf(stream, ".endif_%d\n", label_number);
 			break;
 		}
+		case NODE_INVERTED_CONDITION:
+		{
+			int has_else = (node->nb_children == 3);
+			int label_number = label_counter++;
+			generate_code(node->children[0], stream, loop_nb);
+			fprintf(stream, has_else ? "\t\tjumpt else_%d\n"
+                                     : "\t\tjumpt endif_%d\n", label_number);
+			generate_code(node->children[1], stream, loop_nb);
+			if (has_else)
+			{
+				fprintf(stream, "\t\tjump endif_%d\n", label_number);
+				fprintf(stream, ".else_%d\n", label_number);
+				generate_code(node->children[2], stream, loop_nb);
+			}
+			fprintf(stream, ".endif_%d\n", label_number);
+			break;
+		}
 		case NODE_LOOP:
 		{
 			int current_loop_number = label_counter++;

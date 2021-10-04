@@ -172,6 +172,10 @@ def test_variables():
         skip_next = False
         test_nb += 1
 
+    return nb_errors
+
 if __name__ == "__main__":
     print("Test variables assignments and references")
-    test_variables()
+    nb_errors = test_variables()
+    if nb_errors > 0:
+        print("XXX " + str(nb_errors) + (" error" if nb_errors == 1 else "errors") + " XXX")

@@ -147,6 +147,10 @@ def test_unary_ops():
         skip_next = False
         test_nb += 1
 
+    return nb_errors
+
 if __name__ == "__main__":
     print("Test unary operations")
-    test_unary_ops()
+    nb_errors = test_unary_ops()
+    if nb_errors > 0:
+        print("XXX " + str(nb_errors) + (" error" if nb_errors == 1 else "errors") + " XXX")
