@@ -157,4 +157,4 @@ if __name__ == "__main__":
     print("Test binary operations")
     nb_errors = test_binary_ops()
     if nb_errors > 0:
-        print("XXX " + str(nb_errors) + (" error" if nb_errors == 1 else "errors") + " XXX")
+        print("XXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX")

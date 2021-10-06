@@ -47,7 +47,7 @@ def run_all_tests():
     os.chdir("..")
 
     if nb_errors > 0:
-        print("\nXXX " + str(nb_errors) + (" error" if nb_errors == 1 else "errors") + " XXX")
+        print("\nXXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX")
 
 
 if __name__ == "__main__":

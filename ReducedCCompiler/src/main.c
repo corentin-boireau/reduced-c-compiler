@@ -210,7 +210,7 @@ void compile_file(const char * path, int verbose, unsigned char optimisations, F
                 {
                     printf("\nGenerated code :\n\n");
                 }
-                generate_program(analyzer.syntactic_tree, table.nb_variables, out_file);
+                generate_program(analyzer.syntactic_tree, out_file);
             }
         }
     }

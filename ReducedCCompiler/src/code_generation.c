@@ -6,13 +6,14 @@
 
 #define NO_LOOP -1
 
-void generate_program(const SyntacticNode* program, int nb_var, FILE * stream)
+void generate_program(const SyntacticNode* program, FILE * stream)
 {
 	assert(program != NULL);
 
-	fprintf(stream, ".start\n");
-	fprintf(stream, "\t\tresn %d\n", nb_var);
 	generate_code(program, stream, NO_LOOP);
+	fprintf(stream, ".start\n");
+	fprintf(stream, "\t\tprep main\n");
+	fprintf(stream, "\t\tcall 0\n");
 	fprintf(stream, "\t\thalt\n");
 }
 
@@ -134,6 +135,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
 			fprintf(stream, "\t\tdbg\n");
 			break;
 		}
+		case NODE_PROGRAM:
 		case NODE_SEQUENCE:
 		case NODE_BLOCK:
 		{
@@ -153,7 +155,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
 			break; 
 		case NODE_REF:
 		{
-			fprintf(stream, "\t\tget %d\n", node->index);
+			fprintf(stream, "\t\tget %d\n", node->stack_offset);
 			break;
 		}
 		case NODE_ASSIGNMENT :
@@ -165,7 +167,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
 			}
 			generate_code(node->children[1], stream, loop_nb);
 			fprintf(stream, "\t\tdup\n");
-			fprintf(stream, "\t\tset %d\n", node->children[0]->index);
+			fprintf(stream, "\t\tset %d\n", node->children[0]->stack_offset);
 			break;
 		}
 		case NODE_CONDITION:
@@ -212,6 +214,45 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
 			}
             fprintf(stream, "\t\tjump loop_%d\n", current_loop_number);
             fprintf(stream, ".endloop_%d\n", current_loop_number);
+			break;
+		}
+		case NODE_FUNCTION:
+		{
+			fprintf(stream, ".%s\n", node->value.str_val);
+            fprintf(stream, "\t\tresn %d\n", node->nb_var);
+			for (int i = 0; i < node->nb_children; i++)
+			{
+				generate_code(node->children[i], stream, loop_nb);
+			}
+            fprintf(stream, "\t\tpush 0\n");
+            fprintf(stream, "\t\tret\n");
+			break;
+		}
+		case NODE_CALL:
+		{
+			assert(node->nb_children == 1 && node->children[0]->type == NODE_SEQUENCE);
+
+            fprintf(stream, "\t\tprep %s\n", node->value.str_val);
+			for (int i = 0; i < node->nb_children; i++)
+			{
+				generate_code(node->children[i], stream, loop_nb);
+			}
+            fprintf(stream, "\t\tcall %d\n", node->children[0]->nb_children);
+			break;
+		}
+		case NODE_RETURN:
+		{
+			int has_retval = (node->nb_children > 0);
+			if (has_retval)
+			{
+				generate_code(node->children[0], stream, loop_nb);
+			}
+			else
+			{
+				fprintf(stream, "\t\tpush 0\n");
+			}
+            fprintf(stream, "\t\tret\n");
+
 			break;
 		}
 		case NODE_CONTINUE:

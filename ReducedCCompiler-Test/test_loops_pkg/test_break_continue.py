@@ -87,5 +87,5 @@ if __name__ == "__main__":
     print("Test break and continue")
     nb_errors = test_break_continue()
     if nb_errors > 0:
-        print("XXX " + str(nb_errors) + (" error" if nb_errors == 1 else "errors") + " XXX")
+        print("XXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX")
 

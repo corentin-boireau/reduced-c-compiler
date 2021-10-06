@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#define INVALID_INDEX -1
+#define NO_STACK_OFFSET -1
 
 typedef struct SyntacticNode_s SyntacticNode;
 struct SyntacticNode_s
@@ -14,8 +14,9 @@ struct SyntacticNode_s
         int int_val;
         char* str_val;
     } value;
-    int index;          // Only usefull for variable declaration and references
+    int stack_offset;   // Only usefull for variable declaration and references
                         // Indicates its location on the stack
+    int nb_var;         // For functions
     int line;
     int col;
     SyntacticNode** children;
@@ -69,5 +70,9 @@ enum
     NODE_LOOP,
     NODE_BREAK,
     NODE_CONTINUE,
+    NODE_FUNCTION,
+    NODE_PROGRAM,
+    NODE_CALL,
+    NODE_RETURN,
 };
 #endif // SYNTACTIC_NODE_H

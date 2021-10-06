@@ -6,6 +6,7 @@
 
 // Syntactic rules
 SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer);     // Whole program
+SyntacticNode* sr_function(SyntacticAnalyzer* analyzer);    // Function
 SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer); // Instruction
 SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer);  // Expression
 SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);      // Prefix 
@@ -198,7 +199,54 @@ SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer)
 	assert(analyzer != NULL);
 
 	// G ---> I
-	return sr_instruction(analyzer);
+	SyntacticNode* program = syntactic_node_create(NODE_PROGRAM, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+    while (!tokenizer_check(&(analyzer->tokenizer), TOK_EOF))
+    {
+		SyntacticNode* function = sr_function(analyzer);
+		syntactic_node_add_child(program, function);
+    }
+	return program;
+}
+
+SyntacticNode* sr_function(SyntacticAnalyzer* analyzer)
+{
+	assert(analyzer != NULL);
+
+	SyntacticNode* node;
+
+	if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
+	{
+		node = syntactic_node_create(NODE_FUNCTION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
+		node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *seq = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		// args
+		if (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS))
+		{
+			do
+			{
+				tokenizer_accept(&(analyzer->tokenizer), TOK_INT);
+				tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
+				SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+				decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+				syntactic_node_add_child(seq, decl);
+			} while (tokenizer_check(&(analyzer->tokenizer), TOK_COMMA));
+			tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+		}
+		syntactic_node_add_child(node, seq);
+		//tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+		SyntacticNode* instruction = sr_instruction(analyzer);
+		syntactic_node_add_child(node, instruction);
+	}
+	else
+	{ // Unexpected token
+		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		syntactic_analyzer_inc_error(analyzer);
+	}
+
+	return node;
 }
 
 SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
@@ -263,14 +311,14 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_WHILE))
 	{ // I ---> 'while' '(' E ')' I
-		SyntacticNode *cond = syntactic_node_create(NODE_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *cond = syntactic_node_create(NODE_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *expr = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 		SyntacticNode* instruction = sr_instruction(analyzer);
 		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 
-		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		syntactic_node_add_child(cond, expr);
 		syntactic_node_add_child(cond, instruction);
 		syntactic_node_add_child(cond, node_break);
@@ -279,17 +327,16 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_DO))
 	{ // I ---> 'do' I 'while' '(' E ')' ';'
+		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode* instruction = sr_instruction(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_WHILE);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *expr = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
-
-		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 
-		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		syntactic_node_add_child(inv_cond, expr);
 		syntactic_node_add_child(inv_cond, node_break);
 
@@ -298,39 +345,54 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_FOR))
 	{ // I ---> 'for' '(' E1 ';' E2 ';' E3 ')' I
+		node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode *loop = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
 		SyntacticNode *expr1 = sr_expression(analyzer);
+		SyntacticNode *drop1 = syntactic_node_create(NODE_DROP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *expr2 = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 		SyntacticNode *expr3 = sr_expression(analyzer);
+		SyntacticNode *drop3 = syntactic_node_create(NODE_DROP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 		SyntacticNode* instruction = sr_instruction(analyzer);
-
-		node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		SyntacticNode *loop = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+
+		syntactic_node_add_child(drop1, expr1);
 
 		syntactic_node_add_child(inv_cond, expr2);
 		syntactic_node_add_child(inv_cond, node_break);
 
+		syntactic_node_add_child(drop3, expr3);
+
 		syntactic_node_add_child(loop, inv_cond);
 		syntactic_node_add_child(loop, instruction);
-		syntactic_node_add_child(loop, expr3);
+		syntactic_node_add_child(loop, drop3);
 		
-		syntactic_node_add_child(node, expr1);
+		syntactic_node_add_child(node, drop1);
 		syntactic_node_add_child(node, loop);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_CONTINUE))
-	{ // I ---> 'continue'
+	{ // I ---> 'continue' ';'
 		node = syntactic_node_create(NODE_CONTINUE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_BREAK))
-	{ // I ---> 'break'
+	{ // I ---> 'break' ';'
 		node = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+	}
+	else if (tokenizer_check(&(analyzer->tokenizer), TOK_RETURN))
+	{ // I ---> 'return' E ';'
+		node = syntactic_node_create(NODE_RETURN, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		if (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
+		{
+			SyntacticNode* expr = sr_expression(analyzer);
+            syntactic_node_add_child(node, expr);
+            tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+		}
 	}
 	else
 	{ // I ---> E ';'
@@ -516,8 +578,30 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_IDENTIFIER))
 	{ // A ---> ident
-		node = syntactic_node_create(NODE_REF, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+		// var;
+		if (!tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS))
+		{
+			node = syntactic_node_create(NODE_REF, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+			node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+		}
+		// function(arg1, ...)
+		else
+		{
+			node = syntactic_node_create(NODE_CALL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+			node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+			SyntacticNode *seq = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+			// args
+            if (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS))
+            {
+				do
+				{
+					SyntacticNode* arg = sr_expression(analyzer);
+					syntactic_node_add_child(seq, arg);
+				} while (tokenizer_check(&(analyzer->tokenizer), TOK_COMMA));
+                tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+			}
+            syntactic_node_add_child(node, seq);
+		}
 	}
 	else
 	{ // Unexpected token

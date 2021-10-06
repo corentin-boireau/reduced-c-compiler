@@ -7,7 +7,16 @@ typedef struct Symbol_s Symbol;
 struct Symbol_s
 {
 	char* name;
-	int   index;
+	int   stack_offset;
+	int   type;
+	int   nb_params;
+};
+
+enum
+{
+	SYMBOL_VAR,
+	SYMBOL_FUNC,
+	SYMBOL_PTR,
 };
 
 #define MAX_SYMBOLS 500

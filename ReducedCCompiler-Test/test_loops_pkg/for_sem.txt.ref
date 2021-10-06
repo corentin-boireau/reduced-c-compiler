@@ -2,9 +2,10 @@ BLOCK
 |--SEQUENCE
    |--DECL : name = x, index = 0
 |--SEQUENCE
-   |--ASSIGNEMENT
-      |--REF : name = x, index = 0
-      |--CONST : value = 0
+   |--DROP
+      |--ASSIGNEMENT
+         |--REF : name = x, index = 0
+         |--CONST : value = 0
    |--LOOP
       |--INVERTED CONDITION
          |--LESS
@@ -13,8 +14,9 @@ BLOCK
          |--BREAK
       |--PRINT
          |--REF : name = x, index = 0
-      |--ASSIGNEMENT
-         |--REF : name = x, index = 0
-         |--ADD
+      |--DROP
+         |--ASSIGNEMENT
             |--REF : name = x, index = 0
-            |--CONST : value = 1
+            |--ADD
+               |--REF : name = x, index = 0
+               |--CONST : value = 1

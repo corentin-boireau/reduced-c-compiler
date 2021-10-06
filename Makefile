@@ -1,6 +1,6 @@
 
 CC = gcc
-C_FLAGS = -Wall -Wextra -ansi
+CFLAGS = -Wall -Wextra -std=c99
 
 RCC = rcc
 RCC_SRC      = $(wildcard ReducedCCompiler/src/*.c)
@@ -30,7 +30,7 @@ test: $(RCC) $(MSM)
 	   $(PY) $(TEST_ALL)
 
 $(RCC):
-	$(CC) -o $(RCC_EXE_DIR)/$(RCC) $(RCC_SRC) -I $(RCC_INC_DIR) $(RCC_LD_FLAGS)
+	$(CC) -o $(RCC_EXE_DIR)/$(RCC) $(RCC_SRC) $(CFLAGS) -I $(RCC_INC_DIR) $(RCC_LD_FLAGS)
 
 
 $(MSM):

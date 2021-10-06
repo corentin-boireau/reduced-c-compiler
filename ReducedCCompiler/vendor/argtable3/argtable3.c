@@ -27,9 +27,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
-#pragma warning( disable : 26451 )
-#pragma warning( disable : 6387 )
-#pragma warning( disable : 4100 )
+#ifdef _MSC_VER
+    #pragma warning( disable : 26451 )
+    #pragma warning( disable : 6387 )
+    #pragma warning( disable : 4100 )
+#endif
+#define UNUSED(x) (void) (x)
 
 #include "argtable3.h"
 
@@ -1534,6 +1537,7 @@ static int
 parse_long_options(char * const *nargv, const char *options,
 	const struct option *long_options, int *idx, int short_too, int flags)
 {
+    UNUSED(flags);
 	char *current_argv, *has_equal;
 #ifdef GNU_COMPATIBLE
 	char *current_dash;
