@@ -1,35 +1,38 @@
-BLOCK
-|--SEQUENCE
-   |--DECL : name = a, index = 0
-|--DROP
-   |--ASSIGNEMENT
-      |--REF : name = a, index = 0
-      |--CONST : value = 1
-|--CONDITION
-   |--CONST : value = 0
+PROGRAM
+|--FUNCTION : name = main
+   |--SEQUENCE
    |--BLOCK
+      |--SEQUENCE
+         |--DECL : name = a, index = 0
       |--DROP
          |--ASSIGNEMENT
             |--REF : name = a, index = 0
-            |--CONST : value = 7
-   |--BLOCK
-      |--DROP
-         |--ASSIGNEMENT
-            |--REF : name = a, index = 0
-            |--CONST : value = 5
-|--PRINT
-   |--REF : name = a, index = 0
-|--CONDITION
-   |--CONST : value = 1
-   |--BLOCK
-      |--DROP
-         |--ASSIGNEMENT
-            |--REF : name = a, index = 0
-            |--CONST : value = 7
-   |--BLOCK
-      |--DROP
-         |--ASSIGNEMENT
-            |--REF : name = a, index = 0
-            |--CONST : value = 5
-|--PRINT
-   |--REF : name = a, index = 0
+            |--CONST : value = 1
+      |--CONDITION
+         |--CONST : value = 0
+         |--BLOCK
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 0
+                  |--CONST : value = 7
+         |--BLOCK
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 0
+                  |--CONST : value = 5
+      |--PRINT
+         |--REF : name = a, index = 0
+      |--CONDITION
+         |--CONST : value = 1
+         |--BLOCK
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 0
+                  |--CONST : value = 7
+         |--BLOCK
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 0
+                  |--CONST : value = 5
+      |--PRINT
+         |--REF : name = a, index = 0

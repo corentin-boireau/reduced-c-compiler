@@ -1,22 +1,25 @@
-BLOCK
-|--SEQUENCE
-   |--DECL : name = x, index = 0
-|--SEQUENCE
-   |--DROP
-      |--ASSIGNEMENT
-         |--REF : name = x, index = 0
-         |--CONST : value = 0
-   |--LOOP
-      |--INVERTED CONDITION
-         |--LESS
-            |--REF : name = x, index = 0
-            |--CONST : value = 5
-         |--BREAK
-      |--PRINT
-         |--REF : name = x, index = 0
-      |--DROP
-         |--ASSIGNEMENT
-            |--REF : name = x, index = 0
-            |--ADD
+PROGRAM
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--BLOCK
+      |--SEQUENCE
+         |--DECL : name = x, index = 0
+      |--SEQUENCE
+         |--DROP
+            |--ASSIGNEMENT
                |--REF : name = x, index = 0
-               |--CONST : value = 1
+               |--CONST : value = 0
+         |--LOOP
+            |--INVERTED CONDITION
+               |--LESS
+                  |--REF : name = x, index = 0
+                  |--CONST : value = 5
+               |--BREAK
+            |--PRINT
+               |--REF : name = x, index = 0
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = x, index = 0
+                  |--ADD
+                     |--REF : name = x, index = 0
+                     |--CONST : value = 1

@@ -1,4 +1,4 @@
-.start
+.main
 		resn 1
 		push 0
 		dup
@@ -21,4 +21,9 @@
 		drop
 		jump loop_0
 .endloop_0
+		push 0
+		ret
+.start
+		prep main
+		call 0
 		halt

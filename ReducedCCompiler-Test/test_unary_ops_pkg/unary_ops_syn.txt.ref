@@ -1,45 +1,48 @@
-BLOCK
-|--PRINT
-   |--NEGATION
-      |--CONST : value = 0
-|--PRINT
-   |--NEGATION
-      |--CONST : value = 0
-|--PRINT
-   |--NEGATION
-      |--CONST : value = 1
-|--PRINT
-   |--NEGATION
-      |--CONST : value = 2
-|--PRINT
-   |--UNARY_MINUS
-      |--CONST : value = 0
-|--PRINT
-   |--UNARY_MINUS
-      |--CONST : value = 2
-|--PRINT
-   |--UNARY_MINUS
-      |--CONST : value = 2
-|--PRINT
-   |--UNARY_MINUS
-      |--UNARY_MINUS
-         |--CONST : value = 1
-|--PRINT
-   |--UNARY_MINUS
-      |--UNARY_MINUS
-         |--CONST : value = 1
-|--PRINT
-   |--NEGATION
-      |--UNARY_MINUS
-         |--CONST : value = 1
-|--PRINT
-   |--NEGATION
-      |--UNARY_MINUS
-         |--CONST : value = 1
-|--PRINT
-   |--UNARY_MINUS
-      |--NEGATION
+PROGRAM
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--BLOCK
+      |--PRINT
          |--NEGATION
+            |--CONST : value = 0
+      |--PRINT
+         |--NEGATION
+            |--CONST : value = 0
+      |--PRINT
+         |--NEGATION
+            |--CONST : value = 1
+      |--PRINT
+         |--NEGATION
+            |--CONST : value = 2
+      |--PRINT
+         |--UNARY_MINUS
+            |--CONST : value = 0
+      |--PRINT
+         |--UNARY_MINUS
+            |--CONST : value = 2
+      |--PRINT
+         |--UNARY_MINUS
+            |--CONST : value = 2
+      |--PRINT
+         |--UNARY_MINUS
+            |--UNARY_MINUS
+               |--CONST : value = 1
+      |--PRINT
+         |--UNARY_MINUS
+            |--UNARY_MINUS
+               |--CONST : value = 1
+      |--PRINT
+         |--NEGATION
+            |--UNARY_MINUS
+               |--CONST : value = 1
+      |--PRINT
+         |--NEGATION
+            |--UNARY_MINUS
+               |--CONST : value = 1
+      |--PRINT
+         |--UNARY_MINUS
             |--NEGATION
-               |--UNARY_MINUS
-                  |--CONST : value = 4
+               |--NEGATION
+                  |--NEGATION
+                     |--UNARY_MINUS
+                        |--CONST : value = 4

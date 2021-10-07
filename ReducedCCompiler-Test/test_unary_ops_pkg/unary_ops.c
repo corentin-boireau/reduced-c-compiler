@@ -1,3 +1,4 @@
+int main() 
 {
     print !0;
     print ! 0;

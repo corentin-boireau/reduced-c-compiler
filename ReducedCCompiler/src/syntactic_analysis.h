@@ -11,9 +11,9 @@
 typedef struct SyntacticAnalyzer_s SyntacticAnalyzer;
 struct SyntacticAnalyzer_s
 {
-	Tokenizer      tokenizer;
+	Tokenizer	   tokenizer;
 	SyntacticNode* syntactic_tree;
-	int            nb_errors;
+	int			   nb_errors;
 	unsigned char  optimisations;
 };
 

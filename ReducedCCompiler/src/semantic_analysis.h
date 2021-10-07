@@ -20,7 +20,7 @@ enum
 };
 
 #define MAX_SYMBOLS 500
-#define MAX_SCOPES  20
+#define MAX_SCOPES	20
 #define MAX_SEMANTIC_ERROR 3 // If there are more than MAX_SEMANTIC_ERROR, we stop the semantic analysis
 
 typedef struct SymbolTable_s SymbolTable;

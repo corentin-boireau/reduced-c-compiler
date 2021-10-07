@@ -1,4 +1,4 @@
-.start
+.main
 		resn 1
 		push 3
 		dup
@@ -34,4 +34,9 @@
 .endif_3
 		jump loop_2
 .endloop_2
+		push 0
+		ret
+.start
+		prep main
+		call 0
 		halt

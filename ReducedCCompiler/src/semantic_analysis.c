@@ -11,16 +11,23 @@ void endScope(SymbolTable* table);
 // Declares a new symbol with the given name and increments the nb_variables counter.
 int declare(SymbolTable* table, char* name, int type, int* stack_offset); 
 int search(SymbolTable* table, char* name, int* stack_offset);
+Symbol symbol_create(int stack_offset, char* name, int type);
 
 
 SymbolTable symbol_table_create()
 {
 	SymbolTable table;
-	table.scopes[0]     = 0;
-	table.nb_symbols    = 0;
-	table.nb_variables  = 0;
+	table.scopes[0]		= 0;
+	table.nb_symbols	= 0;
+	table.nb_variables	= 0;
 	table.current_scope = 0;
-	table.nb_errors     = 0;
+	table.nb_errors		= 0;
+
+	table.symbols[table.nb_symbols] = symbol_create(NO_STACK_OFFSET, "putchar", SYMBOL_FUNC);
+	table.symbols[table.nb_symbols++].nb_params = 1;
+
+	table.symbols[table.nb_symbols] = symbol_create(NO_STACK_OFFSET, "getchar", SYMBOL_FUNC);
+	table.symbols[table.nb_symbols++].nb_params = 0;
 
 	return table;
 }
@@ -66,7 +73,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
 			// declare() will return -1 if it failed
 			if (declare(table, node->value.str_val, SYMBOL_VAR, &stack_offset) < 0)
 			{
-                fprintf(stderr, "Redeclaration of symbol %s at %d:%d\n", node->value.str_val, node->line, node->col);
+				fprintf(stderr, "Redeclaration of symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
 				symbol_table_inc_error(table);
 			}
 			else
@@ -78,9 +85,15 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
 		case NODE_REF :
 		{
 			int stack_offset;
-			if (search(table, node->value.str_val, &stack_offset) < 0)
+			int symbol_index = search(table, node->value.str_val, &stack_offset);
+			if (symbol_index < 0)
 			{
-                fprintf(stderr, "Reference to undeclared symbol %s at %d:%d\n", node->value.str_val, node->line, node->col);
+				fprintf(stderr, "Reference to undeclared symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
+				symbol_table_inc_error(table);
+			}
+			else if (table->symbols[symbol_index].type == SYMBOL_FUNC)
+			{
+				fprintf(stderr, "Symbol \"%s\" denotes a function name, did you mean \"%s()\" at %d:%d\n", node->value.str_val, node->value.str_val, node->line, node->col);
 				symbol_table_inc_error(table);
 			}
 			else
@@ -106,7 +119,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
 			// declare() will return -1 if it failed
 			if (index < 0)
 			{
-                fprintf(stderr, "Redeclaration of symbol %s at %d:%d\n", node->value.str_val, node->line, node->col);
+				fprintf(stderr, "Redeclaration of symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
 				symbol_table_inc_error(table);
 			}
 			else
@@ -131,12 +144,12 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
 			int called_index = search(table, node->value.str_val, NULL);
 			if (called_index < 0)
 			{
-                fprintf(stderr, "Call to undefined symbol %s at %d:%d\n", node->value.str_val, node->line, node->col);
+				fprintf(stderr, "Call to undefined symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
 				symbol_table_inc_error(table);
 			}
 			else if (table->symbols[called_index].type != SYMBOL_FUNC)
 			{
-                fprintf(stderr, "Symbol %s is not a function at %d:%d\n", node->value.str_val, node->line, node->col);
+				fprintf(stderr, "Symbol \"%s\" is not a function at %d:%d\n", node->value.str_val, node->line, node->col);
 				symbol_table_inc_error(table);
 			}
 			else
@@ -147,11 +160,11 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
 				int nb_params = table->symbols[called_index].nb_params;
 				if (nb_args != nb_params)
 				{
-                    fprintf(stderr, "Incorrect number of arguments to function %s() at %d:%d, expected %d arguments but %d given \n", 
+					fprintf(stderr, "Incorrect number of arguments to function \"%s()\" at %d:%d, expected %d arguments but %d given \n", 
 									node->value.str_val, node->line, node->col, nb_params, nb_args);
-                    symbol_table_inc_error(table);
+					symbol_table_inc_error(table);
 				}
-                semantic_analysis(node->children[0], table);
+				semantic_analysis(node->children[0], table);
 			}
 			break;
 		}
@@ -194,12 +207,12 @@ int declare(SymbolTable* table, char* name, int type, int* stack_offset)
 			assert(stack_offset != NULL);
 
 			*stack_offset = table->nb_variables;
-            table->symbols[table->nb_symbols] = symbol_create(*stack_offset, name, type);
-            table->nb_variables++;
+			table->symbols[table->nb_symbols] = symbol_create(*stack_offset, name, type);
+			table->nb_variables++;
 		}
 		else
 		{
-            table->symbols[table->nb_symbols] = symbol_create(NO_STACK_OFFSET, name, type);
+			table->symbols[table->nb_symbols] = symbol_create(NO_STACK_OFFSET, name, type);
 		}
 		table->nb_symbols++;
 	}

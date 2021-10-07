@@ -5,21 +5,21 @@
 #include <stdio.h>
 
 // Syntactic rules
-SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer);     // Whole program
-SyntacticNode* sr_function(SyntacticAnalyzer* analyzer);    // Function
+SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer);		// Whole program
+SyntacticNode* sr_function(SyntacticAnalyzer* analyzer);	// Function
 SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer); // Instruction
-SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer);  // Expression
-SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);      // Prefix 
-SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer);      // Suffix
-SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);        // Atom
+SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer);	// Expression
+SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);		// Prefix 
+SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer);		// Suffix
+SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);		// Atom
 
 SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority); // Expression with priority
 
 
 SyntacticNode* opti_constant_prefix(SyntacticNode* node);
 
-#define	RIGHT_TO_LEFT   0
-#define LEFT_TO_RIGHT   1
+#define	RIGHT_TO_LEFT	0
+#define LEFT_TO_RIGHT	1
 typedef struct OperatorInfo_s OperatorInfo;
 struct OperatorInfo_s
 {
@@ -36,100 +36,100 @@ OperatorInfo get_operator_info(int token_type)
 	{
 		case TOK_EQUAL:
 		{
-			op_info.priority      = 1;
+			op_info.priority	  = 1;
 			op_info.associativity = RIGHT_TO_LEFT;
-			op_info.node_type     = NODE_ASSIGNMENT;
+			op_info.node_type	  = NODE_ASSIGNMENT;
 			break;
 		}
 		case TOK_2_PIPE:
 		{
-			op_info.priority      = 2;
+			op_info.priority	  = 2;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_OR;
+			op_info.node_type	  = NODE_OR;
 			break;
 		}
 		case TOK_2_AMPERSAND:
 		{
-			op_info.priority      = 3;
+			op_info.priority	  = 3;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_AND;
+			op_info.node_type	  = NODE_AND;
 			break;
 		}
 		case TOK_2_EQUAL:
 		{
-			op_info.priority      = 4;
+			op_info.priority	  = 4;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_EQUAL;
+			op_info.node_type	  = NODE_EQUAL;
 			break;
 		}
 		case TOK_NOT_EQUAL:
 		{
-			op_info.priority      = 4;
+			op_info.priority	  = 4;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_NOT_EQUAL;
+			op_info.node_type	  = NODE_NOT_EQUAL;
 			break;
 		}
 		case TOK_GREATER:
 		{
-			op_info.priority      = 5;
+			op_info.priority	  = 5;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_GREATER;
+			op_info.node_type	  = NODE_GREATER;
 			break;
 		}
 		case TOK_GREATER_OR_EQUAL:
 		{
-			op_info.priority      = 5;
+			op_info.priority	  = 5;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_GREATER_OR_EQUAL;
+			op_info.node_type	  = NODE_GREATER_OR_EQUAL;
 			break;
 		}
 		case TOK_LESS:
 		{
-			op_info.priority      = 5;
+			op_info.priority	  = 5;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_LESS;
+			op_info.node_type	  = NODE_LESS;
 			break;
 		}
 		case TOK_LESS_OR_EQUAL:
 		{
-			op_info.priority      = 5;
+			op_info.priority	  = 5;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_LESS_OR_EQUAL;
+			op_info.node_type	  = NODE_LESS_OR_EQUAL;
 			break;
 		}
 		case TOK_PLUS:
 		{
-			op_info.priority      = 6;
+			op_info.priority	  = 6;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_ADD;
+			op_info.node_type	  = NODE_ADD;
 			break;
 		}
 		case TOK_MINUS:
 		{
-			op_info.priority      = 6;
+			op_info.priority	  = 6;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_SUB;
+			op_info.node_type	  = NODE_SUB;
 			break;
 		}
 		case TOK_STAR:
 		{
-			op_info.priority      = 7;
+			op_info.priority	  = 7;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_MUL;
+			op_info.node_type	  = NODE_MUL;
 			break;
 		}
 		case TOK_SLASH:
 		{
-			op_info.priority      = 7;
+			op_info.priority	  = 7;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_DIV;
+			op_info.node_type	  = NODE_DIV;
 			break;
 		}
 		case TOK_PERCENT:
 		{
-			op_info.priority      = 7;
+			op_info.priority	  = 7;
 			op_info.associativity = LEFT_TO_RIGHT;
-			op_info.node_type     = NODE_MOD;
+			op_info.node_type	  = NODE_MOD;
 			break;
 		}
 	}
@@ -161,10 +161,10 @@ SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, unsigned char o
 
 	SyntacticAnalyzer analyzer;
 	
-	analyzer.tokenizer      = tokenizer_create(source_buffer);
+	analyzer.tokenizer		= tokenizer_create(source_buffer);
 	analyzer.syntactic_tree = NULL;
-	analyzer.nb_errors      = 0;
-	analyzer.optimisations  = optimisations;
+	analyzer.nb_errors		= 0;
+	analyzer.optimisations	= optimisations;
 
 	return analyzer;
 }
@@ -200,11 +200,11 @@ SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer)
 
 	// G ---> I
 	SyntacticNode* program = syntactic_node_create(NODE_PROGRAM, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-    while (!tokenizer_check(&(analyzer->tokenizer), TOK_EOF))
-    {
+	while (!tokenizer_check(&(analyzer->tokenizer), TOK_EOF))
+	{
 		SyntacticNode* function = sr_function(analyzer);
 		syntactic_node_add_child(program, function);
-    }
+	}
 	return program;
 }
 
@@ -289,9 +289,9 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 			tokenizer_accept(&(analyzer->tokenizer), TOK_COMMA);
 			tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
 
-            decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-            decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
-            syntactic_node_add_child(node, decl);
+			decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+			decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+			syntactic_node_add_child(node, decl);
 		}
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_IF))
@@ -305,8 +305,8 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		syntactic_node_add_child(node, instruction1);
 		if (tokenizer_check(&(analyzer->tokenizer), TOK_ELSE))
 		{
-            SyntacticNode* instruction2 = sr_instruction(analyzer);
-            syntactic_node_add_child(node, instruction2);
+			SyntacticNode* instruction2 = sr_instruction(analyzer);
+			syntactic_node_add_child(node, instruction2);
 		}
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_WHILE))
@@ -390,8 +390,8 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		if (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
 		{
 			SyntacticNode* expr = sr_expression(analyzer);
-            syntactic_node_add_child(node, expr);
-            tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+			syntactic_node_add_child(node, expr);
+			tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 		}
 	}
 	else
@@ -414,10 +414,10 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 	assert(analyzer != NULL);
 	
 	// E ---> P '=' E
-	// 		| P '||' E 
+	//		| P '||' E 
 	//		| P '&&' E 
-	// 		| P '==' | '!=' E 
-	// 		| P '<' | '<=' | '>' | '>='  E 
+	//		| P '==' | '!=' E 
+	//		| P '<' | '<=' | '>' | '>='  E 
 	//		| P '+' | '-' E
 	//		| P '*' | '/' E
 	
@@ -441,21 +441,21 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 				// Optimisation of operations on constants
 				if (is_opti_enabled(analyzer, OPTI_CONST_OPERATIONS)
 					&& node_info.node_type != NODE_ASSIGNMENT 
-			        && operand1->type == NODE_CONST && operand2->type == NODE_CONST)
+					&& operand1->type == NODE_CONST && operand2->type == NODE_CONST)
 				{
 					int value = -1;
 					switch (node_info.node_type)
 					{
-						case NODE_ADD:              value = operand1->value.int_val  +   operand2->value.int_val;  break;
-						case NODE_SUB:              value = operand1->value.int_val  -   operand2->value.int_val;  break;
-						case NODE_MUL:              value = operand1->value.int_val  *   operand2->value.int_val;  break;
-						case NODE_AND:              value = operand1->value.int_val  &&  operand2->value.int_val;  break;
-						case NODE_OR:               value = operand1->value.int_val  ||  operand2->value.int_val;  break;
-						case NODE_EQUAL:            value = operand1->value.int_val  ==  operand2->value.int_val;  break;
-						case NODE_NOT_EQUAL:        value = operand1->value.int_val  !=  operand2->value.int_val;  break;
-						case NODE_LESS:             value = operand1->value.int_val  <   operand2->value.int_val;  break;
-						case NODE_LESS_OR_EQUAL:    value = operand1->value.int_val  <=  operand2->value.int_val;  break;
-						case NODE_GREATER:          value = operand1->value.int_val  >   operand2->value.int_val;  break;
+						case NODE_ADD:				value = operand1->value.int_val  +	 operand2->value.int_val;  break;
+						case NODE_SUB:				value = operand1->value.int_val  -	 operand2->value.int_val;  break;
+						case NODE_MUL:				value = operand1->value.int_val  *	 operand2->value.int_val;  break;
+						case NODE_AND:				value = operand1->value.int_val  &&  operand2->value.int_val;  break;
+						case NODE_OR:				value = operand1->value.int_val  ||  operand2->value.int_val;  break;
+						case NODE_EQUAL:			value = operand1->value.int_val  ==  operand2->value.int_val;  break;
+						case NODE_NOT_EQUAL:		value = operand1->value.int_val  !=  operand2->value.int_val;  break;
+						case NODE_LESS:				value = operand1->value.int_val  <	 operand2->value.int_val;  break;
+						case NODE_LESS_OR_EQUAL:	value = operand1->value.int_val  <=  operand2->value.int_val;  break;
+						case NODE_GREATER:			value = operand1->value.int_val  >	 operand2->value.int_val;  break;
 						case NODE_GREATER_OR_EQUAL: value = operand1->value.int_val  >=  operand2->value.int_val;  break;
 
 						case NODE_DIV:
@@ -530,9 +530,9 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_STAR))
 	{ // P ---> '*' P
-		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		syntactic_analyzer_inc_error(analyzer);
+		node = syntactic_node_create(NODE_DEREF, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode* prefix = sr_prefix(analyzer);
+		syntactic_node_add_child(node, prefix);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_AMPERSAND))
 	{ // P ---> '&' P
@@ -557,8 +557,22 @@ SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer)
 {
 	assert(analyzer != NULL);
 
-	// S ---> A
-	return sr_atom(analyzer);
+	// S ---> A ( '[' E ']' )*
+	SyntacticNode* node = sr_atom(analyzer);
+	while (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_BRACKET))
+	{
+		SyntacticNode* deref = syntactic_node_create(NODE_DEREF, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode* index_expr = sr_expression(analyzer);
+		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_BRACKET);
+
+		SyntacticNode* indexation_addr = syntactic_node_create(NODE_ADD, index_expr->line, index_expr->col);
+		syntactic_node_add_child(indexation_addr, node);
+		syntactic_node_add_child(indexation_addr, index_expr);
+		syntactic_node_add_child(deref, indexation_addr);
+		node = deref;
+	}
+
+	return node ;
 }
 
 SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
@@ -591,16 +605,16 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 			node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 			SyntacticNode *seq = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 			// args
-            if (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS))
-            {
+			if (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS))
+			{
 				do
 				{
 					SyntacticNode* arg = sr_expression(analyzer);
 					syntactic_node_add_child(seq, arg);
 				} while (tokenizer_check(&(analyzer->tokenizer), TOK_COMMA));
-                tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
+				tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 			}
-            syntactic_node_add_child(node, seq);
+			syntactic_node_add_child(node, seq);
 		}
 	}
 	else

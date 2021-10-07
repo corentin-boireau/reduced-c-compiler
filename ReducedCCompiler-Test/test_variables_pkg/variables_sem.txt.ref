@@ -1,64 +1,67 @@
-BLOCK
-|--SEQUENCE
-   |--DECL : name = a, index = 0
-|--SEQUENCE
-   |--DECL : name = b, index = 1
-   |--DECL : name = c, index = 2
-|--PRINT
-   |--ASSIGNEMENT
-      |--REF : name = a, index = 0
-      |--CONST : value = 4
-|--DROP
-   |--ASSIGNEMENT
-      |--REF : name = b, index = 1
-      |--CONST : value = 434
-|--DROP
-   |--ASSIGNEMENT
-      |--REF : name = c, index = 2
-      |--CONST : value = 23
-|--PRINT
-   |--REF : name = b, index = 1
-|--PRINT
-   |--REF : name = c, index = 2
-|--DROP
-   |--ASSIGNEMENT
-      |--REF : name = a, index = 0
-      |--ASSIGNEMENT
-         |--REF : name = b, index = 1
+PROGRAM
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--BLOCK
+      |--SEQUENCE
+         |--DECL : name = a, index = 0
+      |--SEQUENCE
+         |--DECL : name = b, index = 1
+         |--DECL : name = c, index = 2
+      |--PRINT
+         |--ASSIGNEMENT
+            |--REF : name = a, index = 0
+            |--CONST : value = 4
+      |--DROP
+         |--ASSIGNEMENT
+            |--REF : name = b, index = 1
+            |--CONST : value = 434
+      |--DROP
          |--ASSIGNEMENT
             |--REF : name = c, index = 2
-            |--ADD
-               |--CONST : value = 3
-               |--CONST : value = 23
-|--PRINT
-   |--REF : name = a, index = 0
-|--PRINT
-   |--REF : name = b, index = 1
-|--PRINT
-   |--REF : name = c, index = 2
-|--BLOCK
-   |--SEQUENCE
-      |--DECL : name = a, index = 3
-   |--BLOCK
-      |--DROP
-         |--ASSIGNEMENT
-            |--REF : name = a, index = 3
-            |--CONST : value = 89
-      |--SEQUENCE
-         |--DECL : name = b, index = 4
-      |--DROP
-         |--ASSIGNEMENT
-            |--REF : name = b, index = 4
-            |--CONST : value = 34
-   |--PRINT
-      |--REF : name = a, index = 3
-   |--PRINT
-      |--REF : name = b, index = 1
-   |--DROP
-      |--ASSIGNEMENT
+            |--CONST : value = 23
+      |--PRINT
          |--REF : name = b, index = 1
-         |--CONST : value = 32
-|--PRINT
-   |--REF : name = a, index = 0
-|--PRINT
-   |--REF : name = b, index = 1
+      |--PRINT
+         |--REF : name = c, index = 2
+      |--DROP
+         |--ASSIGNEMENT
+            |--REF : name = a, index = 0
+            |--ASSIGNEMENT
+               |--REF : name = b, index = 1
+               |--ASSIGNEMENT
+                  |--REF : name = c, index = 2
+                  |--ADD
+                     |--CONST : value = 3
+                     |--CONST : value = 23
+      |--PRINT
+         |--REF : name = a, index = 0
+      |--PRINT
+         |--REF : name = b, index = 1
+      |--PRINT
+         |--REF : name = c, index = 2
+      |--BLOCK
+         |--SEQUENCE
+            |--DECL : name = a, index = 3
+         |--BLOCK
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 3
+                  |--CONST : value = 89
+            |--SEQUENCE
+               |--DECL : name = b, index = 4
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = b, index = 4
+                  |--CONST : value = 34
+         |--PRINT
+            |--REF : name = a, index = 3
+         |--PRINT
+            |--REF : name = b, index = 1
+         |--DROP
+            |--ASSIGNEMENT
+               |--REF : name = b, index = 1
+               |--CONST : value = 32
+      |--PRINT
+         |--REF : name = a, index = 0
+      |--PRINT
+         |--REF : name = b, index = 1
