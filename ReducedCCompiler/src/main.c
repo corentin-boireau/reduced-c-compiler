@@ -199,6 +199,12 @@ int main(int argc, char* argv[])
         }
     }
 
+    if (output_file != stdout)
+    {
+        fclose(output_file);
+        unregister_file_to_close(output_file);
+    }
+
     /* deallocate each non-null entry in argtable[] */
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
     unregister_argtable();
@@ -371,6 +377,7 @@ char* load_files_content(FILE ** files, int nb_files)
                 clear_and_exit(EXIT_FAILURE);
             }
             fclose(files[i]);
+            unregister_file_to_close(files[i]);
         }
 
         file_content[nb_char_loaded] = '\0';
@@ -388,6 +395,7 @@ static void init_files_to_close(int max_files)
     }
     else
     {
+        memset(g_to_close.files, 0, max_files * sizeof(FILE*)); // Setting all the values to NULL
         g_to_close.max_files = max_files;
     }
 }
@@ -396,35 +404,6 @@ static void register_file_to_close(FILE* file)
 {
     assert(g_to_close.files != NULL);
     assert(file != NULL);
-
-    // if (g_to_close.max_files == 0)
-    // {
-    //     g_to_close.files = malloc(sizeof(FILE*));
-    //     if (g_to_close.files == NULL)
-    //     {
-    //         fprintf(stderr, "Failed to allocate memory for FILE* array of \"fileg_to_close\"");
-    //         clear_and_exit(EXIT_FAILURE);
-    //     }
-    // 
-    //     g_to_close.max_files = 1;
-    //     
-    // }
-    // else if (g_to_close.nb_files == g_to_close.max_files)
-    // {
-    //     int new_size = 2 * g_to_close.max_files * sizeof(FILE*);
-    //     FILE** new_loc = realloc(g_to_close.files, new_size);
-    //     if (new_loc != NULL)
-    //     {
-    //         g_to_close.files = new_loc;
-    //         g_to_close.max_files = new_size;
-    //     }
-    //     else
-    //     {
-    //         fprintf(stderr, "Failed to reallocate memory for FILE* array of \"fileg_to_close\"");
-    //         clear_and_exit(EXIT_FAILURE);
-    //     }
-    // }
- 
     assert(g_to_close.nb_files < g_to_close.max_files);
 
     g_to_close.files[g_to_close.nb_files++] = file;
@@ -435,7 +414,10 @@ static void unregister_file_to_close(FILE* file)
     assert(g_to_close.files != NULL);
 
     int i = 0;
-    while (i < g_to_close.nb_files && g_to_close.files[i++] != file);
+    while (i < g_to_close.nb_files && g_to_close.files[i] != file)
+    {
+        i++;
+    }
 
     assert(i < g_to_close.nb_files); // This function should not be called if file is not in the list
     
