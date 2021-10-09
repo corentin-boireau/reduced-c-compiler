@@ -1,6 +1,6 @@
 int main()
 {
-	print test();
+	putchar(10);
 	int ptr_a;
 	ptr_a = 0;
 	print *ptr_a;

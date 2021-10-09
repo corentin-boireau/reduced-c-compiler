@@ -5,6 +5,8 @@
 
 #include "syntactic_node.h"
 
+#define NO_LOOP -1
+
 void generate_program(const SyntacticNode* node, FILE * stream);
 void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb);
 

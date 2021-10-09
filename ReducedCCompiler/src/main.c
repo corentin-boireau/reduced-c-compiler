@@ -38,33 +38,32 @@
 #define STAGE_SYNTACTIC "syntactic"
 #define STAGE_SEMANTIC	"semantic"
 
-// Loads the source file content as a null terminated buffer allocated dynamically
-// TO BE FREED
-char* load_files_content(FILE ** files, int nb_files); 
+// Loads the source file content as a null terminated buffer allocated dynamically and closes the FILE*
+char* load_file_content_and_close(FILE * file); 
 
-void lexical_analysis_on_file(FILE* in_file, int verbose, FILE* out_file, FILE* runtime);
-void syntactic_analysis_on_file(FILE * in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE* runtime);
-void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE* runtime);
-void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE* runtime);
+void lexical_analysis_on_file(FILE* in_file, int verbose, FILE* out_file);
+void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file);
+void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file);
+void compile_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file);
 
-struct
+static struct
 {
     FILE** files;
     int    nb_files;
     int    max_files;
 
-} static g_to_close = { NULL, 0, 0};
+} g_to_close = { NULL, 0, 0};
 
 static void init_files_to_close(int nb_files);
 static void register_file_to_close(FILE* file);
 static void unregister_file_to_close(FILE* file);
 
-struct 
+static struct 
 {
     void** argtable;
     int    nb_args;
 
-} static g_argtable_to_free = { NULL, 0 };
+} g_argtable_to_free = { NULL, 0 };
 
 static void register_argtable(void** argtable_ref, int nb_args);
 static void unregister_argtable();
@@ -73,8 +72,8 @@ static void clear_and_exit(int exit_code);
 
 
 /* global arg_xxx structs */
-struct arg_lit *verb, *help, *version;
-struct arg_file *output, *input;
+struct arg_lit *verb, *help, *version, *no_runtime;
+struct arg_file *output, *input, *runtime_filename;
 struct arg_str *stage;
 struct arg_lit *opti_const_operations;
 struct arg_end *end;
@@ -87,8 +86,10 @@ int main(int argc, char* argv[])
         help				  = arg_litn("h", "help", 0, 1, "display this help and exit"),
         version				  = arg_litn(NULL, "version", 0, 1, "display version info and exit"),
         verb				  = arg_litn("v", "verbose", 0, 1, "verbose output"),
+        no_runtime			  = arg_litn(NULL, "no-runtime", 0, 1, "no runtime"),
         output				  = arg_filen("o", "output", "file", 0, 1, "output file"),
         input				  = arg_filen(NULL, NULL, "<file>", 1, 1, "input file"),
+        runtime_filename   	  = arg_filen(NULL, "runtime", "<file>", 0, 1, "runtime file"),
         stage				  = arg_strn(NULL, "stage", "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
         opti_const_operations = arg_litn(NULL, "opti-const-op", 0, 1, "enable optimisations on operations depending only on constants"),
         end					  = arg_end(20),
@@ -165,13 +166,29 @@ int main(int argc, char* argv[])
     if (opti_const_operations->count > 0)
         opti |= OPTI_CONST_OPERATIONS;
 
-    FILE* runtime_file = fopen("runtime.c", "r");
-    if (runtime_file == NULL)
+    FILE* runtime_file;
+    if (no_runtime->count > 0)
     {
-        perror("failed to open the runtime file");
-        clear_and_exit(EXIT_FAILURE);
+        runtime_file = NULL;
     }
-    register_file_to_close(runtime_file);
+    else
+    {
+        if (runtime_filename->count > 0)
+        {
+            runtime_file = fopen(*(runtime_filename)->filename, "r");
+        }
+        else
+        {
+            runtime_file = fopen("runtime.c", "r");
+        }
+
+        if (runtime_file == NULL)
+        {
+            perror("failed to open the runtime file");
+            clear_and_exit(EXIT_FAILURE);
+        }
+        register_file_to_close(runtime_file);
+    }
 
     // Stage handling
     if (stage->count == 0)
@@ -182,11 +199,11 @@ int main(int argc, char* argv[])
     {
         if (strcmp(*(stage->sval), STAGE_LEXICAL) == 0)
         {
-            lexical_analysis_on_file(source_file, verb->count, output_file, runtime_file);
+            lexical_analysis_on_file(source_file, verb->count, output_file);
         }
         else if (strcmp(*(stage->sval), STAGE_SYNTACTIC) == 0)
         {
-            syntactic_analysis_on_file(source_file, verb->count, opti, output_file, runtime_file);
+            syntactic_analysis_on_file(source_file, verb->count, opti, output_file);
         }
         else if (strcmp(*(stage->sval), STAGE_SEMANTIC) == 0)
         {
@@ -212,17 +229,31 @@ int main(int argc, char* argv[])
     return exitcode;
 }
 
-void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE* runtime)
+void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file)
 {
-    FILE* files[2] = { runtime, in_file };
-    char* file_content = load_files_content(files, 2);
+    // Runtime 
+    char* runtime_content = load_file_content_and_close(runtime_file);
+    SyntacticAnalyzer runtime_analyzer = syntactic_analyzer_create(runtime_content, optimisations);
+    syntactic_analyzer_build_tree(&runtime_analyzer);
+    assert(runtime_analyzer.syntactic_tree != NULL);
+    assert(runtime_analyzer.nb_errors == 0);
+
+    free(runtime_content);
+
+    SymbolTable table = symbol_table_create();
+    semantic_analysis(runtime_analyzer.syntactic_tree, &table);
+    assert(table.nb_errors == 0);
+
+    char* usercode_content = load_file_content_and_close(in_file);
 
     if(verbose)
-        printf("File content :\n\n%s\n", file_content);
+        printf("File content :\n\n%s\n", usercode_content);
 
-    SyntacticAnalyzer usercode_analyzer = syntactic_analyzer_create(file_content, optimisations);
+    SyntacticAnalyzer usercode_analyzer = syntactic_analyzer_create(usercode_content, optimisations);
+    syntactic_analyzer_build_tree(&usercode_analyzer);
+    free(usercode_content);
 
-    if (syntactic_analyzer_build_tree(&usercode_analyzer) == NULL)
+    if (usercode_analyzer.syntactic_tree == NULL)
     {
         fprintf(stderr, "The source file is empty");
     }
@@ -234,14 +265,12 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
         }
         else
         {
-            
             if (verbose)
             {
                 printf("\nSyntactic tree before semantic analysis : \n\n");
                 syntactic_node_display_tree(usercode_analyzer.syntactic_tree, 0, out_file);
             }
 
-            SymbolTable table = symbol_table_create();
             semantic_analysis(usercode_analyzer.syntactic_tree, &table);
 
             if (verbose)
@@ -259,25 +288,25 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
                 {
                     printf("\nGenerated code :\n\n");
                 }
+                generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP);
                 generate_program(usercode_analyzer.syntactic_tree, out_file);
             }
         }
     }
-
-    free(file_content);
 }
 
-void syntactic_analysis_on_file(FILE * in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE* runtime)
+void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file)
 {
-    FILE* files[2] = { runtime, in_file };
-    char* file_content = load_files_content(files, 2);
+    char* usercode_content = load_file_content_and_close(in_file);
 
     if (verbose)
-        fprintf(out_file, "File content :\n\n%s\n\n", file_content);
+        fprintf(out_file, "File content :\n\n%s\n\n", usercode_content);
 
-    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content, optimisations);
+    SyntacticAnalyzer usercode_analyzer = syntactic_analyzer_create(usercode_content, optimisations);
+    syntactic_analyzer_build_tree(&usercode_analyzer);
+    free(usercode_content);
 
-    if (syntactic_analyzer_build_tree(&analyzer) == NULL)
+    if (usercode_analyzer.syntactic_tree == NULL)
     {
         fprintf(stderr, "The source file is empty");
     }
@@ -286,23 +315,35 @@ void syntactic_analysis_on_file(FILE * in_file, int verbose, unsigned char optim
         if (verbose)
             fprintf(out_file, "\n\nSyntactic tree : \n\n");
 
-        syntactic_node_display_tree(analyzer.syntactic_tree, 0, out_file);
+        syntactic_node_display_tree(usercode_analyzer.syntactic_tree, 0, out_file);
     }
-
-    free(file_content);
 }
 
-void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE* runtime)
+void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file)
 {
-    FILE* files[2] = { runtime, in_file };
-    char* file_content = load_files_content(files, 2);
+    // Runtime 
+    char* runtime_content = load_file_content_and_close(runtime_file);
+    SyntacticAnalyzer runtime_analyzer = syntactic_analyzer_create(runtime_content, optimisations);
+    syntactic_analyzer_build_tree(&runtime_analyzer);
+    assert(runtime_analyzer.syntactic_tree != NULL);
+    assert(runtime_analyzer.nb_errors == 0);
+
+    free(runtime_content);
+
+    SymbolTable table = symbol_table_create();
+    semantic_analysis(runtime_analyzer.syntactic_tree, &table);
+    assert(table.nb_errors == 0);
+
+    char* usercode_content = load_file_content_and_close(in_file);
 
     if (verbose)
-        fprintf(out_file, "File content :\n\n%s\n\n", file_content);
+        printf("File content :\n\n%s\n", usercode_content);
 
-    SyntacticAnalyzer analyzer = syntactic_analyzer_create(file_content, optimisations);
+    SyntacticAnalyzer usercode_analyzer = syntactic_analyzer_create(usercode_content, optimisations);
+    syntactic_analyzer_build_tree(&usercode_analyzer);
+    free(usercode_content);
 
-    if (syntactic_analyzer_build_tree(&analyzer) == NULL)
+    if (usercode_analyzer.syntactic_tree == NULL)
     {
         fprintf(stderr, "The source file is empty");
     }
@@ -311,51 +352,43 @@ void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimis
         if (verbose)
         {
             fprintf(out_file, "\n\nSyntactic tree before : \n\n");
-            syntactic_node_display_tree(analyzer.syntactic_tree, 0, out_file);
+            syntactic_node_display_tree(usercode_analyzer.syntactic_tree, 0, out_file);
         }
         
-
-        SymbolTable table = symbol_table_create();
-        semantic_analysis(analyzer.syntactic_tree, &table);
+        semantic_analysis(usercode_analyzer.syntactic_tree, &table);
 
         if (verbose)
             fprintf(out_file, "\n\nSyntactic tree after : \n\n");
         
-        syntactic_node_display_tree(analyzer.syntactic_tree, 0, out_file);
+        syntactic_node_display_tree(usercode_analyzer.syntactic_tree, 0, out_file);
     }
-
-    free(file_content);
 }
 
-void lexical_analysis_on_file(FILE* in_file, int verbose, FILE* out_file, FILE* runtime)
+void lexical_analysis_on_file(FILE* in_file, int verbose, FILE* out_file)
 {
-    FILE* files[2] = { runtime, in_file };
-    char* file_content = load_files_content(files, 2);
+    char* usercode_content = load_file_content_and_close(in_file);
 
     if (verbose)
     {
-        printf("File content :\n\n%s\n", file_content);
+        printf("File content :\n\n%s\n", usercode_content);
         printf("\nToken list : \n");
     }
-    Tokenizer tokenizer = tokenizer_create(file_content);
+    Tokenizer tokenizer = tokenizer_create(usercode_content);
     while (tokenizer.next.type != TOK_EOF)
     {
         tokenizer_step(&tokenizer);
         token_display(tokenizer.current, out_file);
     }
 
-    free(file_content);
+    free(usercode_content);
 }
 
-char* load_files_content(FILE ** files, int nb_files)
+char* load_file_content_and_close(FILE* file)
 {
-    size_t file_size = 0;
-    for (int i = 0; i < nb_files; i++)
-    {
-        fseek(files[i], 0, SEEK_END);
-        file_size += ftell(files[i]);
-        fseek(files[i], 0, SEEK_SET);
-    }
+    size_t file_size;
+    fseek(file, 0, SEEK_END);
+    file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
 
     char* file_content = malloc(sizeof(char) * file_size + 1);
     if (file_content == NULL)
@@ -366,19 +399,16 @@ char* load_files_content(FILE ** files, int nb_files)
     else
     {
         size_t nb_char_loaded = 0;
-        for (int i = 0; i < nb_files; i++)
-        {
-            nb_char_loaded += fread(file_content + nb_char_loaded, sizeof(char), file_size, files[i]);
-            // May be different from file_size, e.g. if line breaks are CRLF instead of LF
+        nb_char_loaded += fread(file_content + nb_char_loaded, sizeof(char), file_size, file);
+        // May be different from file_size, e.g. if line breaks are CRLF instead of LF
 
-            if (ferror(files[i]))
-            {
-                fprintf(stderr, "Failed to read content from the file\n");
-                clear_and_exit(EXIT_FAILURE);
-            }
-            fclose(files[i]);
-            unregister_file_to_close(files[i]);
+        if (ferror(file))
+        {
+            fprintf(stderr, "Failed to read content from the file\n");
+            clear_and_exit(EXIT_FAILURE);
         }
+        fclose(file);
+        unregister_file_to_close(file);
 
         file_content[nb_char_loaded] = '\0';
     }

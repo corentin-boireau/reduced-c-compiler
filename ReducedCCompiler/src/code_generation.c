@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NO_LOOP -1
-
 void generate_program(const SyntacticNode* program, FILE * stream)
 {
 	assert(program != NULL);
