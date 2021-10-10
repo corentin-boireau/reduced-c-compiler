@@ -41,7 +41,7 @@ def test_break_continue():
         msm_output_filename = FILE_PREFIXES[test_file_nb] + MSM_EXT
         msm_ref_filename = msm_output_filename + REF_EXT
 
-        args = [RCC_PATH, test_filename, "-o", msm_output_filename]
+        args = [RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
         desc = "Compiling " + test_filename
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"

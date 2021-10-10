@@ -592,16 +592,18 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_IDENTIFIER))
 	{ // A ---> ident
+		int line = analyzer->tokenizer.current.line;
+		int col  = analyzer->tokenizer.current.col;
 		// var;
 		if (!tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS))
 		{
-			node = syntactic_node_create(NODE_REF, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+			node = syntactic_node_create(NODE_REF, line, col);
 			node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 		}
 		// function(arg1, ...)
 		else
 		{
-			node = syntactic_node_create(NODE_CALL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+			node = syntactic_node_create(NODE_CALL, line, col);
 			node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 			SyntacticNode *seq = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 			// args

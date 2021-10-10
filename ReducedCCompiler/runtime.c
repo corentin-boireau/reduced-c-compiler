@@ -1,3 +1,8 @@
+int _Init()
+{
+    return 0;
+}
+
 int printn(int n)
 {
     if (n < 0)

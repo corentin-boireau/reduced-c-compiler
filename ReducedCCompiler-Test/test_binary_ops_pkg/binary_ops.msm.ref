@@ -1,72 +1,82 @@
 .main
-		resn 0
-		push 1
-		push 1
-		add
-		dbg
-		push 1
-		push 1
-		add
-		dbg
-		push 2
-		push 2
-		sub
-		dbg
-		push 2
-		push 2
-		sub
-		dbg
-		push 3
-		push 3
-		mul
-		dbg
-		push 3
-		push 3
-		mul
-		dbg
-		push 4
-		push 4
-		div
-		dbg
-		push 5
-		push 5
-		mod
-		dbg
-		push 6
-		push 6
-		cmplt
-		dbg
-		push 7
-		push 7
-		cmple
-		dbg
-		push 8
-		push 8
-		cmpgt
-		dbg
-		push 9
-		push 9
-		cmpge
-		dbg
-		push 1
-		push 1
-		cmpeq
-		dbg
-		push 2
-		push 2
-		cmpne
-		dbg
-		push 3
-		push 3
-		or
-		dbg
-		push 4
-		push 4
-		and
-		dbg
-		push 0
-		ret
+        resn 0
+        push 1
+        push 1
+        add
+        dbg
+        push 1
+        push 1
+        add
+        dbg
+        push 2
+        push 2
+        sub
+        dbg
+        push 2
+        push 2
+        sub
+        dbg
+        push 3
+        push 3
+        mul
+        dbg
+        push 3
+        push 3
+        mul
+        dbg
+        push 4
+        push 4
+        div
+        dbg
+        push 5
+        push 5
+        mod
+        dbg
+        push 6
+        push 6
+        cmplt
+        dbg
+        push 7
+        push 7
+        cmple
+        dbg
+        push 8
+        push 8
+        cmpgt
+        dbg
+        push 9
+        push 9
+        cmpge
+        dbg
+        push 1
+        push 1
+        cmpeq
+        dbg
+        push 2
+        push 2
+        cmpne
+        dbg
+        push 3
+        push 3
+        or
+        dbg
+        push 4
+        push 4
+        and
+        dbg
+        push 0
+        ret
 .start
-		prep main
-		call 0
-		halt
+       prep main
+       call 0
+       halt
+
+.putchar
+       send
+       push 0
+       ret
+
+.getchar
+       recv
+       ret
+

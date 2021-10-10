@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
         no_runtime			  = arg_litn(NULL, "no-runtime", 0, 1, "no runtime"),
         output				  = arg_filen("o", "output", "file", 0, 1, "output file"),
         input				  = arg_filen(NULL, NULL, "<file>", 1, 1, "input file"),
-        runtime_filename   	  = arg_filen(NULL, "runtime", "<file>", 0, 1, "runtime file"),
+        runtime_filename   	  = arg_filen(NULL, "runtime", "<file>", 0, 1, "runtime file (ignored when --no-runtime is specified)"),
         stage				  = arg_strn(NULL, "stage", "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
         opti_const_operations = arg_litn(NULL, "opti-const-op", 0, 1, "enable optimisations on operations depending only on constants"),
         end					  = arg_end(20),
@@ -231,18 +231,25 @@ int main(int argc, char* argv[])
 
 void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file)
 {
-    // Runtime 
-    char* runtime_content = load_file_content_and_close(runtime_file);
-    SyntacticAnalyzer runtime_analyzer = syntactic_analyzer_create(runtime_content, optimisations);
-    syntactic_analyzer_build_tree(&runtime_analyzer);
-    assert(runtime_analyzer.syntactic_tree != NULL);
-    assert(runtime_analyzer.nb_errors == 0);
-
-    free(runtime_content);
-
     SymbolTable table = symbol_table_create();
-    semantic_analysis(runtime_analyzer.syntactic_tree, &table);
-    assert(table.nb_errors == 0);
+
+    // ** Runtime ** //
+    SyntacticAnalyzer runtime_analyzer = {0};
+
+    if (runtime_file != NULL)
+    {
+        char* runtime_content = load_file_content_and_close(runtime_file);
+        runtime_analyzer = syntactic_analyzer_create(runtime_content, optimisations);
+        syntactic_analyzer_build_tree(&runtime_analyzer);
+        assert(runtime_analyzer.syntactic_tree != NULL);
+        assert(runtime_analyzer.nb_errors == 0);
+
+        free(runtime_content);
+        
+        semantic_analysis(runtime_analyzer.syntactic_tree, &table);
+        assert(table.nb_errors == 0);
+    }
+    // ************ //
 
     char* usercode_content = load_file_content_and_close(in_file);
 
@@ -288,8 +295,11 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
                 {
                     printf("\nGenerated code :\n\n");
                 }
-                generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP);
-                generate_program(usercode_analyzer.syntactic_tree, out_file);
+                
+                if(runtime_file != NULL)
+                    generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP);
+
+                generate_program(usercode_analyzer.syntactic_tree, out_file, no_runtime->count == 0);
             }
         }
     }
@@ -321,18 +331,25 @@ void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimi
 
 void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file)
 {
-    // Runtime 
-    char* runtime_content = load_file_content_and_close(runtime_file);
-    SyntacticAnalyzer runtime_analyzer = syntactic_analyzer_create(runtime_content, optimisations);
-    syntactic_analyzer_build_tree(&runtime_analyzer);
-    assert(runtime_analyzer.syntactic_tree != NULL);
-    assert(runtime_analyzer.nb_errors == 0);
-
-    free(runtime_content);
-
     SymbolTable table = symbol_table_create();
-    semantic_analysis(runtime_analyzer.syntactic_tree, &table);
-    assert(table.nb_errors == 0);
+
+    // ** Runtime ** //
+    SyntacticAnalyzer runtime_analyzer = { 0 };
+
+    if (runtime_file != NULL)
+    {
+        char* runtime_content = load_file_content_and_close(runtime_file);
+        runtime_analyzer = syntactic_analyzer_create(runtime_content, optimisations);
+        syntactic_analyzer_build_tree(&runtime_analyzer);
+        assert(runtime_analyzer.syntactic_tree != NULL);
+        assert(runtime_analyzer.nb_errors == 0);
+
+        free(runtime_content);
+
+        semantic_analysis(runtime_analyzer.syntactic_tree, &table);
+        assert(table.nb_errors == 0);
+    }
+    // ************ //
 
     char* usercode_content = load_file_content_and_close(in_file);
 

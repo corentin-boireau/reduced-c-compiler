@@ -38,7 +38,7 @@ def test_variables():
         syn_output_filename = FILE_PREFIXES[test_file_nb] + SYNTACTIC_SUFFIX + OUT_EXT
         syn_ref_filename = syn_output_filename + REF_EXT
 
-        args = [RCC_PATH, test_filename, "--stage", "syntactic", "-o", syn_output_filename]
+        args = [RCC_PATH, "--no-runtime",  test_filename, "--stage", "syntactic", "-o", syn_output_filename]
         desc = "Running syntactical analysis on " + test_filename
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
@@ -62,7 +62,7 @@ def test_variables():
         sem_output_filename = FILE_PREFIXES[test_file_nb] + SEMANTIC_SUFFIX + OUT_EXT
         sem_ref_filename = sem_output_filename + REF_EXT
 
-        args = [RCC_PATH, test_filename, "--stage", "semantic", "-o", sem_output_filename]
+        args = [RCC_PATH, "--no-runtime",  test_filename, "--stage", "semantic", "-o", sem_output_filename]
         desc = "Running syntactical analysis on " + test_filename
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
@@ -86,7 +86,7 @@ def test_variables():
         msm_output_filename = FILE_PREFIXES[test_file_nb] + MSM_EXT
         msm_ref_filename = msm_output_filename + REF_EXT
 
-        args = [RCC_PATH, test_filename, "-o", msm_output_filename]
+        args = [RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
         desc = "Compiling " + test_filename
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
@@ -135,7 +135,7 @@ def test_variables():
         # OPTIMISATION ON CONSTANTS
         opti_msm_output_filename = FILE_PREFIXES[test_file_nb] + OPTI_SUFFIX + MSM_EXT
         
-        args = [RCC_PATH, test_filename, "--opti-const-op", "-o", opti_msm_output_filename]
+        args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-op", "-o", opti_msm_output_filename]
         desc = "Compiling " + test_filename + " with --opti-const-op flag"
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"

@@ -1,60 +1,70 @@
 .main
-		resn 5
-		push 4
-		dup
-		set 0
-		dbg
-		push 434
-		dup
-		set 1
-		drop
-		push 23
-		dup
-		set 2
-		drop
-		get 1
-		dbg
-		get 2
-		dbg
-		push 3
-		push 23
-		add
-		dup
-		set 2
-		dup
-		set 1
-		dup
-		set 0
-		drop
-		get 0
-		dbg
-		get 1
-		dbg
-		get 2
-		dbg
-		push 89
-		dup
-		set 3
-		drop
-		push 34
-		dup
-		set 4
-		drop
-		get 3
-		dbg
-		get 1
-		dbg
-		push 32
-		dup
-		set 1
-		drop
-		get 0
-		dbg
-		get 1
-		dbg
-		push 0
-		ret
+        resn 5
+        push 4
+        dup
+        set 0
+        dbg
+        push 434
+        dup
+        set 1
+        drop
+        push 23
+        dup
+        set 2
+        drop
+        get 1
+        dbg
+        get 2
+        dbg
+        push 3
+        push 23
+        add
+        dup
+        set 2
+        dup
+        set 1
+        dup
+        set 0
+        drop
+        get 0
+        dbg
+        get 1
+        dbg
+        get 2
+        dbg
+        push 89
+        dup
+        set 3
+        drop
+        push 34
+        dup
+        set 4
+        drop
+        get 3
+        dbg
+        get 1
+        dbg
+        push 32
+        dup
+        set 1
+        drop
+        get 0
+        dbg
+        get 1
+        dbg
+        push 0
+        ret
 .start
-		prep main
-		call 0
-		halt
+       prep main
+       call 0
+       halt
+
+.putchar
+       send
+       push 0
+       ret
+
+.getchar
+       recv
+       ret
+

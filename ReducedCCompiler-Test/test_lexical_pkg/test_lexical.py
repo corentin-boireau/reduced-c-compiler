@@ -32,7 +32,7 @@ def test_lexical():
         lex_output_filename = FILE_PREFIXES[test_file_nb] + LEXICAL_EXT + OUT_EXT
         lex_ref_filename = lex_output_filename + REF_EXT
 
-        args = [RCC_PATH, test_filename, "--stage", "lexical", "-o", lex_output_filename]
+        args = [RCC_PATH, "--no-runtime",  test_filename, "--stage", "lexical", "-o", lex_output_filename]
         desc = "Running lexical analysis on " + test_filename
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
