@@ -8,36 +8,52 @@
 void generate_program(const SyntacticNode* program, FILE * stream, int is_init_called)
 {
     assert(program != NULL);
-    
-    #define RUNTIME_CODE \
+
+    #define CALL_INIT \
+        "       prep _Init"	 "\n" \
+        "       call 0"
+
+    #define CALL_MAIN \
         "       prep main"   "\n" \
-        "       call 0"      "\n" \
-        "       halt"        "\n" \
-                             "\n" \
+        "       call 0"
+
+    #define PUTCHAR_PRIMITIVE \
         ".putchar"           "\n" \
         "       send"        "\n" \
         "       push 0"      "\n" \
-        "       ret"         "\n" \
-                             "\n" \
+        "       ret"
+
+    #define GETCHAR_PRIMITIVE \
         ".getchar"           "\n" \
         "       recv"        "\n" \
-        "       ret"         \
+        "       ret"
+
 
     char asm_runtime[] =
         ".start"             "\n"
-        RUNTIME_CODE         "\n"
+        CALL_INIT            "\n"
+        CALL_MAIN            "\n"
+        "       halt"        "\n"
+                             "\n"
+        PUTCHAR_PRIMITIVE    "\n"
+                             "\n"
+        GETCHAR_PRIMITIVE    "\n"
         ;
 
-    char asm_runtime_with_init[] =
+    char asm_runtime_without_init[] =
         ".start"             "\n"
-        "       prep _Init"	 "\n"
-        "       call 0"		 "\n"
-        RUNTIME_CODE         "\n"
+        CALL_MAIN            "\n"
+        "       halt"        "\n"
+                             "\n"
+        PUTCHAR_PRIMITIVE    "\n"
+                             "\n"
+        GETCHAR_PRIMITIVE    "\n"
         ;
+
 
     generate_code(program, stream, NO_LOOP);
 
-    fprintf(stream, "%s\n", is_init_called ? asm_runtime_with_init : asm_runtime);
+    fprintf(stream, "%s\n", is_init_called ? asm_runtime : asm_runtime_without_init);
 }
 
 void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)

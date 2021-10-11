@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 // Syntactic rules
 SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer);		// Whole program
@@ -276,13 +277,36 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
-	{ // I ---> 'int' ident ';'
+	{ // I ---> 'int' ident ('=' E)? (',' ident ('=' E)? )* ';'
 		node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 
 		tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
 		SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 		syntactic_node_add_child(node, decl);
+
+		if (tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
+		{
+			SyntacticNode* ref = syntactic_node_create(NODE_REF, decl->line, decl->col);
+			size_t nb_char = strlen(decl->value.str_val);
+			ref->value.str_val = malloc((nb_char + 1) * sizeof(char));
+			if (ref->value.str_val == NULL)
+			{
+				perror("Failed to allocate space for reference's name");
+				exit(EXIT_FAILURE);
+			}
+			memcpy(ref->value.str_val, decl->value.str_val, (nb_char + 1) * sizeof(char));
+
+			SyntacticNode* assignment = syntactic_node_create(NODE_ASSIGNMENT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+			SyntacticNode* expr = sr_expression(analyzer);
+
+			SyntacticNode* drop = syntactic_node_create(NODE_DROP, assignment->line, assignment->col);
+
+			syntactic_node_add_child(assignment, ref);
+			syntactic_node_add_child(assignment, expr);
+			syntactic_node_add_child(drop, assignment);
+			syntactic_node_add_child(node, drop);
+		}
 
 		while (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
 		{
@@ -292,6 +316,29 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 			decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 			decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
 			syntactic_node_add_child(node, decl);
+
+			if (tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
+			{
+				SyntacticNode* ref = syntactic_node_create(NODE_REF, decl->line, decl->col);
+				size_t nb_char = strlen(decl->value.str_val);
+				ref->value.str_val = malloc((nb_char + 1) * sizeof(char));
+				if (ref->value.str_val == NULL)
+				{
+					perror("Failed to allocate space for reference's name");
+					exit(EXIT_FAILURE);
+				}
+				memcpy(ref->value.str_val, decl->value.str_val, (nb_char + 1) * sizeof(char));
+
+				SyntacticNode* assignment = syntactic_node_create(NODE_ASSIGNMENT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+				SyntacticNode* expr = sr_expression(analyzer);
+
+				SyntacticNode* drop = syntactic_node_create(NODE_DROP, assignment->line, assignment->col);
+
+				syntactic_node_add_child(assignment, ref);
+				syntactic_node_add_child(assignment, expr);
+				syntactic_node_add_child(drop, assignment);
+				syntactic_node_add_child(node, drop);
+			}
 		}
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_IF))
