@@ -178,4 +178,6 @@ if __name__ == "__main__":
     print("Test variables assignments and references")
     nb_errors = test_variables()
     if nb_errors > 0:
-        print("XXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX")
+        print(tu.to_bold_error("\nXXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX"))
+    else:
+        print(tu.to_bold_success("   All tests passed"))
