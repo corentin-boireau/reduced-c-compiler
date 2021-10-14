@@ -1,4 +1,6 @@
 import os
+from tests_utils import to_bold_error
+from tests_utils import to_bold_success
 from test_lexical_pkg.test_lexical       import test_lexical
 from test_unary_ops_pkg.test_unary_ops   import test_unary_ops
 from test_binary_ops_pkg.test_binary_ops import test_binary_ops
@@ -47,7 +49,9 @@ def run_all_tests():
     os.chdir("..")
 
     if nb_errors > 0:
-        print("\nXXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX")
+        print(to_bold_error("\nXXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX"))
+    else:
+        print(to_bold_success("All tests passed"))
 
 
 if __name__ == "__main__":
