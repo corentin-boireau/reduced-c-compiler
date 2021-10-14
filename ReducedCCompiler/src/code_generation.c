@@ -273,7 +273,8 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
         case NODE_FUNCTION:
         {
             fprintf(stream, ".%s\n", node->value.str_val);
-            fprintf(stream, "        resn %d\n", node->nb_var);
+            if(node->nb_var > 0)
+                fprintf(stream, "        resn %d\n", node->nb_var);
             for (int i = 0; i < node->nb_children; i++)
             {
                 generate_code(node->children[i], stream, loop_nb);

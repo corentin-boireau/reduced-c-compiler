@@ -1,5 +1,4 @@
 .main
-        resn 0
         push 1
         push 1
         add
