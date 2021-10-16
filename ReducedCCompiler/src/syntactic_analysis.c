@@ -236,8 +236,11 @@ SyntacticNode* sr_function(SyntacticAnalyzer* analyzer)
 			tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 		}
 		syntactic_node_add_child(node, seq);
-		//tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 		SyntacticNode* instruction = sr_instruction(analyzer);
+		// TODO Functions should not create two blocks when the instruction is a NODE_BLOCK
+		//		Function body should be between braces (not enforced by sr_instruction())
+		if (instruction->type == NODE_BLOCK)
+			instruction->type = NODE_SEQUENCE;
 		syntactic_node_add_child(node, instruction);
 	}
 	else

@@ -27,7 +27,7 @@ typedef struct SymbolTable_s SymbolTable;
 struct SymbolTable_s
 {
 	Symbol symbols[MAX_SYMBOLS];
-	int    scopes[MAX_SCOPES];
+	int    scopes[MAX_SCOPES + 1];
 	int    nb_symbols;
 	int    nb_variables;
 	int    current_scope;

@@ -89,6 +89,8 @@ enum
 	TOK_CONST,				// Numeric value
 	TOK_IDENTIFIER,			// Identifier (text that is not a keyword)
 
+	TOK_START_COMMENT_BLOCK,// /*
+	TOK_END_COMMENT_BLOCK,  // */
 	TOK_EOF,				// End of file
 
 	TOK_NONE,				// Default value

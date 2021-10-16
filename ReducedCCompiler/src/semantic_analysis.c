@@ -182,6 +182,11 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
 void startScope(SymbolTable* table)
 {
 	table->current_scope++;
+	if (table->current_scope > MAX_SCOPES)
+	{
+		fprintf(stderr, "FATAL ERROR : Max number of scopes exceeded (%d > %d)\n", table->current_scope, MAX_SCOPES);
+        exit(EXIT_FAILURE);
+	}
 	table->scopes[table->current_scope] = table->nb_symbols;
 }
 
