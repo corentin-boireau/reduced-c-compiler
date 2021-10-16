@@ -5,3 +5,6 @@ int main()
     print a + ;
     print b + ;
 }
+
+int lama()
+    print 3;
