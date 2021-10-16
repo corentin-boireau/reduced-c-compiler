@@ -111,10 +111,12 @@ int main(int argc, char* argv[])
         printf("Usage: %s", RCC_NAME);
         arg_print_syntax(stdout, argtable, "\n");
         arg_print_glossary(stdout, argtable, "	%-40s %s\n");
+        clear_and_exit(EXIT_SUCCESS);
     }
     else if (version->count > 0)
     {
         printf("%s %s\n", RCC_LONG_NAME, RCC_VERSION);
+        clear_and_exit(EXIT_SUCCESS);
     }
     else if (nb_errors > 0)
     {

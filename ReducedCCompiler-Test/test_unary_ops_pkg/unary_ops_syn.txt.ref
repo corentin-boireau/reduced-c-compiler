@@ -1,7 +1,7 @@
 PROGRAM
 |--FUNCTION : name = main
    |--SEQUENCE
-   |--BLOCK
+   |--SEQUENCE
       |--PRINT
          |--NEGATION
             |--CONST : value = 0

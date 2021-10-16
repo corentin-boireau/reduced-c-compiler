@@ -1,7 +1,7 @@
 PROGRAM
 |--FUNCTION : name = main
    |--SEQUENCE
-   |--BLOCK
+   |--SEQUENCE
       |--SEQUENCE
          |--DECL : name = x, index = 0
       |--SEQUENCE

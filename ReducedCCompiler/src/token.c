@@ -9,6 +9,8 @@ Token token_create()
 {
     Token token;
     token.type = TOK_NONE;
+    token.line = 0;
+    token.col  = 0;
 
     return token;
 }
@@ -195,7 +197,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                     }
                     invalid_sequence[0] = '|';
                     invalid_sequence[1] = '\0';
-
+                    
                     // Creating the invalid sequence token
                     tokenizer->next.type = TOK_INVALID_SEQ;
                     tokenizer->next.value.str_val = invalid_sequence;
@@ -238,6 +240,31 @@ void tokenizer_step(Tokenizer* tokenizer)
                                     tokenizer->col += 2;
                                     tokenizer->pos += 2;
                                 }
+                                break;
+                            }
+                            default:
+                            {
+                                tokenizer->col++;
+                                tokenizer->pos++;
+                            }
+                        }
+                    }
+                }
+                else if (tokenizer->buff[tokenizer->pos + 1] == '/')
+                { // Entering line comment
+                    tokenizer->col += 2;
+                    tokenizer->pos += 2;
+                    int in_comment_line = 1;
+                    while (in_comment_line)
+                    {
+                        switch (tokenizer->buff[tokenizer->pos])
+                        {
+                            case '\n':
+                            {
+                                in_comment_line = 0;
+                                tokenizer->line++;
+                                tokenizer->col = 1;
+                                tokenizer->pos++;
                                 break;
                             }
                             default:
@@ -414,7 +441,7 @@ void tokenizer_accept(Tokenizer* tokenizer, int token_type)
 
 void token_display(Token token, FILE* out_file)
 {
-    fprintf(out_file, "%d : %d ", token.line, token.col);
+    fprintf(out_file, "(%d:%d)\t\t", token.line, token.col);
     switch (token.type)
     {
         case TOK_INVALID_CHAR:		fprintf(out_file, "INVALID CHARACTER : %c\n", token.value.invalid_char); break;
