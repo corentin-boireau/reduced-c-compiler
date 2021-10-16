@@ -246,7 +246,9 @@ SyntacticNode* sr_function(SyntacticAnalyzer* analyzer)
 	else
 	{ // Unexpected token
 		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
-		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		fprintf(stderr, "(%d:%d):error: Unexpected token : ", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		token_display_given(analyzer->tokenizer.next, stderr);
+		fprintf(stderr, "\n");
 		syntactic_analyzer_inc_error(analyzer);
 	}
 
@@ -587,7 +589,9 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_AMPERSAND))
 	{ // P ---> '&' P
 		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		fprintf(stderr, "(%d:%d):error: Unexpected token : ", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		token_display_given(analyzer->tokenizer.next, stderr);
+		fprintf(stderr, "\n");
 		syntactic_analyzer_inc_error(analyzer);
 	}
 	else
@@ -672,7 +676,9 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 	else
 	{ // Unexpected token
 		node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
-		fprintf(stderr, "Unexpected token at %d:%d\n", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		fprintf(stderr, "(%d:%d):error: Unexpected token : ", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
+		token_display_given(analyzer->tokenizer.next, stderr);
+		fprintf(stderr, "\n");
 		syntactic_analyzer_inc_error(analyzer);
 	}
 

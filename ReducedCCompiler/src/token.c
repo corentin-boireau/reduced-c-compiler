@@ -428,14 +428,88 @@ int tokenizer_check(Tokenizer* tokenizer, int token_type)
     return checked;
 }
 
+static const char* TOKEN_REPR[] = 
+{
+    "\'=\'",
+    "\'||\'",
+    "\'&&\'",
+    "\'!=\'",
+    "\'==\'",
+    "\'<\'",
+    "\'>\'",
+    "\'<=\'",
+    "\'>=\'",
+    "\'+\'",
+    "\'-\'",
+    "\'*\'",
+    "\'/\'",
+    "\'%\'",
+    "\'&\'",
+    "\'!\'",
+    "\',\'",
+    "\';\'",
+    "\'(\'",
+    "\')\'",
+    "\'[\'",
+    "\']\'",
+    "\'{\'",
+    "\'}\'",
+    "\'int\'",
+    "\'if\'",
+    "\'else\'",
+    "\'for\'",
+    "\'while\'",
+    "\'do\'",
+    "\'break\'",
+    "\'continue\'",
+    "\'return\'",
+    "\'print\'",
+    "a numeric value",
+    "an identifier",
+    "end of file",
+    "None",
+    "an invalid character",
+    "an invalid sequence"
+};
+
 void tokenizer_accept(Tokenizer* tokenizer, int token_type)
 {
     assert(tokenizer != NULL);
 
     if ( ! tokenizer_check(tokenizer, token_type))
     {
-        fprintf(stderr, "Unexpected token at %d:%d\n", tokenizer->next.line, tokenizer->next.col);
+        fprintf(stderr, "(%d:%d):error: Unexpected token. Expected %s but ", tokenizer->next.line, tokenizer->next.col, TOKEN_REPR[token_type]);
+        token_display_given(tokenizer->next, stderr);
+        fprintf(stderr, " was given.\n");
+        
         exit(EXIT_FAILURE);
+    }
+}
+
+void token_display_given(Token token, FILE* out_file)
+{
+    switch (token.type)
+    {
+        case TOK_INVALID_SEQ:
+        case TOK_IDENTIFIER:
+        {
+            fprintf(out_file, "\'%s\'\n", token.value.str_val);
+            break;
+        }
+        case TOK_INVALID_CHAR:
+        {
+            fprintf(out_file, "\'%c\'", token.value.invalid_char);
+            break;
+        }
+        case TOK_CONST:
+        {
+            fprintf(out_file, "\'%d\'", token.value.int_val);
+            break;
+        }
+        default:
+        {
+            fprintf(out_file, "%s", TOKEN_REPR[token.type]);
+        }
     }
 }
 

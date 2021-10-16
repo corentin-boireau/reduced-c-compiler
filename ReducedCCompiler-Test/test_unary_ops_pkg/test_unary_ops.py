@@ -77,7 +77,6 @@ def test_unary_ops():
         if not success:
             nb_errors += 1
 
-        skip_next = False
         test_nb += 1
 
         # EXECUTION

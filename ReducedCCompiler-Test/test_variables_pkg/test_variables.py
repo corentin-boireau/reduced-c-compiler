@@ -102,7 +102,6 @@ def test_variables():
         if not success:
             nb_errors += 1
 
-        skip_next = False
         test_nb += 1
 
         # EXECUTION

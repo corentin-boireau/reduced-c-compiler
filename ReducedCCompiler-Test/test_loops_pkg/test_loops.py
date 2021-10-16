@@ -105,7 +105,6 @@ def test_loops():
         if not success:
             nb_errors += 1
 
-        skip_next = False
         test_nb += 1
 
         # EXECUTION
