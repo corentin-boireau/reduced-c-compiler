@@ -9,6 +9,7 @@ PROGRAM
             |--REF : name = a, index = -1
             |--CONST : value = 0
       |--LOOP
+         |--CONTINUE LABEL
          |--CONDITION
             |--LESS
                |--REF : name = a, index = -1

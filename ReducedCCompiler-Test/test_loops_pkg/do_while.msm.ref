@@ -13,6 +13,7 @@
         dup
         set 0
         drop
+.continue_0
         get 0
         push 0
         cmpge
@@ -28,6 +29,7 @@
 .loop_2
         get 0
         dbg
+.continue_2
         push 0
         jumpt endif_3
         jump endloop_2

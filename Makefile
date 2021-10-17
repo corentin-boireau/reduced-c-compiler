@@ -24,6 +24,7 @@ clean:
 	rm -f $(RCC_BIN_DIR)/$(RCC)
 	rm -f $(MSM_BIN_DIR)/$(MSM)
 	find . -name *.txt -exec rm {} \;
+	find . -name *.msm -exec rm {} \;
 
 test: $(RCC) $(MSM)
 	cd $(TEST_DIR); \

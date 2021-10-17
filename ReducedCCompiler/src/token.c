@@ -430,40 +430,40 @@ int tokenizer_check(Tokenizer* tokenizer, int token_type)
 
 static const char* TOKEN_REPR[] = 
 {
-    "\'=\'",
-    "\'||\'",
-    "\'&&\'",
-    "\'!=\'",
-    "\'==\'",
-    "\'<\'",
-    "\'>\'",
-    "\'<=\'",
-    "\'>=\'",
-    "\'+\'",
-    "\'-\'",
-    "\'*\'",
-    "\'/\'",
-    "\'%\'",
-    "\'&\'",
-    "\'!\'",
-    "\',\'",
-    "\';\'",
-    "\'(\'",
-    "\')\'",
-    "\'[\'",
-    "\']\'",
-    "\'{\'",
-    "\'}\'",
-    "\'int\'",
-    "\'if\'",
-    "\'else\'",
-    "\'for\'",
-    "\'while\'",
-    "\'do\'",
-    "\'break\'",
-    "\'continue\'",
-    "\'return\'",
-    "\'print\'",
+    "'='",
+    "'||'",
+    "'&&'",
+    "'!='",
+    "'=='",
+    "'<'",
+    "'>'",
+    "'<='",
+    "'>='",
+    "'+'",
+    "'-'",
+    "'*'",
+    "'/'",
+    "'%'",
+    "'&'",
+    "'!'",
+    "','",
+    "';'",
+    "'('",
+    "')'",
+    "'['",
+    "']'",
+    "'{'",
+    "'}'",
+    "'int'",
+    "'if'",
+    "'else'",
+    "'for'",
+    "'while'",
+    "'do'",
+    "'break'",
+    "'continue'",
+    "'return'",
+    "'print'",
     "a numeric value",
     "an identifier",
     "end of file",
@@ -493,17 +493,17 @@ void token_display_given(Token token, FILE* out_file)
         case TOK_INVALID_SEQ:
         case TOK_IDENTIFIER:
         {
-            fprintf(out_file, "\'%s\'\n", token.value.str_val);
+            fprintf(out_file, "'%s'\n", token.value.str_val);
             break;
         }
         case TOK_INVALID_CHAR:
         {
-            fprintf(out_file, "\'%c\'", token.value.invalid_char);
+            fprintf(out_file, "'%c'", token.value.invalid_char);
             break;
         }
         case TOK_CONST:
         {
-            fprintf(out_file, "\'%d\'", token.value.int_val);
+            fprintf(out_file, "'%d'", token.value.int_val);
             break;
         }
         default:

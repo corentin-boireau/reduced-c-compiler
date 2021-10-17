@@ -366,12 +366,15 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_WHILE))
 	{ // I ---> 'while' '(' E ')' I
 		node = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+		SyntacticNode *continue_label = syntactic_node_create(NODE_CONTINUE_LABEL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
 		SyntacticNode *cond = syntactic_node_create(NODE_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *expr = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
 		SyntacticNode* instruction = sr_instruction(analyzer);
 		SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+
+		syntactic_node_add_child(node, continue_label);
 
 		syntactic_node_add_child(cond, expr);
 		syntactic_node_add_child(cond, instruction);
@@ -385,6 +388,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		SyntacticNode* instruction = sr_instruction(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_WHILE);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
+		SyntacticNode *continue_label = syntactic_node_create(NODE_CONTINUE_LABEL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *expr = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
@@ -395,6 +399,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		syntactic_node_add_child(inv_cond, node_break);
 
 		syntactic_node_add_child(node, instruction);
+		syntactic_node_add_child(node, continue_label);
 		syntactic_node_add_child(node, inv_cond);
 	}
 	else if (tokenizer_check(&(analyzer->tokenizer), TOK_FOR))
@@ -408,6 +413,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 		SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *expr2 = sr_expression(analyzer);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+		SyntacticNode *continue_label = syntactic_node_create(NODE_CONTINUE_LABEL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		SyntacticNode *expr3 = sr_expression(analyzer);
 		SyntacticNode *drop3 = syntactic_node_create(NODE_DROP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 		tokenizer_accept(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS);
@@ -423,6 +429,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
 
 		syntactic_node_add_child(loop, inv_cond);
 		syntactic_node_add_child(loop, instruction);
+		syntactic_node_add_child(loop, continue_label);
 		syntactic_node_add_child(loop, drop3);
 		
 		syntactic_node_add_child(node, drop1);

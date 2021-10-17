@@ -312,7 +312,12 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
         }
         case NODE_CONTINUE:
         {
-            fprintf(stream, "        jump loop_%d\n", loop_nb);
+            fprintf(stream, "        jump continue_%d\n", loop_nb);
+            break;
+        }
+        case NODE_CONTINUE_LABEL:
+        {
+            fprintf(stream, ".continue_%d\n", loop_nb);
             break;
         }
         case NODE_BREAK:

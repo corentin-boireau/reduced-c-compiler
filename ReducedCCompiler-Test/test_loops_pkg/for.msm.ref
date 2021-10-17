@@ -13,6 +13,7 @@
 .endif_1
         get 0
         dbg
+.continue_0
         get 0
         push 1
         add

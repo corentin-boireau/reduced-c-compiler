@@ -17,6 +17,7 @@ PROGRAM
                |--BREAK
             |--PRINT
                |--REF : name = x, index = -1
+            |--CONTINUE LABEL
             |--DROP
                |--ASSIGNEMENT
                   |--REF : name = x, index = -1

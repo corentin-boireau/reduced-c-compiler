@@ -5,6 +5,7 @@
         set 0
         drop
 .loop_0
+.continue_0
         get 0
         push 11
         cmplt

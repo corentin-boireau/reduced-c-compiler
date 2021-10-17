@@ -51,7 +51,7 @@ def run_all_tests():
     if nb_errors > 0:
         print(to_bold_error("\nXXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX"))
     else:
-        print(to_bold_success("All tests passed"))
+        print(to_bold_success("\n    All tests passed"))
 
 
 if __name__ == "__main__":
