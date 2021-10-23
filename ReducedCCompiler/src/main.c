@@ -83,15 +83,15 @@ int main(int argc, char* argv[])
     /* the global arg_xxx structs are initialised within the argtable */
     void* argtable[] =
     {
-        help				  = arg_litn("h", "help", 0, 1, "display this help and exit"),
-        version				  = arg_litn(NULL, "version", 0, 1, "display version info and exit"),
-        verb				  = arg_litn("v", "verbose", 0, 1, "verbose output"),
-        no_runtime			  = arg_litn(NULL, "no-runtime", 0, 1, "no runtime"),
-        output				  = arg_filen("o", "output", "file", 0, 1, "output file"),
-        input				  = arg_filen(NULL, NULL, "<file>", 1, 1, "input file"),
-        runtime_filename   	  = arg_filen(NULL, "runtime", "<file>", 0, 1, "runtime file (ignored when --no-runtime is specified)"),
-        stage				  = arg_strn(NULL, "stage", "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
-        opti_const_operations = arg_litn(NULL, "opti-const-op", 0, 1, "enable optimisations on operations depending only on constants"),
+        help				  = arg_litn(  "h", "help",                                      0, 1, "display this help and exit"),
+        version				  = arg_litn( NULL, "version",                                   0, 1, "display version info and exit"),
+        verb				  = arg_litn(  "v", "verbose",                                   0, 1, "verbose output"),
+        no_runtime			  = arg_litn( NULL, "no-runtime",                                0, 1, "no runtime"),
+        output				  = arg_filen( "o", "output",  "<file>",                         0, 1, "output file"),
+        input				  = arg_filen(NULL, NULL,      "<file>",                         1, 1, "input file"),
+        runtime_filename   	  = arg_filen(NULL, "runtime", "<file>",                         0, 1, "runtime file (invalid when --no-runtime is specified)"),
+        stage				  = arg_strn( NULL, "stage",   "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
+        opti_const_operations = arg_litn( NULL, "opti-const-op",                             0, 1, "enable optimisations on operations depending only on constants"),
         end					  = arg_end(20),
     };
     register_argtable(argtable, sizeof(argtable) / sizeof(argtable[0])); // will be freed if an early cleanup is needed
@@ -134,12 +134,12 @@ int main(int argc, char* argv[])
         // TODO ACCESS() doesn't fail on windows when an asked permission is denied
         if (errno == EACCES)
         {
-            fprintf(stderr, "%s : Permission denied\n", *(input->filename));
+            fprintf(stderr, "%s: error. %s : Permission denied\n", RCC_NAME, *(input->filename));
             clear_and_exit(EXIT_FAILURE);
         }
         else if (errno == ENOENT)
         {
-            fprintf(stderr, "%s : No such file or directory\n", *(input->filename));
+            fprintf(stderr, "%s: error. %s : No such file or directory\n", RCC_NAME, *(input->filename));
             clear_and_exit(EXIT_FAILURE);
         }
     }
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
         output_file = fopen(*(output->filename), "w");
         if (output_file == NULL)
         {
-            fprintf(stderr, "%s : Failed to open the output file\n", *(input->filename));
+            fprintf(stderr, "%s: error. Failed to open the output file \"%s\"\n", RCC_NAME, *(output->filename));
             clear_and_exit(EXIT_FAILURE);
         }
         register_file_to_close(output_file);
@@ -171,6 +171,12 @@ int main(int argc, char* argv[])
     FILE* runtime_file;
     if (no_runtime->count > 0)
     {
+        if (runtime_filename->count > 0)
+        {
+            fprintf(stderr, "%s: invalid option. \"--%s\" option is incompatible with \"--%s\" option.", RCC_NAME, runtime_filename->hdr.longopts, no_runtime->hdr.longopts);
+            clear_and_exit(EXIT_FAILURE);
+        }
+
         runtime_file = NULL;
     }
     else
@@ -213,7 +219,8 @@ int main(int argc, char* argv[])
         }
         else
         {
-            fprintf(stderr, "\"%s\" : Unknown stage\nValid stages : \"%s\", \"%s\", \"%s\"", *(stage->sval), STAGE_LEXICAL, STAGE_SYNTACTIC, STAGE_SEMANTIC);
+            fprintf(stderr, "%s: invalid option. Unknown stage \"%s\"\nValid stages : \"%s\", \"%s\", \"%s\"",
+                RCC_NAME, *(stage->sval), STAGE_LEXICAL, STAGE_SYNTACTIC, STAGE_SEMANTIC);
             clear_and_exit(EXIT_FAILURE);
         }
     }
@@ -264,16 +271,16 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
 
     if (usercode_analyzer.syntactic_tree == NULL)
     {
-        fprintf(stderr, "The source file is empty");
+        fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
     }
     else
     {
         if (usercode_analyzer.nb_errors > 0)
         {
             if(usercode_analyzer.nb_errors == 1)
-                fprintf(stderr, "1 error found during syntactical analysis : compilation aborted");
+                fprintf(stderr, "%s: error. 1 error found during syntactical analysis : compilation aborted", RCC_NAME);
             else
-                fprintf(stderr, "%d errors found during syntactical analysis : compilation aborted", usercode_analyzer.nb_errors);
+                fprintf(stderr, "%s: error. %d errors found during syntactical analysis : compilation aborted", RCC_NAME, usercode_analyzer.nb_errors);
 
             clear_and_exit(EXIT_FAILURE);
         }
@@ -295,9 +302,9 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
             if (table.nb_errors > 0)
             {
                 if(table.nb_errors == 1)
-                    fprintf(stderr, "1 error found during semantic analysis : compilation aborted");
+                    fprintf(stderr, "%s: error. 1 error found during semantic analysis : compilation aborted", RCC_NAME);
                 else
-                    fprintf(stderr, "%d errors found during semantic analysis : compilation aborted", table.nb_errors);
+                    fprintf(stderr, "%s: error. %d errors found during semantic analysis : compilation aborted", RCC_NAME, table.nb_errors);
 
                 clear_and_exit(EXIT_FAILURE);
             }
@@ -330,7 +337,7 @@ void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimi
 
     if (usercode_analyzer.syntactic_tree == NULL)
     {
-        fprintf(stderr, "The source file is empty");
+        fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
     }
     else
     {	
@@ -374,7 +381,7 @@ void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimis
 
     if (usercode_analyzer.syntactic_tree == NULL)
     {
-        fprintf(stderr, "The source file is empty");
+        fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
     }
     else
     {	
@@ -433,7 +440,7 @@ char* load_file_content_and_close(FILE* file)
 
         if (ferror(file))
         {
-            fprintf(stderr, "Failed to read content from the file\n");
+            fprintf(stderr, "%s: error. Failed to read content from the file\n", RCC_NAME);
             clear_and_exit(EXIT_FAILURE);
         }
         fclose(file);
@@ -449,7 +456,7 @@ static void init_files_to_close(int max_files)
 {
     if ((g_to_close.files = malloc(max_files * sizeof(FILE*))) == NULL)
     {
-        fprintf(stderr, "Failed to allocate memory for FILE* array of \"fileg_to_close\"");
+        fprintf(stderr, "%s: error. Failed to allocate memory for FILE* array of \"fileg_to_close\"", RCC_NAME);
         clear_and_exit(EXIT_FAILURE);
     }
     else
