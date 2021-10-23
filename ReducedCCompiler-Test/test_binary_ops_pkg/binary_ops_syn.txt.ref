@@ -63,6 +63,14 @@ PROGRAM
             |--CONST : value = 3
             |--CONST : value = 3
       |--PRINT
+         |--OR
+            |--CONST : value = 0
+            |--CONST : value = 3
+      |--PRINT
          |--AND
             |--CONST : value = 4
+            |--CONST : value = 4
+      |--PRINT
+         |--AND
+            |--CONST : value = 0
             |--CONST : value = 4

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define SHORT_CIRUIT_ENABLED 1
 
 void generate_program(const SyntacticNode* program, FILE * stream, int is_init_called)
 {
@@ -114,16 +115,46 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb)
         }
         case NODE_AND:
         {
-            generate_code(node->children[0], stream, loop_nb);
-            generate_code(node->children[1], stream, loop_nb);
-            fprintf(stream, "        and\n");
+            if (SHORT_CIRUIT_ENABLED)
+            {
+                int label_number = label_counter++;
+                generate_code(node->children[0], stream, loop_nb);
+                fprintf(stream, "        dup\n");
+                fprintf(stream, "        jumpf endand_%d\n", label_number);
+                generate_code(node->children[1], stream, loop_nb);
+                fprintf(stream, "        and\n");
+                fprintf(stream, ".endand_%d\n", label_number);
+            }
+            else
+            {
+                generate_code(node->children[0], stream, loop_nb);
+                generate_code(node->children[1], stream, loop_nb);
+                fprintf(stream, "        and\n");
+            }
             break;
         }
         case NODE_OR:
         {
-            generate_code(node->children[0], stream, loop_nb);
-            generate_code(node->children[1], stream, loop_nb);
-            fprintf(stream, "        or\n");
+            if (SHORT_CIRUIT_ENABLED)
+            {
+                int label_number = label_counter++;
+                generate_code(node->children[0], stream, loop_nb);
+                fprintf(stream, "        dup\n");
+                fprintf(stream, "        jumpf falseor_%d\n", label_number);
+                fprintf(stream, "        drop\n");
+                fprintf(stream, "        push 1\n");
+                fprintf(stream, "        jump endor_%d\n", label_number);
+                fprintf(stream, ".falseor_%d\n", label_number);
+                generate_code(node->children[1], stream, loop_nb);
+                fprintf(stream, "        or\n");
+                fprintf(stream, ".endor_%d\n", label_number);
+            }
+            else
+            {
+                generate_code(node->children[0], stream, loop_nb);
+                generate_code(node->children[1], stream, loop_nb);
+                fprintf(stream, "        or\n");
+            }
             break;
         }
         case NODE_EQUAL:

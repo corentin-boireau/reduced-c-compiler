@@ -17,5 +17,7 @@ int main()
     print 2 != 2;
 
     print 3 || 3;
+    print 0 || 3;
     print 4 && 4;
+    print 0 && 4;
 }
