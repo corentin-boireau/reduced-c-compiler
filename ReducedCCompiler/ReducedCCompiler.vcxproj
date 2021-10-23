@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\code_generation.h" />
+    <ClInclude Include="src\optimization.h" />
     <ClInclude Include="src\semantic_analysis.h" />
     <ClInclude Include="src\syntactic_node.h" />
     <ClInclude Include="src\syntactic_analysis.h" />

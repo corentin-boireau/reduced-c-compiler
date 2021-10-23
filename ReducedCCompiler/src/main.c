@@ -6,12 +6,15 @@
 #include <sys/stat.h>
 #include <assert.h>
 
+#include "argtable3/argtable3.h"
+
 #include "token.h"
 #include "syntactic_node.h"
 #include "syntactic_analysis.h"
 #include "semantic_analysis.h"
 #include "code_generation.h"
-#include "argtable3/argtable3.h"
+#include "optimization.h"
+
 
 #define RCC_NAME	  "rcc"
 #define RCC_LONG_NAME "Reduced C Compiler"
@@ -164,7 +167,7 @@ int main(int argc, char* argv[])
         register_file_to_close(output_file);
     }
 
-    unsigned char opti = 0;
+    optimization_t opti = NO_OPTIMIZATION;
     if (opti_const_operations->count > 0)
         opti |= OPTI_CONST_OPERATIONS;
 

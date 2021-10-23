@@ -156,7 +156,7 @@ void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
     }
 }
 
-SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, unsigned char optimisations)
+SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, optimization_t optimizations)
 {
     assert(source_buffer != NULL);
 
@@ -165,7 +165,7 @@ SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, unsigned char o
     analyzer.tokenizer      = tokenizer_create(source_buffer);
     analyzer.syntactic_tree = NULL;
     analyzer.nb_errors      = 0;
-    analyzer.optimisations  = optimisations;
+    analyzer.optimizations  = optimizations;
 
     return analyzer;
 }
@@ -349,7 +349,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         }
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_IF))
-    { // I ---> 'if' '(' E ')' I ?('else' I)
+    { // I ---> 'if' '(' E ')' I ('else' I)?
         node = syntactic_node_create(NODE_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
         tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
         SyntacticNode *expr = sr_expression(analyzer);
@@ -499,8 +499,8 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                 SyntacticNode* operand1 = node;
                 SyntacticNode* operand2 = sr_expression_prio(analyzer, node_info.priority + node_info.associativity);
                 
-                // Optimisation of operations on constants
-                if (is_opti_enabled(analyzer, OPTI_CONST_OPERATIONS)
+                // Optimization of operations on constants
+                if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_OPERATIONS)
                     && node_info.node_type != NODE_ASSIGNMENT 
                     && operand1->type == NODE_CONST && operand2->type == NODE_CONST)
                 {
@@ -608,8 +608,8 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
         node = sr_suffix(analyzer);
     }
     
-    // *** Optimistations ***
-    if(is_opti_enabled(analyzer, OPTI_CONST_OPERATIONS))
+    // *** Optimizations ***
+    if(is_opti_enabled(analyzer->optimizations, OPTI_CONST_OPERATIONS))
         node = opti_constant_prefix(node);
 
     // **********************
@@ -694,7 +694,7 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
     return node;
 }
 
-// Optimisations
+// Optimizations
 
 SyntacticNode* opti_constant_prefix(SyntacticNode* node)
 {
