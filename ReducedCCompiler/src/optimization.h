@@ -15,7 +15,7 @@
 
 typedef unsigned char optimization_t;
 
-inline int is_opti_enabled(optimization_t optimizations, optimization_t opti_code)
+static inline int is_opti_enabled(optimization_t optimizations, optimization_t opti_code)
 {
 	return (optimizations & opti_code) != 0;
 }
