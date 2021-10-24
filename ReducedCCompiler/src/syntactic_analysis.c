@@ -146,6 +146,53 @@ static inline int is_binary_op(int token_type)
     return token_type < NB_OPERATORS && token_type >= 0;
 }
 
+SyntacticNode* subrule_single_decl(SyntacticAnalyzer* analyzer, SyntacticNode* declaration_seq, int allow_init)
+{
+    tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
+    SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+    decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+    syntactic_node_add_child(declaration_seq, decl);
+
+    if (allow_init && tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
+    {
+        SyntacticNode* ref = syntactic_node_create(NODE_REF, decl->line, decl->col);
+        size_t nb_char = strlen(decl->value.str_val);
+        ref->value.str_val = malloc((nb_char + 1) * sizeof(char));
+        if (ref->value.str_val == NULL)
+        {
+            perror("Failed to allocate space for reference's name");
+            exit(EXIT_FAILURE);
+        }
+        memcpy(ref->value.str_val, decl->value.str_val, (nb_char + 1) * sizeof(char));
+
+        SyntacticNode* assignment = syntactic_node_create(NODE_ASSIGNMENT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+        SyntacticNode* expr = sr_expression(analyzer);
+
+        SyntacticNode* drop = syntactic_node_create(NODE_DROP, assignment->line, assignment->col);
+
+        syntactic_node_add_child(assignment, ref);
+        syntactic_node_add_child(assignment, expr);
+        syntactic_node_add_child(drop, assignment);
+        syntactic_node_add_child(declaration_seq, drop);
+    }
+
+    return decl;
+}
+
+SyntacticNode* subrule_decl_instruction(SyntacticAnalyzer* analyzer, int allow_init)
+{
+    SyntacticNode *declarations = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+    subrule_single_decl(analyzer, declarations, allow_init);
+    
+    while (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
+    {
+        tokenizer_accept(&(analyzer->tokenizer), TOK_COMMA);
+        subrule_single_decl(analyzer, declarations, allow_init);
+    }
+
+    return declarations;
+}
+
 void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
 {
     analyzer->nb_errors++;
@@ -197,6 +244,7 @@ void syntactic_analyzer_report_and_exit(const SyntacticAnalyzer* analyzer)
 
 SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer)
 {
+
     assert(analyzer != NULL);
 
     // G ---> F*
@@ -285,68 +333,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
     { // I ---> 'int' ident ('=' E)? (',' ident ('=' E)? )* ';'
-        node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-
-        tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
-        SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-        decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
-        syntactic_node_add_child(node, decl);
-
-        if (tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
-        {
-            SyntacticNode* ref = syntactic_node_create(NODE_REF, decl->line, decl->col);
-            size_t nb_char = strlen(decl->value.str_val);
-            ref->value.str_val = malloc((nb_char + 1) * sizeof(char));
-            if (ref->value.str_val == NULL)
-            {
-                perror("Failed to allocate space for reference's name");
-                exit(EXIT_FAILURE);
-            }
-            memcpy(ref->value.str_val, decl->value.str_val, (nb_char + 1) * sizeof(char));
-
-            SyntacticNode* assignment = syntactic_node_create(NODE_ASSIGNMENT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-            SyntacticNode* expr = sr_expression(analyzer);
-
-            SyntacticNode* drop = syntactic_node_create(NODE_DROP, assignment->line, assignment->col);
-
-            syntactic_node_add_child(assignment, ref);
-            syntactic_node_add_child(assignment, expr);
-            syntactic_node_add_child(drop, assignment);
-            syntactic_node_add_child(node, drop);
-        }
-
-        while (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
-        {
-            tokenizer_accept(&(analyzer->tokenizer), TOK_COMMA);
-            tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
-
-            decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-            decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
-            syntactic_node_add_child(node, decl);
-
-            if (tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
-            {
-                SyntacticNode* ref = syntactic_node_create(NODE_REF, decl->line, decl->col);
-                size_t nb_char = strlen(decl->value.str_val);
-                ref->value.str_val = malloc((nb_char + 1) * sizeof(char));
-                if (ref->value.str_val == NULL)
-                {
-                    perror("Failed to allocate space for reference's name");
-                    exit(EXIT_FAILURE);
-                }
-                memcpy(ref->value.str_val, decl->value.str_val, (nb_char + 1) * sizeof(char));
-
-                SyntacticNode* assignment = syntactic_node_create(NODE_ASSIGNMENT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-                SyntacticNode* expr = sr_expression(analyzer);
-
-                SyntacticNode* drop = syntactic_node_create(NODE_DROP, assignment->line, assignment->col);
-
-                syntactic_node_add_child(assignment, ref);
-                syntactic_node_add_child(assignment, expr);
-                syntactic_node_add_child(drop, assignment);
-                syntactic_node_add_child(node, drop);
-            }
-        }
+        node = subrule_decl_instruction(analyzer, 1);
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_IF))
     { // I ---> 'if' '(' E ')' I ('else' I)?
@@ -407,9 +394,20 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
         SyntacticNode *loop = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
         tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
-        SyntacticNode *expr1 = sr_expression(analyzer);
-        SyntacticNode *drop1 = syntactic_node_create(NODE_DROP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-        tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+
+        if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
+        { // I ---> 'int' ident ('=' E)? (',' ident ('=' E)? )* ';'
+            SyntacticNode* decl_seq = subrule_decl_instruction(analyzer, 1);
+            syntactic_node_add_child(node, decl_seq);
+        }
+        else
+        {
+            SyntacticNode* expr1 = sr_expression(analyzer);
+            SyntacticNode* drop1 = syntactic_node_create(NODE_DROP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+            tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
+            syntactic_node_add_child(drop1, expr1);
+            syntactic_node_add_child(node, drop1);
+        }
         SyntacticNode *inv_cond = syntactic_node_create(NODE_INVERTED_CONDITION, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
         SyntacticNode *expr2 = sr_expression(analyzer);
         tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
@@ -420,7 +418,6 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         SyntacticNode* instruction = sr_instruction(analyzer);
         SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 
-        syntactic_node_add_child(drop1, expr1);
 
         syntactic_node_add_child(inv_cond, expr2);
         syntactic_node_add_child(inv_cond, node_break);
@@ -432,7 +429,6 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         syntactic_node_add_child(loop, continue_label);
         syntactic_node_add_child(loop, drop3);
         
-        syntactic_node_add_child(node, drop1);
         syntactic_node_add_child(node, loop);
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_CONTINUE))

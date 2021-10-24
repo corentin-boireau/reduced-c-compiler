@@ -1,10 +1,9 @@
 int main()
 {
-    int a = 2, b = a;
+    for (int a = 3, b = 8; a < b; a = a + 1)
+    {
+        printn(a);
+        putchar(32);
+    }
 
-    print a + ;
-    print b + ;
 }
-
-int lama()
-    print 3;
