@@ -1,42 +1,51 @@
 CC =gcc
 CFLAGS =-Wall -Wextra -std=c99
+LD_FLAGS = -lm
+INC_DIR = ReducedCCompiler/vendor
 
-RCC = rcc
-RCC_BIN_DIR  = bin/ReducedCCompiler/Debug-x64
-RCC_SRC      = $(wildcard ReducedCCompiler/src/*.c) \
-			   ReducedCCompiler/vendor/argtable3/argtable3.c
-RCC_OBJ      = $(notdir $(RCC_SRC:.c=.o))
-RCC_LD_FLAGS = -lm
-RCC_INC_DIR  = ReducedCCompiler/vendor
-
-MSM = msm
-MSM_SRC      = MiniStackMachine/src/msm.c
-MSM_BIN_DIR  = bin/MiniStackMachine/Debug-x64
+SRC_DIR = ReducedCCompiler/src
+BIN_DIR = bin/ReducedCCompiler/Debug-x64
 
 PY = python3
 TEST_DIR = ReducedCCompiler-Test
-TEST_ALL = ReducedCCompiler_Test.py
+TEST_MAIN = ReducedCCompiler_Test.py
 
+all: msm rcc
 
-all: $(RCC) $(MSM)
+test: msm rcc
+	@cd $(TEST_DIR); $(PY) $(TEST_MAIN)
 
 clean:
-	rm -f $(RCC_BIN_DIR)/$(RCC)
-	rm -f $(MSM_BIN_DIR)/$(MSM)
-	find . -name *.txt -exec rm {} \;
-	find . -name *.msm -exec rm {} \;
+	find . -regextype sed -regex ".*\.[o|txt|msm]" -exec rm {} ';'
+	rm -f $(BIN_DIR)/rcc bin/MiniStackMachine/Debug-x64/msm
 
-test: $(RCC) $(MSM)
-	cd $(TEST_DIR); \
-	   $(PY) $(TEST_ALL)
+rcc: $(BIN_DIR)/rcc
 
-$(RCC): $(RCC_SRC)
-	$(CC) -o $(RCC_BIN_DIR)/$(RCC) $(RCC_SRC) $(CFLAGS) -I $(RCC_INC_DIR) $(RCC_LD_FLAGS)
+$(BIN_DIR)/rcc: $(BIN_DIR)/main.o $(BIN_DIR)/token.o $(BIN_DIR)/syntactic_node.o $(BIN_DIR)/syntactic_analysis.o $(BIN_DIR)/semantic_analysis.o $(BIN_DIR)/main.o $(BIN_DIR)/code_generation.o $(BIN_DIR)/argtable3.o
+	$(CC) $^ $(LD_FLAGS) -o $@ 
 
-#$(RCC_OBJ): $(RCC_SRC) 
-#	$(CC) -o $(RCC_BIN_DIR)/$(RCC_OBJ) $(RCC_SRC) $(CFLAGS) -I $(RCC_INC_DIR)
-#obj:
-#	echo $(RCC_OBJ)
+$(BIN_DIR)/main.o: $(SRC_DIR)/main.c
+	$(CC) -c $(CFLAGS) -I $(INC_DIR) $(SRC_DIR)/main.c -o $@
 
-$(MSM): $(MSM_SRC)
-	$(CC) -o $(MSM_BIN_DIR)/$(MSM) $(MSM_SRC)
+$(BIN_DIR)/token.o: $(SRC_DIR)/token.c $(SRC_DIR)/token.h
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/token.c -o $@
+
+$(BIN_DIR)/syntactic_node.o: $(SRC_DIR)/syntactic_node.c $(SRC_DIR)/syntactic_node.h
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/syntactic_node.c -o $@
+
+$(BIN_DIR)/syntactic_analysis.o: $(SRC_DIR)/syntactic_analysis.c $(SRC_DIR)/syntactic_analysis.h
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/syntactic_analysis.c -o $@
+
+$(BIN_DIR)/semantic_analysis.o: $(SRC_DIR)/semantic_analysis.c $(SRC_DIR)/semantic_analysis.h
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/semantic_analysis.c -o $@
+
+$(BIN_DIR)/code_generation.o: $(SRC_DIR)/code_generation.c $(SRC_DIR)/code_generation.h
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/code_generation.c -o $@
+
+$(BIN_DIR)/argtable3.o: $(INC_DIR)/argtable3/argtable3.c $(INC_DIR)/argtable3/argtable3.h
+	$(CC) -c $(CFLAGS) $(INC_DIR)/argtable3/argtable3.c -o $@
+
+msm: bin/MiniStackMachine/Debug-x64/msm
+
+bin/MiniStackMachine/Debug-x64/msm: MiniStackMachine/src/msm.c
+	$(CC) $^ -o $@
