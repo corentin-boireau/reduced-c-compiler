@@ -34,10 +34,14 @@ def are_files_equal(file_to_compare, reference_file):
 
     return are_equal
 
+def convert_test_nb_to_string(test_nb):
+    return str(test_nb) if test_nb >= 100 else "0" + str(test_nb) if test_nb >= 10 else "00" + str(test_nb)
+        
+
 def test_compare_files(file_to_compare, reference_file, test_nb, skip_test=False):
     success = True
 
-    test_nb_str = " " + str(test_nb) if test_nb < 10 else str(test_nb)
+    test_nb_str = convert_test_nb_to_string(test_nb)
 
     if skip_test:
         print("[" + test_nb_str + "] : " + to_bold_skip("SK") + " : Comparing \"" + file_to_compare + "\" to \"" + reference_file + "\"", end="\n")
@@ -56,7 +60,7 @@ def test_compare_files(file_to_compare, reference_file, test_nb, skip_test=False
 def test_run_process(description, args, test_nb, out_filename, err_filename, in_filename=None, skip_test=False):
     success = True
 
-    test_nb_str = " " + str(test_nb) if test_nb < 10 else str(test_nb)
+    test_nb_str = convert_test_nb_to_string(test_nb)
 
     if skip_test:
         print("[" + test_nb_str + "] : " + to_skip("SK") + " : " +  description, end="\n")

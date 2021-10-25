@@ -1,6 +1,6 @@
 import os
-from tests_utils import to_bold_error
-from tests_utils import to_bold_success
+from tests_utils                         import to_bold_error
+from tests_utils                         import to_bold_success
 from test_lexical_pkg.test_lexical       import test_lexical
 from test_unary_ops_pkg.test_unary_ops   import test_unary_ops
 from test_binary_ops_pkg.test_binary_ops import test_binary_ops

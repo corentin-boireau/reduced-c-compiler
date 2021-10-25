@@ -34,8 +34,9 @@ def test_lexical():
 
         args = [RCC_PATH, "--no-runtime",  test_filename, "--stage", "lexical", "-o", lex_output_filename]
         desc = "Running lexical analysis on " + test_filename
-        out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
-        err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
+        test_nb_str = tu.convert_test_nb_to_string(test_nb)
+        out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
+        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
 
         if not success:

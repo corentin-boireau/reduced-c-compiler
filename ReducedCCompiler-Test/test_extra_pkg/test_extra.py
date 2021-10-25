@@ -49,8 +49,9 @@ def test_extra():
 
         args = [RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
         desc = "Compiling " + test_filename
-        out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
-        err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
+        test_nb_str = str(test_nb) if test_nb >= 100 else "0" + str(test_nb) if test_nb >= 10 else "00" + str(test_nb)
+        out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
+        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
 
         if not success:

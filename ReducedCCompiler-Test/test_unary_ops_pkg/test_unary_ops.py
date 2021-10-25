@@ -40,8 +40,9 @@ def test_unary_ops():
 
         args = [RCC_PATH, "--no-runtime",  test_filename, "--stage", "syntactic", "-o", syn_output_filename]
         desc = "Running syntactical analysis on " + test_filename
-        out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
-        err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
+        test_nb_str = tu.convert_test_nb_to_string(test_nb)
+        out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
+        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
 
         if not success:
@@ -63,8 +64,9 @@ def test_unary_ops():
 
         args = [RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
         desc = "Compiling " + test_filename
-        out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
-        err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
+        test_nb_str = tu.convert_test_nb_to_string(test_nb)
+        out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
+        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
 
         if not success:
@@ -86,7 +88,8 @@ def test_unary_ops():
 
         args = [MSM_PATH]
         desc = "Running " + msm_output_filename
-        err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
+        test_nb_str = tu.convert_test_nb_to_string(test_nb)
+        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
         success = tu.test_run_process(desc, args, test_nb,
                                       in_filename=exec_input_filename,
                                       out_filename=exec_output_filename,
@@ -111,8 +114,9 @@ def test_unary_ops():
         
         args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-op", "-o", opti_msm_output_filename]
         desc = "Compiling " + test_filename + " with --opti-const-op flag"
-        out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
-        err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
+        test_nb_str = tu.convert_test_nb_to_string(test_nb)
+        out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
+        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
         
         if not success:
@@ -126,7 +130,8 @@ def test_unary_ops():
 
         args = [MSM_PATH]
         desc = "Running " + opti_msm_output_filename
-        err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
+        test_nb_str = tu.convert_test_nb_to_string(test_nb)
+        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
         success = tu.test_run_process(desc, args, test_nb,
                                       in_filename=opti_exec_input_filename,
                                       out_filename=opti_exec_output_filename,
