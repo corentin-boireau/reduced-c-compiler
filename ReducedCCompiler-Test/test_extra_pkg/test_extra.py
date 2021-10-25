@@ -10,7 +10,13 @@ import tests_utils as tu
 def test_extra():
     LOG_DIR = "logs"
 
-    FILE_PREFIXES = ["assign_overflow", "assign_too_big", "bin_val", "decl_assign", "div_zero", "do_while", "do_while_break", "do_while_continue", "elseif", "for1", "for_break", "for_continue", "func_args", "func_call", "func_cond", "func_loop", "func_rec", "func_rec2", "func_ret", "func_ret2", "hex_val", "invalid_cond", "invalid_varname", "inval_call", "loop_scope", "lots_do_while", "lots_for", "lots_scopes", "lots_var", "lots_while", "main", "multiple_assigment", "multiple_assigment2", "multiple_var", "mult_expr", "mult_line", "nestedif", "nested_do_while", "nested_do_while_break", "nested_do_while_continue", "nested_for", "nested_for_break", "nested_for_continue", "nested_while", "nested_while_break", "nested_while_continue", "oct_val", "pow", "prefix", "prefix2", "printf", "ptr1", "ptr2", "ptr3", "scanf", "scope_var", "simple", "simple2", "simple3", "single_line", "unclosed_scope", "undeclared_func", "undeclared_var", "unopened_scope", "while1", "while_break", "while_continue"]
+    FILE_PREFIXES = ["bin_val", "decl_assign", "do_while", "do_while_break", "do_while_continue",
+                     "elseif", "for1", "for_break", "for_continue", "func_args", "func_call", "func_cond", "func_loop", "func_rec", "func_rec2", 
+                     "func_ret", "func_ret2", "hex_val", "loop_scope", "lots_do_while", "lots_for", "lots_scopes", "lots_var", "lots_while", "main",
+                     "multiple_assigment", "multiple_assigment2", "multiple_var", "mult_expr", "mult_line", "nestedif", "nested_do_while", 
+                     "nested_do_while_break", "nested_do_while_continue", "nested_for", "nested_for_break", "nested_for_continue", "nested_while", 
+                     "nested_while_break", "nested_while_continue", "oct_val", "prefix", "prefix2", "ptr1", "ptr2", "ptr3", "scope_var", "simple",
+                     "simple2", "simple3", "single_line", "while1", "while_break", "while_continue"]
     TEST_EXT         = ".c"
     SYNTACTIC_SUFFIX = "_syn"
     SEMANTIC_SUFFIX  = "_sem"
@@ -56,7 +62,7 @@ def test_extra():
         # EXECUTION
         exec_output_filename = FILE_PREFIXES[test_file_nb] + OUT_EXT
         exec_input_filename = msm_output_filename
-        exec_ref_filename = exec_output_filename 
+        exec_ref_filename = exec_output_filename + REF_EXT
 
         args = [MSM_PATH]
         desc = "Running " + msm_output_filename
