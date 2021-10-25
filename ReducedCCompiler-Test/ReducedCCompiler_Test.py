@@ -9,6 +9,9 @@ from test_conditions_pkg.test_conditions import test_conditions
 from test_loops_pkg.test_loops           import test_loops
 from test_loops_pkg.test_break_continue  import test_break_continue
 
+import sys
+from test_extra_pkg.test_extra  import test_extra
+
 def run_all_tests():
     nb_errors = 0
     print("=== Reduced C Compiler test suite ===\n")
@@ -47,6 +50,12 @@ def run_all_tests():
     os.chdir("test_loops_pkg")
     nb_errors += test_break_continue()
     os.chdir("..")
+
+    if len(sys.argv) > 1 and sys.argv[1] == "extra":
+        print("\n= Extra tests =")
+        os.chdir("test_extra_pkg")
+        nb_errors += test_extra()
+        os.chdir("..")
 
     if nb_errors > 0:
         print(to_bold_error("\nXXX " + str(nb_errors) + (" error" if nb_errors == 1 else " errors") + " XXX"))

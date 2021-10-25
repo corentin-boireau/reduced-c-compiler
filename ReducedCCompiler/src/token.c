@@ -493,7 +493,7 @@ void token_display_given(Token token, FILE* out_file)
         case TOK_INVALID_SEQ:
         case TOK_IDENTIFIER:
         {
-            fprintf(out_file, "'%s'\n", token.value.str_val);
+            fprintf(out_file, "'%s'", token.value.str_val);
             break;
         }
         case TOK_INVALID_CHAR:

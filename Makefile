@@ -1,24 +1,39 @@
-CC =gcc
-CFLAGS =-Wall -Wextra -std=c99
-LD_FLAGS = -lm
-INC_DIR = ReducedCCompiler/vendor
+CC=gcc
+CFLAGS=-Wall -Wextra -std=c99
+LD_FLAGS=-lm
+INC_DIR=ReducedCCompiler/vendor
 
-SRC_DIR = ReducedCCompiler/src
-BIN_DIR = bin/ReducedCCompiler/Debug-x64
+SRC_DIR=ReducedCCompiler/src
+BIN_DIR=bin/ReducedCCompiler/Debug-x64
 
-PY = python3
-TEST_DIR = ReducedCCompiler-Test
-TEST_MAIN = ReducedCCompiler_Test.py
+PY=python3
+TEST_DIR=ReducedCCompiler-Test
+TEST_MAIN=ReducedCCompiler_Test.py
 
+# Executed when the Makefile is parsed
+$(shell mkdir -p "bin/MiniStackMachine/Debug-x64")
+$(shell mkdir -p "bin/ReducedCCompiler/Debug-x64")
+
+.PHONY: all
 all: msm rcc
 
+.PHONY: rebuild
+rebuild: clean all
+
+.PHONY: test
 test: msm rcc
 	@cd $(TEST_DIR); $(PY) $(TEST_MAIN)
 
+.PHONY: extratest
+extratest: msm rcc
+	@cd $(TEST_DIR); $(PY) $(TEST_MAIN) extra
+
+.PHONY: clean
 clean:
 	find . -regextype sed -regex ".*\.[o|txt|msm]" -exec rm {} ';'
 	rm -f $(BIN_DIR)/rcc bin/MiniStackMachine/Debug-x64/msm
 
+.PHONY: rcc
 rcc: $(BIN_DIR)/rcc
 
 $(BIN_DIR)/rcc: $(BIN_DIR)/main.o $(BIN_DIR)/token.o $(BIN_DIR)/syntactic_node.o $(BIN_DIR)/syntactic_analysis.o $(BIN_DIR)/semantic_analysis.o $(BIN_DIR)/main.o $(BIN_DIR)/code_generation.o $(BIN_DIR)/argtable3.o
@@ -45,6 +60,7 @@ $(BIN_DIR)/code_generation.o: $(SRC_DIR)/code_generation.c $(SRC_DIR)/code_gener
 $(BIN_DIR)/argtable3.o: $(INC_DIR)/argtable3/argtable3.c $(INC_DIR)/argtable3/argtable3.h
 	$(CC) -c $(CFLAGS) $(INC_DIR)/argtable3/argtable3.c -o $@
 
+.PHONY: msm
 msm: bin/MiniStackMachine/Debug-x64/msm
 
 bin/MiniStackMachine/Debug-x64/msm: MiniStackMachine/src/msm.c
