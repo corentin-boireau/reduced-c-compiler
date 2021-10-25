@@ -5,5 +5,11 @@ int main()
         printn(a);
         putchar(32);
     }
-
+    putchar(10);
+    
+    putchar(97);
+    putchar(32);
+    putchar(61);
+    putchar(32);
+    printn(a);
 }

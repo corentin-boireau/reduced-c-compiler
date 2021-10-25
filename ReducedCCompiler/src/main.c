@@ -281,9 +281,9 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
         if (usercode_analyzer.nb_errors > 0)
         {
             if(usercode_analyzer.nb_errors == 1)
-                fprintf(stderr, "%s: error. 1 error found during syntactical analysis : compilation aborted", RCC_NAME);
+                fprintf(stderr, "%s: error. 1 error found during syntactical analysis : compilation aborted\n", RCC_NAME);
             else
-                fprintf(stderr, "%s: error. %d errors found during syntactical analysis : compilation aborted", RCC_NAME, usercode_analyzer.nb_errors);
+                fprintf(stderr, "%s: error. %d errors found during syntactical analysis : compilation aborted\n", RCC_NAME, usercode_analyzer.nb_errors);
 
             clear_and_exit(EXIT_FAILURE);
         }
@@ -305,9 +305,9 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
             if (table.nb_errors > 0)
             {
                 if(table.nb_errors == 1)
-                    fprintf(stderr, "%s: error. 1 error found during semantic analysis : compilation aborted", RCC_NAME);
+                    fprintf(stderr, "%s: error. 1 error found during semantic analysis : compilation aborted\n", RCC_NAME);
                 else
-                    fprintf(stderr, "%s: error. %d errors found during semantic analysis : compilation aborted", RCC_NAME, table.nb_errors);
+                    fprintf(stderr, "%s: error. %d errors found during semantic analysis : compilation aborted\n", RCC_NAME, table.nb_errors);
 
                 clear_and_exit(EXIT_FAILURE);
             }

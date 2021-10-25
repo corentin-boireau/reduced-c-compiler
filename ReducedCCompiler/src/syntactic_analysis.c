@@ -391,7 +391,9 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_FOR))
     { // I ---> 'for' '(' E1 ';' E2 ';' E3 ')' I
-        node = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+        // We want to permit declaration in the 'E1' space but we don't want to pollute the scope with it.
+        // Thus, we embrace the loop in a block that will create a scope.
+        node = syntactic_node_create(NODE_BLOCK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
         SyntacticNode *loop = syntactic_node_create(NODE_LOOP, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
         tokenizer_accept(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS);
 
@@ -418,6 +420,9 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         SyntacticNode* instruction = sr_instruction(analyzer);
         SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 
+        // As we don't want to create an additional scope, we put a sequence in place of the block in instruction
+        if (instruction->type == NODE_BLOCK)
+            instruction->type = NODE_SEQUENCE;
 
         syntactic_node_add_child(inv_cond, expr2);
         syntactic_node_add_child(inv_cond, node_break);
