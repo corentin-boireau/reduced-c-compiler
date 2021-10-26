@@ -30,7 +30,7 @@ extratest: msm rcc
 
 .PHONY: clean
 clean:
-	find . -regextype sed -regex ".*\.[o|txt|msm]" -exec rm {} ';'
+	find . -regextype sed -regex ".*\.\(o\|txt\|msm\)" -exec rm {} ';'
 	rm -f $(BIN_DIR)/rcc bin/MiniStackMachine/Debug-x64/msm
 
 .PHONY: rcc

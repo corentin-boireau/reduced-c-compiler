@@ -1,0 +1,44 @@
+.main
+        resn 2
+        push 3
+        dup
+        set 0
+        drop
+        push 8
+        dup
+        set 1
+        drop
+.loop_0
+        get 0
+        get 1
+        cmplt
+        jumpt endif_1
+        jump endloop_0
+.endif_1
+        get 0
+        dbg
+.continue_0
+        get 0
+        push 1
+        add
+        dup
+        set 0
+        drop
+        jump loop_0
+.endloop_0
+        push 0
+        ret
+.start
+       prep main
+       call 0
+       halt
+
+.putchar
+       send
+       push 0
+       ret
+
+.getchar
+       recv
+       ret
+

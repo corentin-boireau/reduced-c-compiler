@@ -8,6 +8,7 @@ from test_variables_pkg.test_variables   import test_variables
 from test_conditions_pkg.test_conditions import test_conditions
 from test_loops_pkg.test_loops           import test_loops
 from test_loops_pkg.test_break_continue  import test_break_continue
+from test_memory_pkg.test_memory         import test_memory
 
 import sys
 from test_extra_pkg.test_extra  import test_extra
@@ -49,6 +50,11 @@ def run_all_tests():
     print("\n= Test break & continue =")
     os.chdir("test_loops_pkg")
     nb_errors += test_break_continue()
+    os.chdir("..")
+
+    print("\n= Test memory management =")
+    os.chdir("test_memory_pkg")
+    nb_errors += test_memory()
     os.chdir("..")
 
     if len(sys.argv) > 1 and sys.argv[1] == "extra":

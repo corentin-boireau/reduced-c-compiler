@@ -1,12 +1,5 @@
 int main()
-{
-	printn(0);
-	putchar(10);
-	printn(-5134656);
-	putchar(10);
-	printn(4354);
-	putchar(10);
-	
+{	
     int array_array = malloc(10);
     int i;
     int j;

@@ -1,3 +1,24 @@
+int printn(int n)
+{
+    if (n < 0)
+    {
+        putchar(45);
+        printn(-n);
+    }
+    else
+    {
+        if (n / 10 != 0)
+            printn(n / 10);
+        putchar(48 + n % 10);
+    }
+}
+
+int println(int n)
+{
+    printn(n);
+    putchar(10);
+}
+
 /*
 * A block is composed of two size cells (s_cell), one at the
 * beginning of the block, the other at the end.
@@ -110,7 +131,7 @@ int malloc(int size)
         else
         { // Remaining space is converted in a new free block
             int new_free_block = allocated_block + size + 2 * S_CELL_SIZE;
-            int new_free_block_size = free_block_size - size;
+            int new_free_block_size = free_block_size - size - 2 * S_CELL_SIZE;
             int nfb_s_cell_end = S_CELL_SIZE + new_free_block_size;
             int nfb_p_cell = nfb_s_cell_end - 1;
 
@@ -146,22 +167,67 @@ int malloc(int size)
 
 int free(int ptr)
 {
-    return 0;
+    int NULL = 0;
+    int INVALID_POINTER = -1;
+    int S_CELL_SIZE = 1;
+    int S_CELL_BEG = 0;
+    int N_CELL = S_CELL_SIZE;
+    int BLOCK_MIN_SIZE = 2;
+
+    /* According to "man 3 free" : If ptr is NULL, no operation is performed. */
+    if (ptr == NULL)
+        return;
+
+    /*
+     * We suppose ptr has been returned by a call to malloc() and hasn't
+     * be freed yet. Otherwise undefined behavior occurs
+     */
+    int block_to_free = ptr - S_CELL_SIZE;
+    int block_size = -block_to_free[S_CELL_BEG]; // size is negative in an allocated block
+    int s_cell_end = S_CELL_SIZE + block_size;
+    int p_cell = s_cell_end - 1;
+
+    block_to_free[S_CELL_BEG] = block_size;
+    block_to_free[s_cell_end] = block_size;
+
+    int heap_start = *0;
+    int first_free_block = *heap_start;
+    block_to_free[N_CELL] = first_free_block;
+    block_to_free[p_cell] = INVALID_POINTER;
+
+    if (first_free_block != INVALID_POINTER)
+    {
+        int ff_block_size = first_free_block[S_CELL_BEG];
+        int ff_p_cell = S_CELL_SIZE + ff_block_size - 1;
+        first_free_block[ff_p_cell] = block_to_free;
+    }
+
+    *heap_start = block_to_free;
 }
 
-int printn(int n)
+int print_free_blocks_list()
 {
-    if (n < 0)
+    int INVALID_POINTER = -1;
+    int S_CELL_SIZE = 1;
+    int S_CELL_BEG = 0;
+    int N_CELL = S_CELL_SIZE;
+
+    int heap_start = *0;
+    int free_block = *heap_start;
+    putchar(72);
+    while (free_block != INVALID_POINTER)
     {
+        putchar(32);
         putchar(45);
-        printn(-n);
+        putchar(62);
+        putchar(32);
+        printn(free_block - heap_start);
+        putchar(40);
+        printn(free_block[S_CELL_BEG]);
+        putchar(41);
+        free_block = free_block[N_CELL];
     }
-    else
-    {
-        if (n / 10 != 0)
-            printn(n / 10);
-        putchar(48 + n % 10);
-    }
+    putchar(10);
 }
 
 int memdump(int start, int end, int line_width)
@@ -197,3 +263,4 @@ int memdump(int start, int end, int line_width)
         putchar(9);
     }
 }
+

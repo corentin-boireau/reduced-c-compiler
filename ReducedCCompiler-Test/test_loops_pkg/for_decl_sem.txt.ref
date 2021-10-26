@@ -1,0 +1,32 @@
+PROGRAM
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--SEQUENCE
+      |--BLOCK
+         |--SEQUENCE
+            |--DECL : name = a, index = 0
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 0
+                  |--CONST : value = 3
+            |--DECL : name = b, index = 1
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = b, index = 1
+                  |--CONST : value = 8
+         |--LOOP
+            |--INVERTED CONDITION
+               |--LESS
+                  |--REF : name = a, index = 0
+                  |--REF : name = b, index = 1
+               |--BREAK
+            |--SEQUENCE
+               |--PRINT
+                  |--REF : name = a, index = 0
+            |--CONTINUE LABEL
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 0
+                  |--ADD
+                     |--REF : name = a, index = 0
+                     |--CONST : value = 1

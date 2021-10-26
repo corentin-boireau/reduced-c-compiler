@@ -10,7 +10,7 @@ import tests_utils as tu
 def test_loops():
     LOG_DIR = "logs"
 
-    FILE_PREFIXES = ["while", "do_while", "for"]
+    FILE_PREFIXES = ["while", "do_while", "for", "for_decl"]
     TEST_EXT         = ".c"
     SYNTACTIC_SUFFIX = "_syn"
     SEMANTIC_SUFFIX  = "_sem"
