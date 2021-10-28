@@ -63,6 +63,21 @@ static inline int is_alphanumeric(char c)
     return is_letter(c) || is_numeric(c);
 }
 
+static inline int is_binary(char c)
+{
+    return '0' <= c && c <= '1';
+}
+
+static inline int is_octal(char c)
+{
+    return '0' <= c && c <= '7';
+}
+
+static inline int is_hexa(char c)
+{
+    return is_numeric(c) || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F');
+}
+
 void tokenizer_step(Tokenizer* tokenizer)
 {
     assert(tokenizer != NULL);
@@ -306,14 +321,42 @@ void tokenizer_step(Tokenizer* tokenizer)
                 found = 1;
                 if (is_numeric(tokenizer->buff[tokenizer->pos])) // looking for a constant token
                 {
-                    int size = 0;
-                    while (is_numeric(tokenizer->buff[tokenizer->pos + size]))
-                        size++;
+                    int size = 1;
 
-                    if (is_letter(tokenizer->buff[tokenizer->pos + size])) // invalid sequence found
+                    int is_bin = 0;
+                    if (tokenizer->buff[tokenizer->pos] == '0')
                     {
-                        while (is_alphanumeric(tokenizer->buff[tokenizer->pos + size]))
+                        if (tokenizer->buff[tokenizer->pos + 1] == 'x' || tokenizer->buff[tokenizer->pos + 1] == 'X')
+                        {
+                            do
+                                size++;
+                            while (is_hexa(tokenizer->buff[tokenizer->pos + size]));
+                        }
+                        else if (tokenizer->buff[tokenizer->pos + 1] == 'b' || tokenizer->buff[tokenizer->pos + 1] == 'B')
+                        {
+                            is_bin = 1;
+                            do
+                                size++;
+                            while (is_binary(tokenizer->buff[tokenizer->pos + size]));
+                        }
+                        else if (is_octal(tokenizer->buff[tokenizer->pos + 1]))
+                        {
+                            do
+                                size++;
+                            while (is_octal(tokenizer->buff[tokenizer->pos + size]));
+                        }
+                    }
+                    else
+                    {
+                        while (is_numeric(tokenizer->buff[tokenizer->pos + size]))
                             size++;
+                    }
+
+                    if (is_alphanumeric(tokenizer->buff[tokenizer->pos + size])) // invalid sequence found
+                    {
+                        do
+                            size++;
+                        while (is_alphanumeric(tokenizer->buff[tokenizer->pos + size]));
 
                         char* invalid_sequence = malloc(sizeof(char) * size + 1);
                         if (invalid_sequence == NULL)
@@ -345,7 +388,14 @@ void tokenizer_step(Tokenizer* tokenizer)
 
                         // Creating the constant token
                         tokenizer->next.type = TOK_CONST;
-                        tokenizer->next.value.int_val = atoi(ascii_value);
+                        if (is_bin)
+                        {
+                            tokenizer->next.value.int_val = strtol(ascii_value + 2, NULL, 2); // Handles base 2 numbers
+                        }
+                        else
+                        {
+                            tokenizer->next.value.int_val = strtol(ascii_value, NULL, 0); // Handles base 16, 10 and 8 numbers
+                        }
                         tokenizer->next.line = tokenizer->line;
                         tokenizer->next.col = tokenizer->col;
 
