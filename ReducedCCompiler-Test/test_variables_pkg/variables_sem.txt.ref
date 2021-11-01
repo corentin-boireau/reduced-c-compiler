@@ -9,59 +9,59 @@ PROGRAM
          |--DECL : name = c, index = 2
       |--PRINT
          |--ASSIGNEMENT
-            |--REF : name = a, index = 0
+            |--REF : name = a, index = 0 (local)
             |--CONST : value = 4
       |--DROP
          |--ASSIGNEMENT
-            |--REF : name = b, index = 1
+            |--REF : name = b, index = 1 (local)
             |--CONST : value = 434
       |--DROP
          |--ASSIGNEMENT
-            |--REF : name = c, index = 2
+            |--REF : name = c, index = 2 (local)
             |--CONST : value = 23
       |--PRINT
-         |--REF : name = b, index = 1
+         |--REF : name = b, index = 1 (local)
       |--PRINT
-         |--REF : name = c, index = 2
+         |--REF : name = c, index = 2 (local)
       |--DROP
          |--ASSIGNEMENT
-            |--REF : name = a, index = 0
+            |--REF : name = a, index = 0 (local)
             |--ASSIGNEMENT
-               |--REF : name = b, index = 1
+               |--REF : name = b, index = 1 (local)
                |--ASSIGNEMENT
-                  |--REF : name = c, index = 2
+                  |--REF : name = c, index = 2 (local)
                   |--ADD
                      |--CONST : value = 3
                      |--CONST : value = 23
       |--PRINT
-         |--REF : name = a, index = 0
+         |--REF : name = a, index = 0 (local)
       |--PRINT
-         |--REF : name = b, index = 1
+         |--REF : name = b, index = 1 (local)
       |--PRINT
-         |--REF : name = c, index = 2
+         |--REF : name = c, index = 2 (local)
       |--BLOCK
          |--SEQUENCE
             |--DECL : name = a, index = 3
          |--BLOCK
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = a, index = 3
+                  |--REF : name = a, index = 3 (local)
                   |--CONST : value = 89
             |--SEQUENCE
                |--DECL : name = b, index = 4
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = b, index = 4
+                  |--REF : name = b, index = 4 (local)
                   |--CONST : value = 34
          |--PRINT
-            |--REF : name = a, index = 3
+            |--REF : name = a, index = 3 (local)
          |--PRINT
-            |--REF : name = b, index = 1
+            |--REF : name = b, index = 1 (local)
          |--DROP
             |--ASSIGNEMENT
-               |--REF : name = b, index = 1
+               |--REF : name = b, index = 1 (local)
                |--CONST : value = 32
       |--PRINT
-         |--REF : name = a, index = 0
+         |--REF : name = a, index = 0 (local)
       |--PRINT
-         |--REF : name = b, index = 1
+         |--REF : name = b, index = 1 (local)

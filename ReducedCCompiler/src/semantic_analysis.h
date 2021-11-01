@@ -14,9 +14,9 @@ struct Symbol_s
 
 enum
 {
-    SYMBOL_VAR,
+    SYMBOL_GLOBAL_VAR,
+    SYMBOL_LOCAL_VAR,
     SYMBOL_FUNC,
-    SYMBOL_PTR,
 };
 
 #define MAX_SYMBOLS 500
@@ -29,6 +29,7 @@ struct SymbolTable_s
     Symbol symbols[MAX_SYMBOLS];
     int    scopes[MAX_SCOPES + 1];
     int    nb_symbols;
+    int    nb_glob_variables;
     int    nb_variables;
     int    current_scope;
     int    nb_errors;

@@ -7,20 +7,20 @@ PROGRAM
       |--BLOCK
          |--DROP
             |--ASSIGNEMENT
-               |--REF : name = x, index = 0
+               |--REF : name = x, index = 0 (local)
                |--CONST : value = 0
          |--LOOP
             |--INVERTED CONDITION
                |--LESS
-                  |--REF : name = x, index = 0
+                  |--REF : name = x, index = 0 (local)
                   |--CONST : value = 5
                |--BREAK
             |--PRINT
-               |--REF : name = x, index = 0
+               |--REF : name = x, index = 0 (local)
             |--CONTINUE LABEL
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = x, index = 0
+                  |--REF : name = x, index = 0 (local)
                   |--ADD
-                     |--REF : name = x, index = 0
+                     |--REF : name = x, index = 0 (local)
                      |--CONST : value = 1

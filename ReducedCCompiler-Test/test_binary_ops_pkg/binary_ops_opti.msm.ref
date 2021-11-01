@@ -1,58 +1,39 @@
 .main
-        push 0
-        not
-        dbg
-        push 0
-        not
-        dbg
-        push 1
-        not
+        push 2
         dbg
         push 2
-        not
         dbg
         push 0
-        push 0
-        sub
         dbg
         push 0
-        push 2
-        sub
         dbg
-        push 0
-        push 2
-        sub
+        push 9
         dbg
-        push 0
-        push 0
+        push 9
+        dbg
         push 1
-        sub
-        sub
         dbg
         push 0
+        dbg
         push 0
+        dbg
         push 1
-        sub
-        sub
         dbg
         push 0
+        dbg
         push 1
-        sub
-        not
         dbg
-        push 0
         push 1
-        sub
-        not
         dbg
         push 0
+        dbg
+        push 1
+        dbg
+        push 1
+        dbg
+        push 1
+        dbg
         push 0
-        push 4
-        sub
-        not
-        not
-        not
-        sub
         dbg
         push 0
         ret

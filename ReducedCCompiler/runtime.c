@@ -41,12 +41,23 @@ int println(int n)
 *
 * Pointers to block always contain the address of its first s_cell
 */
+int HEAP_SIZE;
+int BLOCK_MIN_SIZE;
+int INVALID_POINTER;
+int NULL;
+int S_CELL_SIZE;
+int S_CELL_BEG;
+int N_CELL;
 
 int _Init()
 {
-    int HEAP_SIZE = 16384; // 2^14
-    int S_CELL_SIZE = 1;
-    int INVALID_POINTER = -1;
+    HEAP_SIZE = 16384; // 2^14
+    INVALID_POINTER = -1;
+    NULL = 0;
+    S_CELL_SIZE = 1;
+    S_CELL_BEG = 0;
+    N_CELL = S_CELL_SIZE;
+    BLOCK_MIN_SIZE = 2;
 
     // Heap initialization
     int heap_start = *0;
@@ -55,9 +66,9 @@ int _Init()
 
     // Initialization of the first free block
     int block_size = HEAP_SIZE - 2 * S_CELL_SIZE;
-    int S_CELL_BEG = 0;
+    S_CELL_BEG = 0;
     int s_cell_end = S_CELL_SIZE + block_size;
-    int N_CELL = S_CELL_SIZE;
+    N_CELL = S_CELL_SIZE;
     int p_cell = S_CELL_SIZE + block_size - 1;
 
     first_free_block[S_CELL_BEG] = block_size;
@@ -70,13 +81,6 @@ int _Init()
 
 int malloc(int size)
 {
-    int NULL = 0;
-    int INVALID_POINTER = -1;
-    int S_CELL_SIZE = 1;
-    int S_CELL_BEG = 0;
-    int N_CELL = S_CELL_SIZE;
-    int BLOCK_MIN_SIZE = 2;
-
     if (size < 1)
         return NULL;
 
@@ -167,13 +171,6 @@ int malloc(int size)
 
 int free(int ptr)
 {
-    int NULL = 0;
-    int INVALID_POINTER = -1;
-    int S_CELL_SIZE = 1;
-    int S_CELL_BEG = 0;
-    int N_CELL = S_CELL_SIZE;
-    int BLOCK_MIN_SIZE = 2;
-
     /* According to "man 3 free" : If ptr is NULL, no operation is performed. */
     if (ptr == NULL)
         return;
@@ -207,11 +204,6 @@ int free(int ptr)
 
 int print_free_blocks_list()
 {
-    int INVALID_POINTER = -1;
-    int S_CELL_SIZE = 1;
-    int S_CELL_BEG = 0;
-    int N_CELL = S_CELL_SIZE;
-
     int heap_start = *0;
     int free_block = *heap_start;
     putchar(72);

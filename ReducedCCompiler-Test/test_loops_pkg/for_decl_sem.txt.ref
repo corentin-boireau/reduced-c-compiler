@@ -7,26 +7,26 @@ PROGRAM
             |--DECL : name = a, index = 0
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = a, index = 0
+                  |--REF : name = a, index = 0 (local)
                   |--CONST : value = 3
             |--DECL : name = b, index = 1
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = b, index = 1
+                  |--REF : name = b, index = 1 (local)
                   |--CONST : value = 8
          |--LOOP
             |--INVERTED CONDITION
                |--LESS
-                  |--REF : name = a, index = 0
-                  |--REF : name = b, index = 1
+                  |--REF : name = a, index = 0 (local)
+                  |--REF : name = b, index = 1 (local)
                |--BREAK
             |--SEQUENCE
                |--PRINT
-                  |--REF : name = a, index = 0
+                  |--REF : name = a, index = 0 (local)
             |--CONTINUE LABEL
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = a, index = 0
+                  |--REF : name = a, index = 0 (local)
                   |--ADD
-                     |--REF : name = a, index = 0
+                     |--REF : name = a, index = 0 (local)
                      |--CONST : value = 1

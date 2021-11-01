@@ -16,9 +16,7 @@
         dbg
         get 2
         dbg
-        push 3
-        push 23
-        add
+        push 26
         dup
         set 2
         dup

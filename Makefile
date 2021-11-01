@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -std=c99
+CFLAGS=-Wall -Wextra -std=c99 -O0 -g
 LD_FLAGS=-lm
 INC_DIR=ReducedCCompiler/vendor
 
@@ -30,7 +30,7 @@ extratest: msm rcc
 
 .PHONY: clean
 clean:
-	find . -regextype sed -regex ".*\.\(o\|txt\|msm\)" -exec rm {} ';'
+	find . -regextype sed -regex ".*\.\(o\|txt\|msm\)" -delete
 	rm -f $(BIN_DIR)/rcc bin/MiniStackMachine/Debug-x64/msm
 
 .PHONY: rcc

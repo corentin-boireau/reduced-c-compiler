@@ -9,19 +9,20 @@
 void startScope(SymbolTable* table);
 void endScope(SymbolTable* table);
 // Declares a new symbol with the given name and increments the nb_variables counter.
-int declare(SymbolTable* table, char* name, int type, int* stack_offset); 
-int search(SymbolTable* table, char* name, int* stack_offset);
+Symbol* declare(SymbolTable* table, char* name, int type); 
+Symbol* search(SymbolTable* table, char* name);
 Symbol symbol_create(int stack_offset, char* name, int type);
 
 
 SymbolTable symbol_table_create()
 {
     SymbolTable table;
-    table.scopes[0]     = 0;
-    table.nb_symbols    = 0;
-    table.nb_variables  = 0;
-    table.current_scope = 0;
-    table.nb_errors     = 0;
+    table.scopes[0]         = 0;
+    table.nb_symbols        = 0;
+    table.nb_glob_variables = 0;
+    table.nb_variables      = 0;
+    table.current_scope     = 0;
+    table.nb_errors         = 0;
 
     table.symbols[table.nb_symbols] = symbol_create(NO_STACK_OFFSET, "putchar", SYMBOL_FUNC);
     table.symbols[table.nb_symbols++].nb_params = 1;
@@ -68,37 +69,52 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
     {
         case NODE_DECL :
         {
-            // node->value.str_val is shared with symbol created by declare()
-            int stack_offset;
-            // declare() will return -1 if it failed
-            if (declare(table, node->value.str_val, SYMBOL_VAR, &stack_offset) < 0)
+            int decl_type = (table->current_scope == 0) ? SYMBOL_GLOBAL_VAR : SYMBOL_LOCAL_VAR;
+            Symbol* var_symbol = declare(table, node->value.str_val, decl_type);
+            if (var_symbol == NULL)
             {
                 fprintf(stderr, "Redeclaration of symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
                 symbol_table_inc_error(table);
             }
             else
             {
-                node->stack_offset = stack_offset;
+                node->stack_offset = var_symbol->stack_offset;
             }
             break;
         }
         case NODE_REF :
         {
-            int stack_offset;
-            int symbol_index = search(table, node->value.str_val, &stack_offset);
-            if (symbol_index < 0)
+            Symbol* ref_symbol = search(table, node->value.str_val);
+            if (ref_symbol == NULL)
             {
                 fprintf(stderr, "Reference to undeclared symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
                 symbol_table_inc_error(table);
             }
-            else if (table->symbols[symbol_index].type == SYMBOL_FUNC)
-            {
-                fprintf(stderr, "Symbol \"%s\" denotes a function name, did you mean \"%s()\" at %d:%d\n", node->value.str_val, node->value.str_val, node->line, node->col);
-                symbol_table_inc_error(table);
-            }
             else
             {
-                node->stack_offset = stack_offset;
+                switch (ref_symbol->type)
+                {
+                    case SYMBOL_FUNC:
+                    {
+                        fprintf(stderr, "Symbol \"%s\" denotes a function name, did you mean \"%s()\" at %d:%d\n",
+                            node->value.str_val, node->value.str_val, node->line, node->col);
+                        symbol_table_inc_error(table);
+                        break;
+                    }
+                    case SYMBOL_LOCAL_VAR:
+                    {
+                        node->stack_offset = ref_symbol->stack_offset;
+                        break;
+                    }
+                    case SYMBOL_GLOBAL_VAR:
+                    {
+                        node->stack_offset = ref_symbol->stack_offset;
+                        node->is_global = 1;
+                        break;
+                    }
+                    default:
+                        assert(0);
+                }
             }
             break;
         }
@@ -114,10 +130,8 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
         }
         case NODE_FUNCTION :
         {
-            // node->value.str_val is shared with symbol created by declare()
-            int index = declare(table, node->value.str_val, SYMBOL_FUNC, NULL);
-            // declare() will return -1 if it failed
-            if (index < 0)
+            Symbol* function_symbol = declare(table, node->value.str_val, SYMBOL_FUNC);
+            if (function_symbol == NULL)
             {
                 fprintf(stderr, "Redeclaration of symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
                 symbol_table_inc_error(table);
@@ -126,7 +140,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             {
                 // NODE_FUNCTION always has a NODE_SEQUENCE for parameters at index 0 
                 int nb_parameters = node->children[0]->nb_children;
-                table->symbols[index].nb_params = nb_parameters;
+                function_symbol->nb_params = nb_parameters;
                 table->nb_variables = 0;
                 startScope(table);
                 for (int i = 0; i < node->nb_children; i++)
@@ -141,13 +155,13 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
         }
         case NODE_CALL:
         {
-            int called_index = search(table, node->value.str_val, NULL);
-            if (called_index < 0)
+            Symbol* called_symbol = search(table, node->value.str_val);
+            if (called_symbol == NULL)
             {
                 fprintf(stderr, "Call to undefined symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
                 symbol_table_inc_error(table);
             }
-            else if (table->symbols[called_index].type != SYMBOL_FUNC)
+            else if (called_symbol->type != SYMBOL_FUNC)
             {
                 fprintf(stderr, "Symbol \"%s\" is not a function at %d:%d\n", node->value.str_val, node->line, node->col);
                 symbol_table_inc_error(table);
@@ -157,7 +171,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 assert(node->nb_children == 1);
 
                 int nb_args = node->children[0]->nb_children;
-                int nb_params = table->symbols[called_index].nb_params;
+                int nb_params = called_symbol->nb_params;
                 if (nb_args != nb_params)
                 {
                     fprintf(stderr, "Incorrect number of arguments to function \"%s()\" at %d:%d, expected %d arguments but %d given \n", 
@@ -196,8 +210,9 @@ void endScope(SymbolTable* table)
     table->current_scope--;
 }
 
-int declare(SymbolTable* table, char* name, int type, int* stack_offset)
+Symbol* declare(SymbolTable* table, char* name, int type)
 {
+    Symbol* declared_symbol = NULL;
     int index = table->scopes[table->current_scope];
     int found = 0;
     while (index < table->nb_symbols && !found)
@@ -207,26 +222,40 @@ int declare(SymbolTable* table, char* name, int type, int* stack_offset)
     }
     if (!found)
     {
-        if (type != SYMBOL_FUNC)
+        declared_symbol = table->symbols + table->nb_symbols;
+        switch (type)
         {
-            assert(stack_offset != NULL);
-
-            *stack_offset = table->nb_variables;
-            table->symbols[table->nb_symbols] = symbol_create(*stack_offset, name, type);
-            table->nb_variables++;
-        }
-        else
-        {
-            table->symbols[table->nb_symbols] = symbol_create(NO_STACK_OFFSET, name, type);
+            case SYMBOL_LOCAL_VAR:
+            {
+                int stack_offset = table->nb_variables;
+                *declared_symbol = symbol_create(stack_offset, name, type);
+                table->nb_variables++;
+                break;
+            }
+            case SYMBOL_GLOBAL_VAR:
+            {
+                int offset = table->nb_glob_variables;
+                *declared_symbol = symbol_create(offset, name, type);
+                table->nb_glob_variables++;
+                break;
+            }
+            case SYMBOL_FUNC:
+            {
+                *declared_symbol = symbol_create(NO_STACK_OFFSET, name, type);
+                break;
+            }
+            default: // Invalid type
+                assert(0); // Should never be reached
         }
         table->nb_symbols++;
     }
 
-    return index;
+    return declared_symbol;
 }
 
-int search(SymbolTable* table, char* name, int* stack_offset)
+Symbol* search(SymbolTable* table, char* name)
 {
+    Symbol* symbol = NULL;
     int index = table->nb_symbols - 1;
     int found = 0;
     while (index >= 0 && !found)
@@ -234,13 +263,10 @@ int search(SymbolTable* table, char* name, int* stack_offset)
         found = strcmp(name, table->symbols[index].name) == 0;
         index--;
     }
-    if (stack_offset != NULL)
+    if (found)
     {
-        if (found)
-            *stack_offset = table->symbols[index + 1].stack_offset;
-        else
-            *stack_offset = NO_STACK_OFFSET;
+        symbol = table->symbols + index + 1;
     }
 
-    return index + found;
+    return symbol;
 }

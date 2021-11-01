@@ -39,6 +39,12 @@
         push 0
         ret
 .start
+       push 0
+       read
+       push 0
+       add
+       push 0
+       write
        prep main
        call 0
        halt
@@ -51,4 +57,3 @@
 .getchar
        recv
        ret
-

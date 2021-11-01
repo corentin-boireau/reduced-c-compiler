@@ -319,9 +319,9 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
                 }
                 
                 if(runtime_file != NULL)
-                    generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP);
+                    generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP, table.nb_glob_variables);
 
-                generate_program(usercode_analyzer.syntactic_tree, out_file, no_runtime->count == 0);
+                generate_program(usercode_analyzer.syntactic_tree, out_file, no_runtime->count == 0, table.nb_glob_variables);
             }
         }
     }

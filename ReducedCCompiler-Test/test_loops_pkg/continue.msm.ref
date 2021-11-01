@@ -1,0 +1,115 @@
+.main
+        resn 1
+        push 0
+        dup
+        set 0
+        drop
+.loop_0
+.continue_0
+        get 0
+        push 5
+        cmplt
+        jumpf else_1
+        push 1000
+        dbg
+        get 0
+        push 1
+        add
+        dup
+        set 0
+        drop
+        get 0
+        push 3
+        cmpgt
+        jumpf endif_2
+        jump continue_0
+.endif_2
+        get 0
+        dbg
+        jump endif_1
+.else_1
+        jump endloop_0
+.endif_1
+        jump loop_0
+.endloop_0
+        push 0
+        dup
+        set 0
+        drop
+.loop_3
+        push 1000
+        dbg
+        get 0
+        push 1
+        add
+        dup
+        set 0
+        drop
+        get 0
+        push 3
+        cmpgt
+        jumpf endif_4
+        jump continue_3
+.endif_4
+        get 0
+        dbg
+.continue_3
+        get 0
+        push 5
+        cmplt
+        jumpt endif_5
+        jump endloop_3
+.endif_5
+        jump loop_3
+.endloop_3
+        push 0
+        dup
+        set 0
+        drop
+.loop_6
+        get 0
+        push 5
+        cmplt
+        jumpt endif_7
+        jump endloop_6
+.endif_7
+        push 1000
+        dbg
+        get 0
+        push 3
+        cmpgt
+        jumpf endif_8
+        jump continue_6
+.endif_8
+        get 0
+        dbg
+.continue_6
+        get 0
+        push 1
+        add
+        dup
+        set 0
+        drop
+        jump loop_6
+.endloop_6
+        push 0
+        ret
+.start
+       push 0
+       read
+       push 0
+       add
+       push 0
+       write
+       prep main
+       call 0
+       halt
+
+.putchar
+       send
+       push 0
+       ret
+
+.getchar
+       recv
+       ret

@@ -6,21 +6,21 @@ PROGRAM
          |--DECL : name = a, index = 0
       |--DROP
          |--ASSIGNEMENT
-            |--REF : name = a, index = 0
+            |--REF : name = a, index = 0 (local)
             |--CONST : value = 1
       |--CONDITION
          |--CONST : value = 0
          |--BLOCK
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = a, index = 0
+                  |--REF : name = a, index = 0 (local)
                   |--CONST : value = 7
       |--CONDITION
          |--CONST : value = 1
          |--BLOCK
             |--DROP
                |--ASSIGNEMENT
-                  |--REF : name = a, index = 0
+                  |--REF : name = a, index = 0 (local)
                   |--CONST : value = 5
       |--PRINT
-         |--REF : name = a, index = 0
+         |--REF : name = a, index = 0 (local)

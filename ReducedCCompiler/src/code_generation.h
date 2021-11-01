@@ -7,7 +7,7 @@
 
 #define NO_LOOP -1
 
-void generate_program(const SyntacticNode* node, FILE * stream, int is_init_called);
-void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb);
+void generate_program(const SyntacticNode* node, FILE * stream, int is_init_called, int nb_global_variables);
+void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb_global_variables);
 
 #endif // CODE_GENERATION_H
