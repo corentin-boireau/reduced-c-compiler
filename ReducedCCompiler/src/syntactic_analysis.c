@@ -6,13 +6,13 @@
 #include <string.h>
 
 // Syntactic rules
-SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer);     // Whole program
-SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer);    // Function
-SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer); // Instruction
-SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer);  // Expression
-SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);      // Prefix 
-SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer);      // Suffix
-SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);        // Atom
+SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer);               // Whole program
+SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer);    // Function or Global variable declaration
+SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer);           // Instruction
+SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer);            // Expression
+SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);                // Prefix 
+SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer);                // Suffix
+SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);                  // Atom
 
 SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority); // Expression with priority
 
@@ -621,11 +621,27 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_AMPERSAND))
     { // P ---> '&' P
-        node = syntactic_node_create(NODE_INVALID, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
-        fprintf(stderr, "(%d:%d):error: Unexpected token : ", analyzer->tokenizer.next.line, analyzer->tokenizer.next.col);
-        token_display_given(analyzer->tokenizer.next, stderr);
-        fprintf(stderr, "\n");
-        syntactic_analyzer_inc_error(analyzer);
+        Token tok_ampersand = analyzer->tokenizer.current; // We keep the token to be able to create a NODE_ADDRESS from it if neeeded
+        SyntacticNode* prefix = sr_prefix(analyzer);
+        if (prefix->type == NODE_DEREF)
+        {
+            assert(prefix->nb_children == 1);
+            node = prefix->children[0];
+            free(prefix);
+        }
+        else if (prefix->type == NODE_REF)
+        {
+            node = syntactic_node_create(NODE_ADDRESS, tok_ampersand.line, tok_ampersand.col);
+            syntactic_node_add_child(node, prefix);
+        }
+        else
+        {
+            node = syntactic_node_create(NODE_INVALID, tok_ampersand.line, tok_ampersand.col);
+            fprintf(stderr, "(%d:%d):error: Unexpected node. lvalue required as unary '&' operand but this node was given :\n", prefix->line, prefix->col);
+            syntactic_node_display(prefix, stderr);
+            syntactic_analyzer_inc_error(analyzer);
+        }
+
     }
     else
     { // P ---> S
@@ -658,7 +674,6 @@ SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer)
         syntactic_node_add_child(deref, indexation_addr);
         node = deref;
     }
-
     return node ;
 }
 

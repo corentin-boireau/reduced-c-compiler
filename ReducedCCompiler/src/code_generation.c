@@ -393,6 +393,32 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
             fprintf(stream, "        read\n");
             break;
         }
+        case NODE_ADDRESS:
+        {
+            assert(node->nb_children == 1);
+            SyntacticNode* node_ref = node->children[0];
+            assert(node_ref->type == NODE_REF);
+            
+            if (node_ref->is_global)
+            {
+                fprintf(stream, "        push 0\n");
+                fprintf(stream, "        read\n");
+                fprintf(stream, "        push %d\n", nb_global_variables - node_ref->stack_offset);
+                fprintf(stream, "        sub\n");
+            }
+            else
+            {
+                fprintf(stream, "        prep start\n");
+                fprintf(stream, "        drop\n");
+                fprintf(stream, "        prep start\n");
+                fprintf(stream, "        push %d\n", node_ref->stack_offset + 1);
+                fprintf(stream, "        sub\n");
+                fprintf(stream, "        sub\n");
+                fprintf(stream, "        sub\n");
+            }
+
+            break;
+        }
         case NODE_CONST: fprintf(stream, "        push %d\n", node->value.int_val); break;
     }
 }

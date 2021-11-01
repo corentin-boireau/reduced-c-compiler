@@ -39,13 +39,13 @@ enum
     NODE_CONST,				// Constant value
                             
     // Prefix operators		
-    NODE_UNARY_MINUS,		// '-' to denote the corresponding negative value
-    NODE_NEGATION,			// '!' to denote the corresponding negation
-    NODE_INDIRECTION,		// '*' to access the pointed memory
+    NODE_UNARY_MINUS,       // '-' to denote the corresponding negative value
+    NODE_NEGATION,          // '!' to denote the corresponding negation
+    NODE_DEREF,             // '*' to access the pointed memory
     NODE_ADDRESS,			// '&' to denote the address where the variable is stored
                             
     // Binary operators		
-    NODE_ASSIGNMENT,		// '=' Assignment of a value to a variable
+    NODE_ASSIGNMENT,        // '=' Assignment of a value to a variable
     NODE_OR,				// 
     NODE_AND,				//
     NODE_EQUAL,				//
@@ -76,6 +76,5 @@ enum
     NODE_PROGRAM,
     NODE_CALL,
     NODE_RETURN,
-    NODE_DEREF,
 };
 #endif // SYNTACTIC_NODE_H

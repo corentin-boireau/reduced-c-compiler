@@ -92,11 +92,8 @@ int malloc(int size)
 
     int heap_start = *0;
     int free_block = *heap_start;
-    while (free_block != INVALID_POINTER)
+    while (free_block != INVALID_POINTER && free_block[S_CELL_BEG] < size)
     {
-        // The first cell of the block contains its size
-        if (free_block[S_CELL_BEG] >= size)
-            break;
         free_block = free_block[N_CELL];
     }
     if (free_block != INVALID_POINTER)
