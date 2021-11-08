@@ -64,4 +64,4 @@ $(BIN_DIR)/argtable3.o: $(INC_DIR)/argtable3/argtable3.c $(INC_DIR)/argtable3/ar
 msm: bin/MiniStackMachine/Debug-x64/msm
 
 bin/MiniStackMachine/Debug-x64/msm: MiniStackMachine/src/msm.c
-	$(CC) $^ -o $@
+	$(CC) -g $^ -o $@
