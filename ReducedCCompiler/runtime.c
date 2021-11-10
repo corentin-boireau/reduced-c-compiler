@@ -240,10 +240,9 @@ int free(int ptr)
     }
 
     int rneighbor_size = 0;
-    /*
-    if (block_to_free + S_CELL_SIZE < HEAP_START + HEAP_SIZE)
+    if (block_to_free + block_size < HEAP_START + HEAP_SIZE)
     { // Has a right neighbor
-        int rneighbor_block = new_free_block + nfb_size;
+        int rneighbor_block = block_to_free + block_size;
         rneighbor_size = rneighbor_block[S_CELL_BEG];
         if (rneighbor_size < 0)
             rneighbor_size = 0;
@@ -257,14 +256,31 @@ int free(int ptr)
                 int rn_next_size = rn_next[S_CELL_BEG];
                 rn_next[compute_p_cell(rn_next_size)] = rn_prev;
             }
+
             if (rn_prev != INVALID_POINTER)
             {
                 int rn_prev_size = rn_prev[S_CELL_BEG];
                 rn_prev[N_CELL] = rn_next;
+
+                if (lneighbor_size > 0 // we are merging the two neighbors
+                    && nfb_next == rneighbor_block) // lneighbor's next block is rneighbor
+                { 
+                    nfb_next = rn_next;
+                }
+            }
+            else // rneighbor is the first free block
+            {
+                if (lneighbor_size > 0)
+                { // we are merging the two neighbors
+                    *HEAP_START = rn_next;
+                }
+                else // we are only merging the rneighbor
+                {
+                    nfb_next = rn_next;
+                }
             }
         }
     }
-    */
     
     new_free_block = block_to_free - lneighbor_size;
     nfb_size = block_size + lneighbor_size + rneighbor_size;
