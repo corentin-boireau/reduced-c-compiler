@@ -299,6 +299,83 @@ void tokenizer_step(Tokenizer* tokenizer)
                 }
                 break;
             }
+            case '\'':
+            {
+                found = 1;
+
+                int size = 1;
+                int closed = 0, escaped = 0;
+                int valid = 1;
+                while (!closed)
+                {
+                    if (tokenizer->buff[tokenizer->pos + size] == '\n'
+                        || tokenizer->buff[tokenizer->pos + size] == '\0')
+                    {
+                        valid = 0;
+                        closed = 1;
+                    }
+                    else
+                    {
+                        escaped = tokenizer->buff[tokenizer->pos + size - 1] == '\\';
+                        closed = !escaped && tokenizer->buff[tokenizer->pos + size] == '\'';
+                        size++;
+                    }
+                }
+
+                char* const_char = malloc(sizeof(char) * size + 1);
+                if (const_char == NULL)
+                {
+                    perror("Failed to allocate memory for a character constant value");
+                    exit(EXIT_FAILURE);
+                }
+                memcpy(const_char, &(tokenizer->buff[tokenizer->pos]), sizeof(char)* size);
+                const_char[size] = '\0';
+
+                int value = 0;
+                // Form 'x' can't contain a backslash
+                if (size == 3 && const_char[1] != '\\')
+                    value = const_char[1];
+
+                // Form '\x', octal, hexa and unknown escape sequences not supported
+                else if (size == 4 && const_char[1] == '\\')
+                {
+                    switch (const_char[2])
+                    {
+                        case '\'': value = '\''; break;
+                        case '\"': value = '"';  break;
+                        case '\?': value = '\?'; break;
+                        case '\\': value = '\\'; break;
+                        case  'a': value = '\a'; break;
+                        case  'b': value = '\b'; break;
+                        case  'f': value = '\f'; break;
+                        case  'n': value = '\n'; break;
+                        case  'r': value = '\r'; break;
+                        case  't': value = '\t'; break;
+                        case  'v': value = '\v'; break;
+
+                        default:   valid = 0;
+                    }
+                }
+                else
+                    valid = 0;
+
+                if (valid)
+                {
+                    free(const_char);
+                    tokenizer->next.type = TOK_CONST;
+                    tokenizer->next.value.int_val = value;
+                }
+                else
+                {
+                    tokenizer->next.type = TOK_INVALID_SEQ;
+                    tokenizer->next.value.str_val = const_char;
+                }
+                tokenizer->next.line = tokenizer->line;
+                tokenizer->next.col = tokenizer->col;
+                tokenizer->pos += size;
+                tokenizer->col += size;
+                break;
+            }
 
             case '+' : set_next(tokenizer, TOK_PLUS);			   found = 1; tokenizer->col++; tokenizer->pos++; break;
             case '-' : set_next(tokenizer, TOK_MINUS);			   found = 1; tokenizer->col++; tokenizer->pos++; break;

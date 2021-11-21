@@ -2,21 +2,21 @@ int printn(int n)
 {
     if (n < 0)
     {
-        putchar(45);
+        putchar('-');
         printn(-n);
     }
     else
     {
         if (n / 10 != 0)
             printn(n / 10);
-        putchar(48 + n % 10);
+        putchar('0' + n % 10);
     }
 }
 
 int println(int n)
 {
     printn(n);
-    putchar(10);
+    putchar('\n');
 }
 
 /*
@@ -307,39 +307,39 @@ int free(int ptr)
 int print_free_blocks_list()
 {
     int free_block = *HEAP_START;
-    putchar(72);
+    putchar('H');
     while (free_block != INVALID_POINTER)
     {
-        putchar(32);
-        putchar(45);
-        putchar(62);
-        putchar(32);
+        putchar(' ');
+        putchar('-');
+        putchar('>');
+        putchar(' ');
         printn(free_block - HEAP_START);
-        putchar(40);
+        putchar('(');
         printn(free_block[S_CELL_BEG]);
-        putchar(41);
+        putchar(')');
         free_block = free_block[N_CELL];
     }
-    putchar(10);
+    putchar('\n');
 }
 
 int memdump(int start, int end, int line_width)
 {
     int i;
-    putchar(38);
-    putchar(9);
+    putchar('&');
+    putchar('\t');
     for (i = 0;  i < line_width; i = i + 1)
     {
         printn(i);
-        putchar(9);
+        putchar('\t');
     }
-    putchar(10);
+    putchar('\n');
     for (i = 0;  i < line_width + 1; i = i + 1)
     {
-        putchar(45);
-        putchar(45);
-        putchar(45);
-        putchar(9);
+        putchar('-');
+        putchar('-');
+        putchar('-');
+        putchar('\t');
     }
         
     int cell_addr;
@@ -347,13 +347,12 @@ int memdump(int start, int end, int line_width)
     {
         if ((cell_addr - start) % line_width == 0)
         {
-            putchar(10);
+            putchar('\n');
             printn(cell_addr);
-            putchar(58);
-            putchar(9);
+            putchar(':');
+            putchar('\t');
         }
         printn(*cell_addr);
-        putchar(9);
+        putchar('\t');
     }
 }
-
