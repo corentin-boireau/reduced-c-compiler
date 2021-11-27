@@ -3,7 +3,9 @@ int printn(int n)
     if (n < 0)
     {
         putchar('-');
-        printn(-n);
+        int last_digit = -(n % 10);
+        printn(-(n / 10));
+        putchar('0' + last_digit);
     }
     else
     {
@@ -17,6 +19,41 @@ int println(int n)
 {
     printn(n);
     putchar('\n');
+}
+
+/*
+ * Same as 'scanf("%d")' but returns the number of digits read instead of the
+ * number of input items successfully matched and assigned.
+ */
+int scann(int ptr_n)
+{
+    int nb_digits = 0;
+
+    int sign = 1;
+    int value = 0;
+    int character = getchar();
+    if (('0' <= character && character <= '9') || character == '-')
+    {
+        if (character == '-')
+        {
+            sign = -1;
+            character = getchar();
+        }
+
+        while (character != '\n'
+               && '0' <= character && character <= '9')
+        {
+            nb_digits = nb_digits + 1;
+            value = value * 10 + character - '0';
+            character = getchar();
+        }
+        if (character > 0 && nb_digits > 0)
+        {
+            *ptr_n = value * sign;
+        }
+    }
+
+    return nb_digits;
 }
 
 /*
@@ -160,7 +197,7 @@ int malloc(int size)
 
                 next_block[next_block_p_cell] = prev_block;
             }
-            
+
             if (remaining_size > 0)
             {
                 int dead_block = allocated_block + allocated_block_size;
@@ -264,7 +301,7 @@ int free(int ptr)
 
                 if (lneighbor_size > 0 // we are merging the two neighbors
                     && nfb_next == rneighbor_block) // lneighbor's next block is rneighbor
-                { 
+                {
                     nfb_next = rn_next;
                 }
             }
@@ -281,7 +318,7 @@ int free(int ptr)
             }
         }
     }
-    
+
     new_free_block = block_to_free - lneighbor_size;
     nfb_size = block_size + lneighbor_size + rneighbor_size;
 
@@ -341,7 +378,7 @@ int memdump(int start, int end, int line_width)
         putchar('-');
         putchar('\t');
     }
-        
+
     int cell_addr;
     for (cell_addr = start; cell_addr < end; cell_addr = cell_addr + 1)
     {
