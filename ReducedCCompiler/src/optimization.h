@@ -11,7 +11,7 @@
 * ----> 4 + 6
 * ----> 10
 */
-#define OPTI_CONST_OPERATIONS (1 << 0) 
+#define OPTI_CONST_FOLD (1 << 0) 
 
 typedef unsigned char optimization_t;
 

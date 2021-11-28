@@ -1,8 +1,9 @@
 #include "syntactic_analysis.h"
 
 #include <assert.h>
-#include <stdlib.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // Syntactic rules
@@ -523,60 +524,116 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                 SyntacticNode* operand1 = node;
                 SyntacticNode* operand2 = sr_expression_prio(analyzer, node_info.priority + node_info.associativity);
                 
+                int has_been_folded = 0;
                 // Optimization of operations on constants
-                if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_OPERATIONS)
+                if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD)
                     && node_info.node_type != NODE_ASSIGNMENT 
                     && operand1->type == NODE_CONST && operand2->type == NODE_CONST)
                 {
                     int value = -1;
+                    const int op1_val = operand1->value.int_val;
+                    const int op2_val = operand2->value.int_val;
                     switch (node_info.node_type)
                     {
-                        case NODE_ADD:              value = operand1->value.int_val  +   operand2->value.int_val;  break;
-                        case NODE_SUB:              value = operand1->value.int_val  -   operand2->value.int_val;  break;
-                        case NODE_MUL:              value = operand1->value.int_val  *   operand2->value.int_val;  break;
-                        case NODE_AND:              value = operand1->value.int_val  &&  operand2->value.int_val;  break;
-                        case NODE_OR:               value = operand1->value.int_val  ||  operand2->value.int_val;  break;
-                        case NODE_EQUAL:            value = operand1->value.int_val  ==  operand2->value.int_val;  break;
-                        case NODE_NOT_EQUAL:        value = operand1->value.int_val  !=  operand2->value.int_val;  break;
-                        case NODE_LESS:             value = operand1->value.int_val  <   operand2->value.int_val;  break;
-                        case NODE_LESS_OR_EQUAL:    value = operand1->value.int_val  <=  operand2->value.int_val;  break;
-                        case NODE_GREATER:          value = operand1->value.int_val  >   operand2->value.int_val;  break;
-                        case NODE_GREATER_OR_EQUAL: value = operand1->value.int_val  >=  operand2->value.int_val;  break;
+                        case NODE_AND:              value = op1_val &&  op2_val;  break;
+                        case NODE_OR:               value = op1_val ||  op2_val;  break;
+                        case NODE_EQUAL:            value = op1_val ==  op2_val;  break;
+                        case NODE_NOT_EQUAL:        value = op1_val !=  op2_val;  break;
+                        case NODE_LESS:             value = op1_val <   op2_val;  break;
+                        case NODE_LESS_OR_EQUAL:    value = op1_val <=  op2_val;  break;
+                        case NODE_GREATER:          value = op1_val >   op2_val;  break;
+                        case NODE_GREATER_OR_EQUAL: value = op1_val >=  op2_val;  break;
 
-                        case NODE_DIV:
+                        case NODE_ADD:
                         {
-                            if (operand2->value.int_val == 0)
+                            if ((op2_val > 0 && (op1_val > (INT_MAX - op2_val)))
+                                || (op2_val < 0 && (op1_val < (INT_MIN - op2_val))))
                             {
-                                node = syntactic_node_create(NODE_INVALID, operand2->line, operand2->col);
-                                fprintf(stderr, "%d:%d error : Division by zero\n", operand2->line, operand2->col);
-                                syntactic_analyzer_inc_error(analyzer);
+                                //TODO Warning overflow
                             }
                             else
                             {
-                                value = operand1->value.int_val / operand2->value.int_val;
+                                value = op1_val + op2_val;
+                                has_been_folded = 1;
+                            }
+                            break;
+                        }
+                        case NODE_SUB:
+                        {
+                            if ((op2_val > 0 && op1_val < INT_MIN - op2_val)
+                                || (op2_val < 0 && op1_val > INT_MAX - op2_val))
+                            {
+                                //TODO Warning overflow
+                            }
+                            else
+                            {
+                                value = op1_val - op2_val;
+                                has_been_folded = 1;
+                            }
+                            break;
+                        }
+                        case NODE_MUL:
+                        {
+                            int will_overflow = 0;
+                            if ((op1_val == -1 && op2_val == INT_MIN) || (op1_val == INT_MIN && op2_val == -1))
+                                will_overflow = 1;
+                            else if (op2_val > 1) // multiplicaton by 0 or 1 can't overflow
+                                will_overflow = (op1_val > INT_MAX / op2_val) || (op1_val < INT_MIN / op2_val);
+                            else if (op2_val < -1) // multiplicaton by -1 only overflows with INT_MIN and has already been checked
+                                will_overflow = (op1_val < INT_MAX / op2_val) || (op1_val > INT_MIN / op2_val);
+
+                            if (will_overflow)
+                            {
+                                //TODO Warning overflow
+                            }
+                            else
+                            {
+                                value = op1_val * op2_val;
+                                has_been_folded = 1;
+                            }
+                            break;
+                        }
+                        case NODE_DIV:
+                        {
+                            if (op2_val == 0)
+                            {
+                                // TODO warning div by zero
+                            }
+                            else if (op1_val == INT_MIN && op2_val == -1)
+                            {
+                                //TODO Warning overflow
+                            }
+                            else
+                            {
+                                value = op1_val / op2_val;
+                                has_been_folded = 1;
                             }
                             break;
                         }
                         case NODE_MOD:
                         {
-                            if (operand2->value.int_val == 0)
+                            if (op2_val == 0)
                             {
-                                node = syntactic_node_create(NODE_INVALID, operand2->line, operand2->col);
-                                fprintf(stderr, "%d:%d error : Modulo by zero\n", operand2->line, operand2->col);
-                                syntactic_analyzer_inc_error(analyzer);
+                                // TODO warning div by zero
+                            }
+                            else if (op1_val == INT_MIN && op2_val == -1)
+                            {
+                                //TODO Warning overflow
                             }
                             else
                             {
-                                value = operand1->value.int_val % operand2->value.int_val;
+                                value = op1_val % op2_val;
+                                has_been_folded = 1;
                             }
                             break;
                         }
                     }
 
-                    if(node->type != NODE_INVALID)
+                    if(has_been_folded)
                         node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col, value);
                 }
-                else
+
+                if ( ! has_been_folded)
                 {
                     node = syntactic_node_create(node_info.node_type, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
                     syntactic_node_add_child(node, operand1);
@@ -649,7 +706,7 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
     }
     
     // *** Optimizations ***
-    if(is_opti_enabled(analyzer->optimizations, OPTI_CONST_OPERATIONS))
+    if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD))
         node = opti_constant_prefix(node);
 
     // **********************
@@ -746,8 +803,9 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node)
             assert(node->children[0] != NULL);
             SyntacticNode* constant = node->children[0];
 
-            if (constant->type == NODE_CONST)
+            if (constant->type == NODE_CONST && constant->value.int_val != INT_MIN)
             {
+                //TODO Warning overflow
                 optimized_node = constant;
                 optimized_node->value.int_val = - constant->value.int_val;
 

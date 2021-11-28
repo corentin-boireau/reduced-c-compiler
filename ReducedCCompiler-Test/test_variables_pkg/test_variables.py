@@ -134,8 +134,8 @@ def test_variables():
         # OPTIMISATION ON CONSTANTS
         opti_msm_output_filename = FILE_PREFIXES[test_file_nb] + OPTI_SUFFIX + MSM_EXT
         
-        args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-op", "-o", opti_msm_output_filename]
-        desc = "Compiling " + test_filename + " with --opti-const-op flag"
+        args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-fold", "-o", opti_msm_output_filename]
+        desc = "Compiling " + test_filename + " with --opti-const-fold flag"
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)

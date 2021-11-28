@@ -112,8 +112,8 @@ def test_unary_ops():
         # OPTIMISATION ON CONSTANTS
         opti_msm_output_filename = FILE_PREFIXES[test_file_nb] + OPTI_SUFFIX + MSM_EXT
         
-        args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-op", "-o", opti_msm_output_filename]
-        desc = "Compiling " + test_filename + " with --opti-const-op flag"
+        args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-fold", "-o", opti_msm_output_filename]
+        desc = "Compiling " + test_filename + " with --opti-const-fold flag"
         test_nb_str = tu.convert_test_nb_to_string(test_nb)
         out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
         err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"

@@ -78,7 +78,7 @@ static void clear_and_exit(int exit_code);
 struct arg_lit *verb, *help, *version, *no_runtime;
 struct arg_file *output, *input, *runtime_filename;
 struct arg_str *stage;
-struct arg_lit *opti_const_operations;
+struct arg_lit *opti_const_fold;
 struct arg_end *end;
 
 int main(int argc, char* argv[])
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
         input				  = arg_filen(NULL, NULL,      "<file>",                         1, 1, "input file"),
         runtime_filename   	  = arg_filen(NULL, "runtime", "<file>",                         0, 1, "runtime file (invalid when --no-runtime is specified)"),
         stage				  = arg_strn( NULL, "stage",   "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
-        opti_const_operations = arg_litn( NULL, "opti-const-op",                             0, 1, "enable optimisations on operations depending only on constants"),
+        opti_const_fold       = arg_litn( NULL, "opti-const-fold",                           0, 1, "enable constant folding"),
         end					  = arg_end(20),
     };
     register_argtable(argtable, sizeof(argtable) / sizeof(argtable[0])); // will be freed if an early cleanup is needed
@@ -168,8 +168,8 @@ int main(int argc, char* argv[])
     }
 
     optimization_t opti = NO_OPTIMIZATION;
-    if (opti_const_operations->count > 0)
-        opti |= OPTI_CONST_OPERATIONS;
+    if (opti_const_fold->count > 0)
+        opti |= OPTI_CONST_FOLD;
 
     FILE* runtime_file;
     if (no_runtime->count > 0)
