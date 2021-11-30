@@ -33,6 +33,7 @@ struct SymbolTable_s
     int    nb_variables;
     int    current_scope;
     int    nb_errors;
+    int    nb_warnings;
 };
 
 SymbolTable symbol_table_create();

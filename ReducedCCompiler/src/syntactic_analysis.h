@@ -15,6 +15,7 @@ struct SyntacticAnalyzer_s
 	Tokenizer	   tokenizer;
 	SyntacticNode* syntactic_tree;
 	int			   nb_errors;
+	int			   nb_warnings;
 	optimization_t optimizations;
 };
 

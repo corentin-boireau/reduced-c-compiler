@@ -23,6 +23,7 @@ SymbolTable symbol_table_create()
     table.nb_variables      = 0;
     table.current_scope     = 0;
     table.nb_errors         = 0;
+    table.nb_warnings       = 0;
 
     table.symbols[table.nb_symbols] = symbol_create(NO_STACK_OFFSET, "putchar", SYMBOL_FUNC);
     table.symbols[table.nb_symbols++].nb_params = 1;
@@ -57,6 +58,7 @@ void semantic_analysis_report_and_exit(const SymbolTable* table)
 {
     assert(table != NULL);
 
+    fprintf(stderr, "\nSemantic analysis warnings : %d\n", table->nb_warnings);
     fprintf(stderr, "\nSemantic analysis errors : %d\n", table->nb_errors);
     exit(EXIT_FAILURE);
 }

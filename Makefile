@@ -37,7 +37,7 @@ clean:
 rcc: $(BIN_DIR)/rcc
 
 $(BIN_DIR)/rcc: $(BIN_DIR)/main.o $(BIN_DIR)/token.o $(BIN_DIR)/syntactic_node.o $(BIN_DIR)/syntactic_analysis.o $(BIN_DIR)/semantic_analysis.o $(BIN_DIR)/main.o $(BIN_DIR)/code_generation.o $(BIN_DIR)/argtable3.o
-	$(CC) $^ $(LD_FLAGS) -o $@ 
+	$(CC) $^ $(LD_FLAGS) -o $@
 
 $(BIN_DIR)/main.o: $(SRC_DIR)/main.c
 	$(CC) -c $(CFLAGS) -I $(INC_DIR) $(SRC_DIR)/main.c -o $@

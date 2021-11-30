@@ -18,7 +18,7 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);                  // Atom
 SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority); // Expression with priority
 
 
-SyntacticNode* opti_constant_prefix(SyntacticNode* node);
+SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* analyzer);
 
 #define RIGHT_TO_LEFT   0
 #define LEFT_TO_RIGHT   1
@@ -211,6 +211,11 @@ void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
     }
 }
 
+void syntactic_analyzer_inc_warning(SyntacticAnalyzer* analyzer)
+{
+    analyzer->nb_warnings++;
+}
+
 SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, optimization_t optimizations)
 {
     assert(source_buffer != NULL);
@@ -220,6 +225,7 @@ SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, optimization_t 
     analyzer.tokenizer      = tokenizer_create(source_buffer);
     analyzer.syntactic_tree = NULL;
     analyzer.nb_errors      = 0;
+    analyzer.nb_warnings    = 0;
     analyzer.optimizations  = optimizations;
 
     return analyzer;
@@ -243,6 +249,7 @@ void syntactic_analyzer_report_and_exit(const SyntacticAnalyzer* analyzer)
 {
     assert(analyzer != NULL);
 
+    fprintf(stderr, "\nSyntactic analysis warnings : %d\n", analyzer->nb_warnings);
     fprintf(stderr, "\nSyntactic analysis errors : %d\n", analyzer->nb_errors);
     exit(EXIT_FAILURE);
 }
@@ -513,7 +520,8 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
     {
         if (is_binary_op(analyzer->tokenizer.next.type))
         {
-            OperatorInfo node_info = get_operator_info(analyzer->tokenizer.next.type);
+            Token token_operator = analyzer->tokenizer.next;
+            OperatorInfo node_info = get_operator_info(token_operator.type);
             if (node_info.priority < priority)
             {
                 end_expr = 1;
@@ -549,7 +557,8 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                             if ((op2_val > 0 && (op1_val > (INT_MAX - op2_val)))
                                 || (op2_val < 0 && (op1_val < (INT_MIN - op2_val))))
                             {
-                                //TODO Warning overflow
+                                fprintf(stderr, "(%d:%d):warning: integer overflow in '+' operation\n", token_operator.line, token_operator.col);
+                                syntactic_analyzer_inc_warning(analyzer);
                             }
                             else
                             {
@@ -560,10 +569,11 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                         }
                         case NODE_SUB:
                         {
-                            if ((op2_val > 0 && op1_val < INT_MIN - op2_val)
-                                || (op2_val < 0 && op1_val > INT_MAX - op2_val))
+                            if ((op2_val > 0 && op1_val < INT_MIN + op2_val)
+                                || (op2_val < 0 && op1_val > INT_MAX + op2_val))
                             {
-                                //TODO Warning overflow
+                                fprintf(stderr, "(%d:%d):warning: integer overflow in '-' operation\n", token_operator.line, token_operator.col);
+                                syntactic_analyzer_inc_warning(analyzer);
                             }
                             else
                             {
@@ -584,7 +594,8 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 
                             if (will_overflow)
                             {
-                                //TODO Warning overflow
+                                fprintf(stderr, "(%d:%d):warning: integer overflow in '*' operation\n", token_operator.line, token_operator.col);
+                                syntactic_analyzer_inc_warning(analyzer);
                             }
                             else
                             {
@@ -597,11 +608,13 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                         {
                             if (op2_val == 0)
                             {
-                                // TODO warning div by zero
+                                fprintf(stderr, "(%d:%d):warning: divison by zero\n", token_operator.line, token_operator.col);
+                                syntactic_analyzer_inc_warning(analyzer);
                             }
                             else if (op1_val == INT_MIN && op2_val == -1)
                             {
-                                //TODO Warning overflow
+                                fprintf(stderr, "(%d:%d):warning: integer overflow in '/' operation\n", token_operator.line, token_operator.col);
+                                syntactic_analyzer_inc_warning(analyzer);
                             }
                             else
                             {
@@ -614,11 +627,13 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                         {
                             if (op2_val == 0)
                             {
-                                // TODO warning div by zero
+                                fprintf(stderr, "(%d:%d):warning: divison by zero:\n", token_operator.line, token_operator.col);
+                                syntactic_analyzer_inc_warning(analyzer);
                             }
                             else if (op1_val == INT_MIN && op2_val == -1)
                             {
-                                //TODO Warning overflow
+                                fprintf(stderr, "(%d:%d):warning: integer overflow in '%%' operation\n", token_operator.line, token_operator.col);
+                                syntactic_analyzer_inc_warning(analyzer);
                             }
                             else
                             {
@@ -630,12 +645,12 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                     }
 
                     if(has_been_folded)
-                        node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col, value);
+                        node = syntactic_node_create_with_value(NODE_CONST, operand1->line, operand1->col, value);
                 }
 
                 if ( ! has_been_folded)
                 {
-                    node = syntactic_node_create(node_info.node_type, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+                    node = syntactic_node_create(node_info.node_type, token_operator.line, token_operator.col);
                     syntactic_node_add_child(node, operand1);
                     syntactic_node_add_child(node, operand2);
                 }
@@ -707,7 +722,7 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
     
     // *** Optimizations ***
     if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD))
-        node = opti_constant_prefix(node);
+        node = opti_constant_prefix(node, analyzer);
 
     // **********************
     return node;
@@ -792,7 +807,7 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 
 // Optimizations
 
-SyntacticNode* opti_constant_prefix(SyntacticNode* node)
+SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* analyzer)
 {
     SyntacticNode* optimized_node = node;
 
@@ -803,11 +818,18 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node)
             assert(node->children[0] != NULL);
             SyntacticNode* constant = node->children[0];
 
-            if (constant->type == NODE_CONST && constant->value.int_val != INT_MIN)
+            if (constant->type == NODE_CONST)
             {
-                //TODO Warning overflow
                 optimized_node = constant;
-                optimized_node->value.int_val = - constant->value.int_val;
+                if (constant->value.int_val == INT_MIN)
+                {
+                    fprintf(stderr, "(%d:%d):warning: negating INT_MIN (%d) would overflow, value let to %d\n", node->line, node->col, INT_MIN, INT_MIN);
+                    syntactic_analyzer_inc_warning(analyzer);
+                }
+                else
+                {
+                    optimized_node->value.int_val = - constant->value.int_val;
+                }
 
                 syntactic_node_free(node);
             }
