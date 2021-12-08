@@ -36,32 +36,55 @@ clean:
 .PHONY: rcc
 rcc: $(BIN_DIR)/rcc
 
-$(BIN_DIR)/rcc: $(BIN_DIR)/main.o $(BIN_DIR)/token.o $(BIN_DIR)/syntactic_node.o $(BIN_DIR)/syntactic_analysis.o $(BIN_DIR)/semantic_analysis.o $(BIN_DIR)/main.o $(BIN_DIR)/code_generation.o $(BIN_DIR)/argtable3.o
+$(BIN_DIR)/rcc: $(BIN_DIR)/main.o \
+                $(BIN_DIR)/token.o \
+                $(BIN_DIR)/syntactic_node.o \
+                $(BIN_DIR)/syntactic_analysis.o \
+                $(BIN_DIR)/semantic_analysis.o \
+                $(BIN_DIR)/code_generation.o \
+                $(BIN_DIR)/argtable3.o
 	$(CC) $^ $(LD_FLAGS) -o $@
 
-$(BIN_DIR)/main.o: $(SRC_DIR)/main.c
+$(BIN_DIR)/main.o: $(SRC_DIR)/main.c \
+                   $(INC_DIR)/argtable3/argtable3.h \
+                   $(SRC_DIR)/token.h \
+                   $(SRC_DIR)/syntactic_node.h \
+                   $(SRC_DIR)/syntactic_analysis.h \
+                   $(SRC_DIR)/optimization.h \
+                   $(SRC_DIR)/semantic_analysis.h \
+                   $(SRC_DIR)/code_generation.h
 	$(CC) -c $(CFLAGS) -I $(INC_DIR) $(SRC_DIR)/main.c -o $@
 
-$(BIN_DIR)/token.o: $(SRC_DIR)/token.c $(SRC_DIR)/token.h
+$(BIN_DIR)/token.o: $(SRC_DIR)/token.c \
+                    $(SRC_DIR)/token.h
 	$(CC) -c $(CFLAGS) $(SRC_DIR)/token.c -o $@
 
-$(BIN_DIR)/syntactic_node.o: $(SRC_DIR)/syntactic_node.c $(SRC_DIR)/syntactic_node.h
+$(BIN_DIR)/syntactic_node.o: $(SRC_DIR)/syntactic_node.c \
+                             $(SRC_DIR)/syntactic_node.h
 	$(CC) -c $(CFLAGS) $(SRC_DIR)/syntactic_node.c -o $@
 
-$(BIN_DIR)/syntactic_analysis.o: $(SRC_DIR)/syntactic_analysis.c $(SRC_DIR)/syntactic_analysis.h
+$(BIN_DIR)/syntactic_analysis.o: $(SRC_DIR)/syntactic_analysis.c \
+                                 $(SRC_DIR)/syntactic_node.h \
+                                 $(SRC_DIR)/token.h \
+                                 $(SRC_DIR)/optimization.h
 	$(CC) -c $(CFLAGS) $(SRC_DIR)/syntactic_analysis.c -o $@
 
-$(BIN_DIR)/semantic_analysis.o: $(SRC_DIR)/semantic_analysis.c $(SRC_DIR)/semantic_analysis.h
+$(BIN_DIR)/semantic_analysis.o: $(SRC_DIR)/semantic_analysis.c \
+                                $(SRC_DIR)/semantic_analysis.h \
+                                $(SRC_DIR)/syntactic_node.h
 	$(CC) -c $(CFLAGS) $(SRC_DIR)/semantic_analysis.c -o $@
 
-$(BIN_DIR)/code_generation.o: $(SRC_DIR)/code_generation.c $(SRC_DIR)/code_generation.h
+$(BIN_DIR)/code_generation.o: $(SRC_DIR)/code_generation.c \
+                              $(SRC_DIR)/code_generation.h \
+                              $(SRC_DIR)/syntactic_node.h
 	$(CC) -c $(CFLAGS) $(SRC_DIR)/code_generation.c -o $@
 
-$(BIN_DIR)/argtable3.o: $(INC_DIR)/argtable3/argtable3.c $(INC_DIR)/argtable3/argtable3.h
+$(BIN_DIR)/argtable3.o: $(INC_DIR)/argtable3/argtable3.c \
+                        $(INC_DIR)/argtable3/argtable3.h
 	$(CC) -c $(CFLAGS) $(INC_DIR)/argtable3/argtable3.c -o $@
 
 .PHONY: msm
 msm: bin/MiniStackMachine/Debug-x64/msm
 
 bin/MiniStackMachine/Debug-x64/msm: MiniStackMachine/src/msm.c
-	$(CC) -g $^ -o $@
+	$(CC) -O3 $^ -o $@
