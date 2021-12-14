@@ -249,8 +249,6 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
         }
         case NODE_ASSIGNMENT :
         {
-            assert(node->nb_children == 2);
-
             SyntacticNode* assignable = node->children[0];
             if (assignable->type == NODE_REF)
             {
@@ -277,11 +275,6 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
                 fprintf(stream, "        dup\n");
                 generate_code(assignable->children[0], stream, loop_nb, nb_global_variables);
                 fprintf(stream, "        write\n");
-            }
-            else
-            {
-                fprintf(stderr, "%d:%d error : Left operand of assignement must be a variable reference\n", node->line, node->col);
-                exit(EXIT_FAILURE);
             }
             break;
         }

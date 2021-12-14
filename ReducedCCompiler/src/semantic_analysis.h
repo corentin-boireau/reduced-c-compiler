@@ -3,14 +3,33 @@
 
 #include "syntactic_node.h"
 
+#include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 typedef struct Symbol_s Symbol;
 struct Symbol_s
 {
-    char* name;
-    int   stack_offset;
-    int   type;
-    int   nb_params;
+    char*   name;
+    int     stack_offset;
+    int     type;
+    int     nb_params;
+    uint8_t flags;
 };
+
+#define SET  (1 << 0)
+#define READ (1 << 1)
+
+static inline void symbol_set_flag(Symbol* symbol, uint8_t flag)
+{
+    assert(symbol != NULL);
+    symbol->flags |= flag;
+}
+static inline bool symbol_is_flag_set(Symbol* symbol, uint8_t flag)
+{
+    assert(symbol != NULL);
+    return (symbol->flags & flag) != 0;
+}
 
 enum
 {

@@ -1,6 +1,7 @@
 #ifndef SYNTACTIC_NODE_H
 #define SYNTACTIC_NODE_H
 
+#include <stdbool.h>
 #include <stdio.h>
 
 #define NO_STACK_OFFSET -1
@@ -16,10 +17,11 @@ struct SyntacticNode_s
     } value;
     int stack_offset;	// Only usefull for variable declaration and references
                         // Indicates its location on the stack
-    int nb_var;			// For functions
-    int is_global;
-    int line;
-    int col;
+    int  nb_var;		// For functions
+    bool is_global;
+    int  line;
+    int  col;
+    SyntacticNode* parent;
     SyntacticNode** children;
     int nb_children;
 };

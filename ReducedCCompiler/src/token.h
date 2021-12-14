@@ -1,6 +1,7 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <stdbool.h>
 #include <stdio.h>
 
 typedef struct Token_s Token;
@@ -32,7 +33,7 @@ Token token_create();
 Tokenizer tokenizer_create(char* buff);
 
 void tokenizer_step(Tokenizer* tokenizer);
-int  tokenizer_check(Tokenizer* tokenizer, int token_type);
+bool tokenizer_check(Tokenizer* tokenizer, int token_type);
 void tokenizer_accept(Tokenizer* tokenizer, int token_type);
 
 void token_display(Token token, FILE* out_file);

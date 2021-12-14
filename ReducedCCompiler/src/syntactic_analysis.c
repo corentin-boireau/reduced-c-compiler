@@ -142,7 +142,7 @@ OperatorInfo get_operator_info(int token_type)
     return op_info;
 }
 
-static inline int is_binary_op(int token_type)
+static inline bool is_binary_op(int token_type)
 {
     return token_type < NB_OPERATORS && token_type >= 0;
 }
@@ -515,7 +515,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
     //      | P '*' | '/' E
     
     SyntacticNode* node = sr_prefix(analyzer);
-    int end_expr = 0;
+    bool end_expr = false;
     while (!end_expr)
     {
         if (is_binary_op(analyzer->tokenizer.next.type))
@@ -524,7 +524,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
             OperatorInfo node_info = get_operator_info(token_operator.type);
             if (node_info.priority < priority)
             {
-                end_expr = 1;
+                end_expr = true;
             }
             else
             {
@@ -532,7 +532,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                 SyntacticNode* operand1 = node;
                 SyntacticNode* operand2 = sr_expression_prio(analyzer, node_info.priority + node_info.associativity);
                 
-                int has_been_folded = 0;
+                bool has_been_folded = false;
                 // Optimization of operations on constants
                 if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD)
                     && node_info.node_type != NODE_ASSIGNMENT 
@@ -563,7 +563,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                             else
                             {
                                 value = op1_val + op2_val;
-                                has_been_folded = 1;
+                                has_been_folded = true;
                             }
                             break;
                         }
@@ -578,15 +578,15 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                             else
                             {
                                 value = op1_val - op2_val;
-                                has_been_folded = 1;
+                                has_been_folded = true;
                             }
                             break;
                         }
                         case NODE_MUL:
                         {
-                            int will_overflow = 0;
+                            bool will_overflow = false;
                             if ((op1_val == -1 && op2_val == INT_MIN) || (op1_val == INT_MIN && op2_val == -1))
-                                will_overflow = 1;
+                                will_overflow = true;
                             else if (op2_val > 1) // multiplicaton by 0 or 1 can't overflow
                                 will_overflow = (op1_val > INT_MAX / op2_val) || (op1_val < INT_MIN / op2_val);
                             else if (op2_val < -1) // multiplicaton by -1 only overflows with INT_MIN and has already been checked
@@ -600,7 +600,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                             else
                             {
                                 value = op1_val * op2_val;
-                                has_been_folded = 1;
+                                has_been_folded = true;
                             }
                             break;
                         }
@@ -619,7 +619,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                             else
                             {
                                 value = op1_val / op2_val;
-                                has_been_folded = 1;
+                                has_been_folded = true;
                             }
                             break;
                         }
@@ -638,7 +638,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                             else
                             {
                                 value = op1_val % op2_val;
-                                has_been_folded = 1;
+                                has_been_folded = true;
                             }
                             break;
                         }
@@ -657,7 +657,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
             }
         }
         else
-            end_expr = 1;
+            end_expr = true;
     }
 
     return node;
@@ -829,9 +829,10 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* anal
                 else
                 {
                     optimized_node->value.int_val = - constant->value.int_val;
+                    syntactic_node_free(optimized_node->parent);
+                    optimized_node->parent = NULL;
                 }
 
-                syntactic_node_free(node);
             }
             break;
         }
@@ -845,7 +846,8 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* anal
                 optimized_node = constant;
                 optimized_node->value.int_val = ! constant->value.int_val;
 
-                syntactic_node_free(node);
+                syntactic_node_free(optimized_node->parent);
+                optimized_node->parent = NULL;
             }
             break;
         }

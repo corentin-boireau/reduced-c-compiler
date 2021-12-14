@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-Token token_create() 
+Token token_create()
 {
     Token token;
     token.type = TOK_NONE;
@@ -20,12 +20,12 @@ Tokenizer tokenizer_create(char* buff)
     assert(buff != NULL);
 
     Tokenizer tokenizer;
-    tokenizer.buff	  = buff;
-    tokenizer.pos	  = 0;
-    tokenizer.line	  = 1;
-    tokenizer.col	  = 1;
+    tokenizer.buff    = buff;
+    tokenizer.pos     = 0;
+    tokenizer.line    = 1;
+    tokenizer.col     = 1;
     tokenizer.current = token_create();
-    tokenizer.next	  = token_create();
+    tokenizer.next    = token_create();
 
     return tokenizer;
 }
@@ -47,34 +47,34 @@ void token_error(Tokenizer* tokenizer)
     exit(EXIT_FAILURE);
 }
 
-static inline int is_numeric(char c)
+static inline bool is_numeric(char c)
 {
     return c >= '0' && c <= '9';
 }
 
-static inline int is_letter(char c)
+static inline bool is_letter(char c)
 {
     return (c >= 'A' && c <= 'Z')
         || (c >= 'a' && c <= 'z')
         || c == '_';
 }
 
-static inline int is_alphanumeric(char c)
+static inline bool is_alphanumeric(char c)
 {
     return is_letter(c) || is_numeric(c);
 }
 
-static inline int is_binary(char c)
+static inline bool is_binary(char c)
 {
     return '0' <= c && c <= '1';
 }
 
-static inline int is_octal(char c)
+static inline bool is_octal(char c)
 {
     return '0' <= c && c <= '7';
 }
 
-static inline int is_hexa(char c)
+static inline bool is_hexa(char c)
 {
     return is_numeric(c) || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F');
 }
@@ -89,7 +89,7 @@ void tokenizer_step(Tokenizer* tokenizer)
         free(tokenizer->current.value.str_val);
 
     tokenizer->current = tokenizer->next;
-    int found = 0;
+    bool found = false;
     while ( ! found)
     {
         switch (tokenizer->buff[tokenizer->pos])
@@ -111,7 +111,7 @@ void tokenizer_step(Tokenizer* tokenizer)
             }
             case '&' :
             {
-                found = 1;
+                found = true;
                 if (tokenizer->buff[tokenizer->pos + 1] == '&')
                 {
                     set_next(tokenizer, TOK_2_AMPERSAND);
@@ -128,7 +128,7 @@ void tokenizer_step(Tokenizer* tokenizer)
             }
             case '=':
             {
-                found = 1;
+                found = true;
                 if (tokenizer->buff[tokenizer->pos + 1] == '=')
                 {
                     set_next(tokenizer, TOK_2_EQUAL);
@@ -145,7 +145,7 @@ void tokenizer_step(Tokenizer* tokenizer)
             }
             case '!':
             {
-                found = 1;
+                found = true;
                 if (tokenizer->buff[tokenizer->pos + 1] == '=')
                 {
                     set_next(tokenizer, TOK_NOT_EQUAL);
@@ -162,7 +162,7 @@ void tokenizer_step(Tokenizer* tokenizer)
             }
             case '<':
             {
-                found = 1;
+                found = true;
                 if (tokenizer->buff[tokenizer->pos + 1] == '=')
                 {
                     set_next(tokenizer, TOK_LESS_OR_EQUAL);
@@ -179,7 +179,7 @@ void tokenizer_step(Tokenizer* tokenizer)
             }
             case '>':
             {
-                found = 1;
+                found = true;
                 if (tokenizer->buff[tokenizer->pos + 1] == '=')
                 {
                     set_next(tokenizer, TOK_GREATER_OR_EQUAL);
@@ -196,7 +196,7 @@ void tokenizer_step(Tokenizer* tokenizer)
             }
             case '|':
             {
-                found = 1;
+                found = true;
                 if (tokenizer->buff[tokenizer->pos + 1] == '|')
                 {
                     set_next(tokenizer, TOK_2_PIPE);
@@ -213,7 +213,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                     }
                     invalid_sequence[0] = '|';
                     invalid_sequence[1] = '\0';
-                    
+
                     // Creating the invalid sequence token
                     tokenizer->next.type = TOK_INVALID_SEQ;
                     tokenizer->next.value.str_val = invalid_sequence;
@@ -231,7 +231,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                 { // Entering block comment
                     tokenizer->col += 2;
                     tokenizer->pos += 2;
-                    int in_comment_block = 1;
+                    bool in_comment_block = true;
                     while (in_comment_block)
                     {
                         switch (tokenizer->buff[tokenizer->pos])
@@ -252,7 +252,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                                 }
                                 else
                                 {
-                                    in_comment_block = 0;
+                                    in_comment_block = false;
                                     tokenizer->col += 2;
                                     tokenizer->pos += 2;
                                 }
@@ -270,14 +270,14 @@ void tokenizer_step(Tokenizer* tokenizer)
                 { // Entering line comment
                     tokenizer->col += 2;
                     tokenizer->pos += 2;
-                    int in_comment_line = 1;
+                    bool in_comment_line = true;
                     while (in_comment_line)
                     {
                         switch (tokenizer->buff[tokenizer->pos])
                         {
                             case '\n':
                             {
-                                in_comment_line = 0;
+                                in_comment_line = false;
                                 tokenizer->line++;
                                 tokenizer->col = 1;
                                 tokenizer->pos++;
@@ -293,7 +293,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                 }
                 else
                 {
-                    found = 1;
+                    found = true;
                     set_next(tokenizer, TOK_SLASH);
                     tokenizer->col++;
                     tokenizer->pos++;
@@ -302,18 +302,18 @@ void tokenizer_step(Tokenizer* tokenizer)
             }
             case '\'':
             {
-                found = 1;
+                found = true;
 
                 int size = 1;
-                int closed = 0, escaped = 0;
-                int valid = 1;
+                bool closed = false, escaped = false;
+                bool valid = true;
                 while (!closed)
                 {
                     if (tokenizer->buff[tokenizer->pos + size] == '\n'
                         || tokenizer->buff[tokenizer->pos + size] == '\0')
                     {
-                        valid = 0;
-                        closed = 1;
+                        valid = false;
+                        closed = true;
                     }
                     else
                     {
@@ -354,11 +354,11 @@ void tokenizer_step(Tokenizer* tokenizer)
                         case  't': value = '\t'; break;
                         case  'v': value = '\v'; break;
 
-                        default:   valid = 0;
+                        default:   valid = false;
                     }
                 }
                 else
-                    valid = 0;
+                    valid = false;
 
                 if (valid)
                 {
@@ -378,30 +378,30 @@ void tokenizer_step(Tokenizer* tokenizer)
                 break;
             }
 
-            case '+' : set_next(tokenizer, TOK_PLUS);			   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case '-' : set_next(tokenizer, TOK_MINUS);			   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case '*' : set_next(tokenizer, TOK_STAR);			   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case '%' : set_next(tokenizer, TOK_PERCENT);		   found = 1; tokenizer->col++; tokenizer->pos++; break;
+            case '+' : set_next(tokenizer, TOK_PLUS);              found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '-' : set_next(tokenizer, TOK_MINUS);             found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '*' : set_next(tokenizer, TOK_STAR);              found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '%' : set_next(tokenizer, TOK_PERCENT);           found = true; tokenizer->col++; tokenizer->pos++; break;
 
-            case ',' : set_next(tokenizer, TOK_COMMA);			   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case ';' : set_next(tokenizer, TOK_SEMICOLON);		   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case '(' : set_next(tokenizer, TOK_OPEN_PARENTHESIS);  found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case ')' : set_next(tokenizer, TOK_CLOSE_PARENTHESIS); found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case '[' : set_next(tokenizer, TOK_OPEN_BRACKET);	   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case ']' : set_next(tokenizer, TOK_CLOSE_BRACKET);	   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case '{' : set_next(tokenizer, TOK_OPEN_BRACE);		   found = 1; tokenizer->col++; tokenizer->pos++; break;
-            case '}' : set_next(tokenizer, TOK_CLOSE_BRACE);	   found = 1; tokenizer->col++; tokenizer->pos++; break;
+            case ',' : set_next(tokenizer, TOK_COMMA);             found = true; tokenizer->col++; tokenizer->pos++; break;
+            case ';' : set_next(tokenizer, TOK_SEMICOLON);         found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '(' : set_next(tokenizer, TOK_OPEN_PARENTHESIS);  found = true; tokenizer->col++; tokenizer->pos++; break;
+            case ')' : set_next(tokenizer, TOK_CLOSE_PARENTHESIS); found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '[' : set_next(tokenizer, TOK_OPEN_BRACKET);      found = true; tokenizer->col++; tokenizer->pos++; break;
+            case ']' : set_next(tokenizer, TOK_CLOSE_BRACKET);     found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '{' : set_next(tokenizer, TOK_OPEN_BRACE);        found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '}' : set_next(tokenizer, TOK_CLOSE_BRACE);       found = true; tokenizer->col++; tokenizer->pos++; break;
 
-            case '\0': set_next(tokenizer, TOK_EOF);			   found = 1; tokenizer->col++; tokenizer->pos++; break;
+            case '\0': set_next(tokenizer, TOK_EOF);               found = true; tokenizer->col++; tokenizer->pos++; break;
 
             default  :
             {
-                found = 1;
+                found = true;
                 if (is_numeric(tokenizer->buff[tokenizer->pos])) // looking for a constant token
                 {
                     int size = 1;
 
-                    int is_bin = 0;
+                    bool is_bin = false;
                     if (tokenizer->buff[tokenizer->pos] == '0')
                     {
                         if (tokenizer->buff[tokenizer->pos + 1] == 'x' || tokenizer->buff[tokenizer->pos + 1] == 'X')
@@ -412,7 +412,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                         }
                         else if (tokenizer->buff[tokenizer->pos + 1] == 'b' || tokenizer->buff[tokenizer->pos + 1] == 'B')
                         {
-                            is_bin = 1;
+                            is_bin = true;
                             do
                                 size++;
                             while (is_binary(tokenizer->buff[tokenizer->pos + size]));
@@ -499,16 +499,16 @@ void tokenizer_step(Tokenizer* tokenizer)
                     text[size] = '\0';
 
                     // Testing if it is one of the supported keywords
-                    if		(strcmp(text, "int") == 0)		 tokenizer->next.type = TOK_INT;
-                    else if (strcmp(text, "if") == 0)		 tokenizer->next.type = TOK_IF;
-                    else if (strcmp(text, "else") == 0)		 tokenizer->next.type = TOK_ELSE;
-                    else if (strcmp(text, "for") == 0)		 tokenizer->next.type = TOK_FOR;
-                    else if (strcmp(text, "while") == 0)	 tokenizer->next.type = TOK_WHILE;
-                    else if (strcmp(text, "do") == 0)		 tokenizer->next.type = TOK_DO;
-                    else if (strcmp(text, "break") == 0)	 tokenizer->next.type = TOK_BREAK;
+                    if      (strcmp(text, "int") == 0)       tokenizer->next.type = TOK_INT;
+                    else if (strcmp(text, "if") == 0)        tokenizer->next.type = TOK_IF;
+                    else if (strcmp(text, "else") == 0)      tokenizer->next.type = TOK_ELSE;
+                    else if (strcmp(text, "for") == 0)       tokenizer->next.type = TOK_FOR;
+                    else if (strcmp(text, "while") == 0)     tokenizer->next.type = TOK_WHILE;
+                    else if (strcmp(text, "do") == 0)        tokenizer->next.type = TOK_DO;
+                    else if (strcmp(text, "break") == 0)     tokenizer->next.type = TOK_BREAK;
                     else if (strcmp(text, "continue") == 0)  tokenizer->next.type = TOK_CONTINUE;
-                    else if (strcmp(text, "return") == 0)	 tokenizer->next.type = TOK_RETURN;
-                    else if (strcmp(text, "print") == 0)	 tokenizer->next.type = TOK_PRINT;
+                    else if (strcmp(text, "return") == 0)    tokenizer->next.type = TOK_RETURN;
+                    else if (strcmp(text, "print") == 0)     tokenizer->next.type = TOK_PRINT;
 
                     else // It is an identifier
                     {
@@ -541,22 +541,22 @@ void tokenizer_step(Tokenizer* tokenizer)
     }
 }
 
-int tokenizer_check(Tokenizer* tokenizer, int token_type)
+bool tokenizer_check(Tokenizer* tokenizer, int token_type)
 {
     assert(tokenizer != NULL);
 
-    int checked = 0; 
-    
+    bool checked = false;
+
     if (tokenizer->next.type == token_type)
     {
         tokenizer_step(tokenizer);
-        checked = 1;
+        checked = true;
     }
 
     return checked;
 }
 
-static const char* TOKEN_REPR[] = 
+static const char* TOKEN_REPR[] =
 {
     "'='",
     "'||'",
@@ -609,7 +609,7 @@ void tokenizer_accept(Tokenizer* tokenizer, int token_type)
         fprintf(stderr, "(%d:%d):error: Unexpected token. Expected %s but ", tokenizer->next.line, tokenizer->next.col, TOKEN_REPR[token_type]);
         token_display_given(tokenizer->next, stderr);
         fprintf(stderr, " was given.\n");
-        
+
         exit(EXIT_FAILURE);
     }
 }
@@ -646,45 +646,45 @@ void token_display(Token token, FILE* out_file)
     fprintf(out_file, "(%d:%d)\t\t", token.line, token.col);
     switch (token.type)
     {
-        case TOK_INVALID_CHAR:		fprintf(out_file, "INVALID CHARACTER : %c\n", token.value.invalid_char); break;
-        case TOK_INVALID_SEQ:		fprintf(out_file, "INVALID SEQUENCE : %s\n", token.value.str_val);		 break;
-        case TOK_NONE:				fprintf(out_file, "NONE\n");											 break;
-        case TOK_CONST:				fprintf(out_file, "CONST : %d\n", token.value.int_val);					 break;
-        case TOK_IDENTIFIER:		fprintf(out_file, "IDENTIFIER : %s\n", token.value.str_val);			 break;
-        case TOK_PLUS:				fprintf(out_file, "PLUS\n");											 break;
-        case TOK_MINUS:				fprintf(out_file, "MINUS\n");											 break;
-        case TOK_STAR:				fprintf(out_file, "STAR\n");											 break;
-        case TOK_SLASH:				fprintf(out_file, "SLASH\n");											 break;
-        case TOK_PERCENT:			fprintf(out_file, "PERCENT\n");											 break;
-        case TOK_AMPERSAND:			fprintf(out_file, "AMPERSAND\n");										 break;
-        case TOK_EQUAL:				fprintf(out_file, "EQUAL\n");											 break;
-        case TOK_2_EQUAL:			fprintf(out_file, "DOUBLE EQUAL\n");									 break;
-        case TOK_NOT:				fprintf(out_file, "NOT\n");												 break;
-        case TOK_NOT_EQUAL:			fprintf(out_file, "NOT EQUAL\n");										 break;
-        case TOK_LESS:				fprintf(out_file, "LESS\n");											 break;
-        case TOK_GREATER:			fprintf(out_file, "GREATER\n");											 break;
-        case TOK_LESS_OR_EQUAL:		fprintf(out_file, "LESS OR EQUAL\n");									 break;
-        case TOK_GREATER_OR_EQUAL:	fprintf(out_file, "GREATER OR EQUAL\n");								 break;
-        case TOK_2_AMPERSAND:		fprintf(out_file, "DOUBLE AMPERSAND\n");								 break;
-        case TOK_2_PIPE:			fprintf(out_file, "DOUBLE PIPE\n");										 break;
-        case TOK_COMMA:				fprintf(out_file, "COMMA\n");											 break;
-        case TOK_SEMICOLON:			fprintf(out_file, "SEMICOLON\n");										 break;
-        case TOK_OPEN_PARENTHESIS:	fprintf(out_file, "OPEN PARENTHESIS\n");								 break;
-        case TOK_CLOSE_PARENTHESIS: fprintf(out_file, "CLOSE PARENTHESIS\n");								 break;
-        case TOK_OPEN_BRACKET:		fprintf(out_file, "OPEN BRACKET\n");									 break;
-        case TOK_CLOSE_BRACKET:		fprintf(out_file, "CLOSE BRACKET\n");									 break;
-        case TOK_OPEN_BRACE:		fprintf(out_file, "OPEN BRACE\n");										 break;
-        case TOK_CLOSE_BRACE:		fprintf(out_file, "CLOSE BRACE\n");										 break;
-        case TOK_INT:				fprintf(out_file, "INT\n");												 break;
-        case TOK_IF:				fprintf(out_file, "IF\n");												 break;
-        case TOK_ELSE:				fprintf(out_file, "ELSE\n");											 break;
-        case TOK_FOR:				fprintf(out_file, "FOR\n");												 break;
-        case TOK_WHILE:				fprintf(out_file, "WHILE\n");											 break;
-        case TOK_DO:				fprintf(out_file, "DO\n");												 break;
-        case TOK_BREAK:				fprintf(out_file, "BREAK\n");											 break;
-        case TOK_CONTINUE:			fprintf(out_file, "CONTINUE\n");										 break;
-        case TOK_RETURN:			fprintf(out_file, "RETURN\n");											 break;
-        case TOK_PRINT:				fprintf(out_file, "PRINT\n");											 break;
-        case TOK_EOF:				fprintf(out_file, "EOF\n");												 break;
+        case TOK_INVALID_CHAR:      fprintf(out_file, "INVALID CHARACTER : %c\n", token.value.invalid_char); break;
+        case TOK_INVALID_SEQ:       fprintf(out_file, "INVALID SEQUENCE : %s\n", token.value.str_val);       break;
+        case TOK_NONE:              fprintf(out_file, "NONE\n");                                             break;
+        case TOK_CONST:             fprintf(out_file, "CONST : %d\n", token.value.int_val);                  break;
+        case TOK_IDENTIFIER:        fprintf(out_file, "IDENTIFIER : %s\n", token.value.str_val);             break;
+        case TOK_PLUS:              fprintf(out_file, "PLUS\n");                                             break;
+        case TOK_MINUS:             fprintf(out_file, "MINUS\n");                                            break;
+        case TOK_STAR:              fprintf(out_file, "STAR\n");                                             break;
+        case TOK_SLASH:             fprintf(out_file, "SLASH\n");                                            break;
+        case TOK_PERCENT:           fprintf(out_file, "PERCENT\n");                                          break;
+        case TOK_AMPERSAND:         fprintf(out_file, "AMPERSAND\n");                                        break;
+        case TOK_EQUAL:             fprintf(out_file, "EQUAL\n");                                            break;
+        case TOK_2_EQUAL:           fprintf(out_file, "DOUBLE EQUAL\n");                                     break;
+        case TOK_NOT:               fprintf(out_file, "NOT\n");                                              break;
+        case TOK_NOT_EQUAL:         fprintf(out_file, "NOT EQUAL\n");                                        break;
+        case TOK_LESS:              fprintf(out_file, "LESS\n");                                             break;
+        case TOK_GREATER:           fprintf(out_file, "GREATER\n");                                          break;
+        case TOK_LESS_OR_EQUAL:     fprintf(out_file, "LESS OR EQUAL\n");                                    break;
+        case TOK_GREATER_OR_EQUAL:  fprintf(out_file, "GREATER OR EQUAL\n");                                 break;
+        case TOK_2_AMPERSAND:       fprintf(out_file, "DOUBLE AMPERSAND\n");                                 break;
+        case TOK_2_PIPE:            fprintf(out_file, "DOUBLE PIPE\n");                                      break;
+        case TOK_COMMA:             fprintf(out_file, "COMMA\n");                                            break;
+        case TOK_SEMICOLON:         fprintf(out_file, "SEMICOLON\n");                                        break;
+        case TOK_OPEN_PARENTHESIS:  fprintf(out_file, "OPEN PARENTHESIS\n");                                 break;
+        case TOK_CLOSE_PARENTHESIS: fprintf(out_file, "CLOSE PARENTHESIS\n");                                break;
+        case TOK_OPEN_BRACKET:      fprintf(out_file, "OPEN BRACKET\n");                                     break;
+        case TOK_CLOSE_BRACKET:     fprintf(out_file, "CLOSE BRACKET\n");                                    break;
+        case TOK_OPEN_BRACE:        fprintf(out_file, "OPEN BRACE\n");                                       break;
+        case TOK_CLOSE_BRACE:       fprintf(out_file, "CLOSE BRACE\n");                                      break;
+        case TOK_INT:               fprintf(out_file, "INT\n");                                              break;
+        case TOK_IF:                fprintf(out_file, "IF\n");                                               break;
+        case TOK_ELSE:              fprintf(out_file, "ELSE\n");                                             break;
+        case TOK_FOR:               fprintf(out_file, "FOR\n");                                              break;
+        case TOK_WHILE:             fprintf(out_file, "WHILE\n");                                            break;
+        case TOK_DO:                fprintf(out_file, "DO\n");                                               break;
+        case TOK_BREAK:             fprintf(out_file, "BREAK\n");                                            break;
+        case TOK_CONTINUE:          fprintf(out_file, "CONTINUE\n");                                         break;
+        case TOK_RETURN:            fprintf(out_file, "RETURN\n");                                           break;
+        case TOK_PRINT:             fprintf(out_file, "PRINT\n");                                            break;
+        case TOK_EOF:               fprintf(out_file, "EOF\n");                                              break;
     }
 }

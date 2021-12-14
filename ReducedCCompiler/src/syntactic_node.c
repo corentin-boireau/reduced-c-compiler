@@ -14,12 +14,16 @@ SyntacticNode* syntactic_node_create(int type, int line, int col)
         exit(EXIT_FAILURE);
     }
     node->type = type;
+    node->stack_offset = NO_STACK_OFFSET;
+    node->is_global = false;
+    node->nb_var = 0;
+
     node->line = line;
     node->col  = col;
-    node->nb_children = 0;
+
+    node->parent = NULL;
     node->children = NULL;
-    node->stack_offset = NO_STACK_OFFSET;
-    node->is_global = 0;
+    node->nb_children = 0;
 
     return node;
 }
@@ -45,6 +49,9 @@ void syntactic_node_add_child(SyntacticNode* parent, SyntacticNode* child)
     }
     parent->children = reallocated_children;
     parent->children[parent->nb_children++] = child;
+
+    assert(child->parent == NULL);
+    child->parent = parent;
 }
 
 void syntactic_node_display(const SyntacticNode* node, FILE *out_file)

@@ -40,6 +40,7 @@ Symbol symbol_create(int stack_offset, char* name, int type)
     symbol.stack_offset = stack_offset;
     symbol.name  = name;
     symbol.type  = type;
+    symbol.flags = 0;
 
     return symbol;
 }
@@ -52,6 +53,11 @@ void symbol_table_inc_error(SymbolTable* table)
     {
         semantic_analysis_report_and_exit(table);
     }
+}
+
+void symbol_table_inc_warning(SymbolTable* table)
+{
+    table->nb_warnings++;
 }
 
 void semantic_analysis_report_and_exit(const SymbolTable* table)
@@ -99,23 +105,32 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                     case SYMBOL_FUNC:
                     {
                         fprintf(stderr, "Symbol \"%s\" denotes a function name, did you mean \"%s()\" at %d:%d\n",
-                            node->value.str_val, node->value.str_val, node->line, node->col);
+                                node->value.str_val, node->value.str_val, node->line, node->col);
                         symbol_table_inc_error(table);
                         break;
                     }
                     case SYMBOL_LOCAL_VAR:
-                    {
-                        node->stack_offset = ref_symbol->stack_offset;
-                        break;
-                    }
                     case SYMBOL_GLOBAL_VAR:
                     {
+                        node->is_global = (ref_symbol->type == SYMBOL_GLOBAL_VAR);
+
                         node->stack_offset = ref_symbol->stack_offset;
-                        node->is_global = 1;
+                        if (node->parent->type == NODE_ASSIGNMENT && node->parent->children[0] == node)
+                            symbol_set_flag(ref_symbol, SET);
+                        else
+                        {
+                            if ( ! symbol_is_flag_set(ref_symbol, SET))
+                            {
+                                fprintf(stderr, "(%d:%d):warning: '%s' is used uninitialized\n",
+                                        node->line, node->col, ref_symbol->name);
+                                symbol_table_inc_warning(table);
+                            }
+                            symbol_set_flag(ref_symbol, READ);
+                        }
                         break;
                     }
                     default:
-                        assert(0);
+                        assert(false);
                 }
             }
             break;
@@ -184,6 +199,22 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             }
             break;
         }
+        case NODE_ASSIGNMENT:
+        {
+            assert(node->nb_children == 2);
+            semantic_analysis(node->children[1], table);
+
+            SyntacticNode* assignable = node->children[0];
+            if (assignable->type == NODE_DEREF
+                || assignable->type == NODE_REF)
+                semantic_analysis(assignable, table);
+            else
+            {
+                fprintf(stderr, "%d:%d error : Left operand of assignement must be a lvalue\n", node->line, node->col);
+                symbol_table_inc_error(table);
+            }
+            break;
+        }
         default :
         {
             for (int i = 0; i < node->nb_children; i++)
@@ -208,6 +239,23 @@ void startScope(SymbolTable* table)
 
 void endScope(SymbolTable* table)
 {
+    for (int i = table->nb_symbols - 1; i >= table->scopes[table->current_scope]; i--)
+    {
+        Symbol* symbol = &(table->symbols[i]);
+        if (!symbol_is_flag_set(symbol, READ))
+        {
+            if (symbol_is_flag_set(symbol, SET))
+            {
+                fprintf(stderr, "warning: '%s' is set but not used\n", symbol->name);
+                symbol_table_inc_warning(table);
+            }
+            else
+            {
+                fprintf(stderr, "warning: unused variable '%s'\n", symbol->name);
+                symbol_table_inc_warning(table);
+            }
+        }
+    }
     table->nb_symbols = table->scopes[table->current_scope];
     table->current_scope--;
 }
@@ -216,7 +264,7 @@ Symbol* declare(SymbolTable* table, char* name, int type)
 {
     Symbol* declared_symbol = NULL;
     int index = table->scopes[table->current_scope];
-    int found = 0;
+    bool found = false;
     while (index < table->nb_symbols && !found)
     {
         found = strcmp(name, table->symbols[index].name) == 0;
