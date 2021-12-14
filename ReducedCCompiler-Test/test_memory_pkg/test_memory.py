@@ -10,7 +10,7 @@ import tests_utils as tu
 def test_memory():
     LOG_DIR = "logs"
 
-    FILE_PREFIXES = ["malloc_edge_case", "simple_reuse_freeblock", "reuse_block_diff_length", "split_blocks"]
+    FILE_PREFIXES = ["malloc_edge_case", "simple_reuse_freeblock", "reuse_block_diff_length", "split_blocks", "right_merge", "left_merge"]
     TEST_EXT         = ".c"
     SYNTACTIC_SUFFIX = "_syn"
     SEMANTIC_SUFFIX  = "_sem"

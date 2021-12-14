@@ -9,12 +9,4 @@ int main()
         free(ptr_array[8 - i]);
         print_free_blocks_list();
     }
-
-    //int gigamalloc_ptr = malloc(2000);
-    //print_free_blocks_list();
-    free(ptr_array[9]);
-    print_free_blocks_list();
-
-    free(ptr_array);
-    print_free_blocks_list();
 }
