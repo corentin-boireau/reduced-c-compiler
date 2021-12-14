@@ -11,7 +11,7 @@ SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer);               // Whole p
 SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer);    // Function or Global variable declaration
 SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer);           // Instruction
 SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer);            // Expression
-SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);                // Prefix 
+SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer);                // Prefix
 SyntacticNode* sr_suffix(SyntacticAnalyzer* analyzer);                // Suffix
 SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer);                  // Atom
 
@@ -191,7 +191,7 @@ SyntacticNode* subrule_decl_instruction(SyntacticAnalyzer* analyzer, int allow_i
 {
     SyntacticNode *declarations = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
     subrule_single_decl(analyzer, declarations, allow_init);
-    
+
     while (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
     {
         tokenizer_accept(&(analyzer->tokenizer), TOK_COMMA);
@@ -221,7 +221,7 @@ SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, optimization_t 
     assert(source_buffer != NULL);
 
     SyntacticAnalyzer analyzer;
-    
+
     analyzer.tokenizer      = tokenizer_create(source_buffer);
     analyzer.syntactic_tree = NULL;
     analyzer.nb_errors      = 0;
@@ -464,7 +464,7 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         syntactic_node_add_child(loop, instruction);
         syntactic_node_add_child(loop, continue_label);
         syntactic_node_add_child(loop, drop3);
-        
+
         syntactic_node_add_child(node, loop);
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_CONTINUE))
@@ -505,15 +505,15 @@ SyntacticNode* sr_expression(SyntacticAnalyzer* analyzer)
 SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 {
     assert(analyzer != NULL);
-    
+
     // E ---> P '=' E
-    //      | P '||' E 
-    //      | P '&&' E 
-    //      | P '==' | '!=' E 
-    //      | P '<' | '<=' | '>' | '>='  E 
+    //      | P '||' E
+    //      | P '&&' E
+    //      | P '==' | '!=' E
+    //      | P '<' | '<=' | '>' | '>='  E
     //      | P '+' | '-' E
     //      | P '*' | '/' E
-    
+
     SyntacticNode* node = sr_prefix(analyzer);
     bool end_expr = false;
     while (!end_expr)
@@ -531,11 +531,11 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                 tokenizer_step(&(analyzer->tokenizer));
                 SyntacticNode* operand1 = node;
                 SyntacticNode* operand2 = sr_expression_prio(analyzer, node_info.priority + node_info.associativity);
-                
+
                 bool has_been_folded = false;
                 // Optimization of operations on constants
                 if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD)
-                    && node_info.node_type != NODE_ASSIGNMENT 
+                    && node_info.node_type != NODE_ASSIGNMENT
                     && operand1->type == NODE_CONST && operand2->type == NODE_CONST)
                 {
                     int value = -1;
@@ -719,7 +719,7 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
     { // P ---> S
         node = sr_suffix(analyzer);
     }
-    
+
     // *** Optimizations ***
     if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD))
         node = opti_constant_prefix(node, analyzer);
@@ -840,7 +840,7 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* anal
         {
             assert(node->children[0] != NULL);
             SyntacticNode* constant = node->children[0];
-            
+
             if (constant->type == NODE_CONST)
             {
                 optimized_node = constant;
@@ -852,6 +852,6 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* anal
             break;
         }
     }
-    
+
     return optimized_node;
 }

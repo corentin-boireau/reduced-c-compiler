@@ -9,7 +9,7 @@
 void startScope(SymbolTable* table);
 void endScope(SymbolTable* table);
 // Declares a new symbol with the given name and increments the nb_variables counter.
-Symbol* declare(SymbolTable* table, char* name, int type); 
+Symbol* declare(SymbolTable* table, char* name, int type);
 Symbol* search(SymbolTable* table, char* name);
 Symbol symbol_create(int stack_offset, char* name, int type);
 
@@ -155,7 +155,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             }
             else
             {
-                // NODE_FUNCTION always has a NODE_SEQUENCE for parameters at index 0 
+                // NODE_FUNCTION always has a NODE_SEQUENCE for parameters at index 0
                 int nb_parameters = node->children[0]->nb_children;
                 function_symbol->nb_params = nb_parameters;
                 table->nb_variables = 0;
@@ -191,7 +191,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 int nb_params = called_symbol->nb_params;
                 if (nb_args != nb_params)
                 {
-                    fprintf(stderr, "Incorrect number of arguments to function \"%s()\" at %d:%d, expected %d arguments but %d given \n", 
+                    fprintf(stderr, "Incorrect number of arguments to function \"%s()\" at %d:%d, expected %d arguments but %d given \n",
                                     node->value.str_val, node->line, node->col, nb_params, nb_args);
                     symbol_table_inc_error(table);
                 }

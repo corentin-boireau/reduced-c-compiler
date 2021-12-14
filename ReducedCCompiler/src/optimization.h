@@ -11,11 +11,11 @@
 * ----> 4 + 6
 * ----> 10
 */
-#define OPTI_CONST_FOLD (1 << 0) 
+#define OPTI_CONST_FOLD (1 << 0)
 
 typedef unsigned char optimization_t;
 
 static inline int is_opti_enabled(optimization_t optimizations, optimization_t opti_code)
 {
-	return (optimizations & opti_code) != 0;
+    return (optimizations & opti_code) != 0;
 }

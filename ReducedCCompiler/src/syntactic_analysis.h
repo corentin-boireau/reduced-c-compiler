@@ -12,11 +12,11 @@
 typedef struct SyntacticAnalyzer_s SyntacticAnalyzer;
 struct SyntacticAnalyzer_s
 {
-	Tokenizer	   tokenizer;
-	SyntacticNode* syntactic_tree;
-	int			   nb_errors;
-	int			   nb_warnings;
-	optimization_t optimizations;
+    Tokenizer      tokenizer;
+    SyntacticNode* syntactic_tree;
+    int            nb_errors;
+    int            nb_warnings;
+    optimization_t optimizations;
 };
 
 SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, optimization_t optimizations);

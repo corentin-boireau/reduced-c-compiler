@@ -16,11 +16,11 @@
 #include "optimization.h"
 
 
-#define RCC_NAME	  "rcc"
+#define RCC_NAME      "rcc"
 #define RCC_LONG_NAME "Reduced C Compiler"
 #define RCC_VERSION   "0.1"
 
-#if defined(_WIN32) || defined(WIN32) 
+#if defined(_WIN32) || defined(WIN32)
     #include <io.h>
     #define F_OK 0
     #define W_OK 2
@@ -37,12 +37,12 @@
     #define STAT_S stat
 #endif
 
-#define STAGE_LEXICAL	"lexical"
+#define STAGE_LEXICAL   "lexical"
 #define STAGE_SYNTACTIC "syntactic"
-#define STAGE_SEMANTIC	"semantic"
+#define STAGE_SEMANTIC  "semantic"
 
 // Loads the source file content as a null terminated buffer allocated dynamically and closes the FILE*
-char* load_file_content_and_close(FILE * file); 
+char* load_file_content_and_close(FILE * file);
 
 void lexical_analysis_on_file(FILE* in_file, int verbose, FILE* out_file);
 void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file);
@@ -61,7 +61,7 @@ static void init_files_to_close(int nb_files);
 static void register_file_to_close(FILE* file);
 static void unregister_file_to_close(FILE* file);
 
-static struct 
+static struct
 {
     void** argtable;
     int    nb_args;
@@ -86,21 +86,21 @@ int main(int argc, char* argv[])
     /* the global arg_xxx structs are initialised within the argtable */
     void* argtable[] =
     {
-        help				  = arg_litn(  "h", "help",                                      0, 1, "display this help and exit"),
-        version				  = arg_litn( NULL, "version",                                   0, 1, "display version info and exit"),
-        verb				  = arg_litn(  "v", "verbose",                                   0, 1, "verbose output"),
-        no_runtime			  = arg_litn( NULL, "no-runtime",                                0, 1, "no runtime"),
-        output				  = arg_filen( "o", "output",  "<file>",                         0, 1, "output file"),
-        input				  = arg_filen(NULL, NULL,      "<file>",                         1, 1, "input file"),
-        runtime_filename   	  = arg_filen(NULL, "runtime", "<file>",                         0, 1, "runtime file (invalid when --no-runtime is specified)"),
-        stage				  = arg_strn( NULL, "stage",   "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
+        help                  = arg_litn(  "h", "help",                                      0, 1, "display this help and exit"),
+        version               = arg_litn( NULL, "version",                                   0, 1, "display version info and exit"),
+        verb                  = arg_litn(  "v", "verbose",                                   0, 1, "verbose output"),
+        no_runtime            = arg_litn( NULL, "no-runtime",                                0, 1, "no runtime"),
+        output                = arg_filen( "o", "output",  "<file>",                         0, 1, "output file"),
+        input                 = arg_filen(NULL, NULL,      "<file>",                         1, 1, "input file"),
+        runtime_filename      = arg_filen(NULL, "runtime", "<file>",                         0, 1, "runtime file (invalid when --no-runtime is specified)"),
+        stage                 = arg_strn( NULL, "stage",   "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
         opti_const_fold       = arg_litn( NULL, "opti-const-fold",                           0, 1, "enable constant folding"),
-        end					  = arg_end(20),
+        end                   = arg_end(20),
     };
     register_argtable(argtable, sizeof(argtable) / sizeof(argtable[0])); // will be freed if an early cleanup is needed
 
     // There will be 3 files opened : input_file, output_file and runtime_file
-    init_files_to_close(3); 
+    init_files_to_close(3);
 
     int  exitcode = EXIT_SUCCESS;
 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
         printf("%s.\n\n", RCC_LONG_NAME);
         printf("Usage: %s", RCC_NAME);
         arg_print_syntax(stdout, argtable, "\n");
-        arg_print_glossary(stdout, argtable, "	%-40s %s\n");
+        arg_print_glossary(stdout, argtable, "  %-40s %s\n");
         clear_and_exit(EXIT_SUCCESS);
     }
     else if (version->count > 0)
@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
         printf("Try '%s --help' for more information.\n", RCC_NAME);
         clear_and_exit(EXIT_FAILURE);
     }
-    
+
     FILE* source_file = NULL;
     FILE* output_file = stdout;
 
@@ -257,7 +257,7 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
         assert(runtime_analyzer.nb_errors == 0);
 
         free(runtime_content);
-        
+
         semantic_analysis(runtime_analyzer.syntactic_tree, &table);
         assert(table.nb_errors == 0);
     }
@@ -317,7 +317,7 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
                 {
                     printf("\nGenerated code :\n\n");
                 }
-                
+
                 if(runtime_file != NULL)
                     generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP, table.nb_glob_variables);
 
@@ -343,7 +343,7 @@ void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimi
         fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
     }
     else
-    {	
+    {
         if (verbose)
             fprintf(out_file, "\n\nSyntactic tree : \n\n");
 
@@ -387,18 +387,18 @@ void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimis
         fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
     }
     else
-    {	
+    {
         if (verbose)
         {
             fprintf(out_file, "\n\nSyntactic tree before : \n\n");
             syntactic_node_display_tree(usercode_analyzer.syntactic_tree, 0, out_file);
         }
-        
+
         semantic_analysis(usercode_analyzer.syntactic_tree, &table);
 
         if (verbose)
             fprintf(out_file, "\n\nSyntactic tree after : \n\n");
-        
+
         syntactic_node_display_tree(usercode_analyzer.syntactic_tree, 0, out_file);
     }
 }
@@ -489,7 +489,7 @@ static void unregister_file_to_close(FILE* file)
     }
 
     assert(i < g_to_close.nb_files); // This function should not be called if file is not in the list
-    
+
     g_to_close.files[i] = NULL;
 }
 
@@ -505,7 +505,7 @@ static void unregister_argtable()
     g_argtable_to_free.argtable = NULL;
 }
 
-static void clear_and_exit(int exit_code) 
+static void clear_and_exit(int exit_code)
 {
     if (g_to_close.files != NULL)
     {

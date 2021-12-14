@@ -11,7 +11,7 @@ void generate_program(const SyntacticNode* program, FILE * stream, int is_init_c
     assert(program != NULL);
 
     #define CALL_INIT \
-        "       prep _Init"	 "\n" \
+        "       prep _Init"  "\n" \
         "       call 0"
 
     #define CALL_MAIN \
@@ -231,7 +231,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
             break;
         }
         case NODE_DECL :
-            break; 
+            break;
         case NODE_REF:
         {
             if (node->is_global)
@@ -391,7 +391,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
             assert(node->nb_children == 1);
             SyntacticNode* node_ref = node->children[0];
             assert(node_ref->type == NODE_REF);
-            
+
             if (node_ref->is_global)
             {
                 fprintf(stream, "        push 0\n");
