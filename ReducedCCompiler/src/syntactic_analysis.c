@@ -29,7 +29,7 @@ struct OperatorInfo_s
     int associativity;
     int node_type;
 };
-#define NB_OPERATORS 14
+#define NB_BINARY_OPERATORS 19
 #define MIN_PRIORITY 0
 OperatorInfo get_operator_info(int token_type)
 {
@@ -37,6 +37,41 @@ OperatorInfo get_operator_info(int token_type)
     switch (token_type)
     {
         case TOK_EQUAL:
+        {
+            op_info.priority      = 1;
+            op_info.associativity = RIGHT_TO_LEFT;
+            op_info.node_type     = NODE_ASSIGNMENT;
+            break;
+        }
+        case TOK_PLUS_EQUAL:
+        {
+            op_info.priority      = 1;
+            op_info.associativity = RIGHT_TO_LEFT;
+            op_info.node_type     = NODE_ASSIGNMENT;
+            break;
+        }
+        case TOK_MINUS_EQUAL:
+        {
+            op_info.priority      = 1;
+            op_info.associativity = RIGHT_TO_LEFT;
+            op_info.node_type     = NODE_ASSIGNMENT;
+            break;
+        }
+        case TOK_MUL_EQUAL:
+        {
+            op_info.priority      = 1;
+            op_info.associativity = RIGHT_TO_LEFT;
+            op_info.node_type     = NODE_ASSIGNMENT;
+            break;
+        }
+        case TOK_DIV_EQUAL:
+        {
+            op_info.priority      = 1;
+            op_info.associativity = RIGHT_TO_LEFT;
+            op_info.node_type     = NODE_ASSIGNMENT;
+            break;
+        }
+        case TOK_MOD_EQUAL:
         {
             op_info.priority      = 1;
             op_info.associativity = RIGHT_TO_LEFT;
@@ -144,7 +179,7 @@ OperatorInfo get_operator_info(int token_type)
 
 static inline bool is_binary_op(int token_type)
 {
-    return token_type < NB_OPERATORS && token_type >= 0;
+    return token_type < NB_BINARY_OPERATORS && token_type >= 0;
 }
 
 SyntacticNode* subrule_decl_initialization(SyntacticAnalyzer* analyzer, SyntacticNode *decl)
@@ -176,6 +211,7 @@ SyntacticNode* subrule_single_decl(SyntacticAnalyzer* analyzer, SyntacticNode* d
     tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
     SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
     decl->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+    analyzer->tokenizer.current.value.str_val = NULL;
     syntactic_node_add_child(declaration_seq, decl);
 
     if (allow_init && tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
@@ -507,6 +543,11 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
     assert(analyzer != NULL);
 
     // E ---> P '=' E
+    //      | P '+=' E
+    //      | P '-=' E
+    //      | P '*=' E
+    //      | P '/=' E
+    //      | P '%=' E
     //      | P '||' E
     //      | P '&&' E
     //      | P '==' | '!=' E
@@ -650,9 +691,45 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 
                 if ( ! has_been_folded)
                 {
-                    node = syntactic_node_create(node_info.node_type, token_operator.line, token_operator.col);
-                    syntactic_node_add_child(node, operand1);
-                    syntactic_node_add_child(node, operand2);
+                    if (node_info.node_type != NODE_ASSIGNMENT)
+                    {
+                        node = syntactic_node_create(node_info.node_type, token_operator.line, token_operator.col);
+                        syntactic_node_add_child(node, operand1);
+                        syntactic_node_add_child(node, operand2);
+                    }
+                    else
+                    {
+                        node = syntactic_node_create(node_info.node_type, token_operator.line, token_operator.col);
+                        syntactic_node_add_child(node, operand1);
+                        if (token_operator.type == TOK_EQUAL)
+                        {
+                            syntactic_node_add_child(node, operand2);
+                        }
+                        else
+                        {
+                            SyntacticNode* ref_op1 = syntactic_node_create(operand1->type, operand1->line, operand1->col);
+                            size_t nb_char = strlen(operand1->value.str_val);
+                            ref_op1->value.str_val = malloc((nb_char + 1) * sizeof(char));
+                            if (ref_op1->value.str_val == NULL)
+                            {
+                                perror("Failed to allocate space for reference's name");
+                                exit(EXIT_FAILURE);
+                            }
+                            memcpy(ref_op1->value.str_val, operand1->value.str_val, (nb_char + 1) * sizeof(char));
+                            SyntacticNode* arithmetic_op = NULL;
+                            switch (token_operator.type)
+                            {
+                                case TOK_PLUS_EQUAL:  arithmetic_op = syntactic_node_create(NODE_ADD, token_operator.line, token_operator.col); break;
+                                case TOK_MINUS_EQUAL: arithmetic_op = syntactic_node_create(NODE_SUB, token_operator.line, token_operator.col); break;
+                                case TOK_MUL_EQUAL:   arithmetic_op = syntactic_node_create(NODE_MUL, token_operator.line, token_operator.col); break;
+                                case TOK_DIV_EQUAL:   arithmetic_op = syntactic_node_create(NODE_DIV, token_operator.line, token_operator.col); break;
+                                case TOK_MOD_EQUAL:   arithmetic_op = syntactic_node_create(NODE_MOD, token_operator.line, token_operator.col); break;
+                            }
+                            syntactic_node_add_child(arithmetic_op, ref_op1);
+                            syntactic_node_add_child(arithmetic_op, operand2);
+                            syntactic_node_add_child(node, arithmetic_op);
+                        }
+                    }
                 }
             }
         }
@@ -773,12 +850,14 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
         {
             node = syntactic_node_create(NODE_REF, line, col);
             node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+            analyzer->tokenizer.current.value.str_val = NULL;
         }
         // function(arg1, ...)
         else
         {
             node = syntactic_node_create(NODE_CALL, line, col);
             node->value.str_val = analyzer->tokenizer.current.value.str_val; // Steal the pointer from the token to avoid a copy
+            analyzer->tokenizer.current.value.str_val = NULL;
             SyntacticNode *seq = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
             // args
             if (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS))
