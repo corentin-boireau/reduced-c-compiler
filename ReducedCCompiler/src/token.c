@@ -291,6 +291,13 @@ void tokenizer_step(Tokenizer* tokenizer)
                         }
                     }
                 }
+                else if (tokenizer->buff[tokenizer->pos + 1] == '=')
+                {
+                    found = true;
+                    set_next(tokenizer, TOK_DIV_EQUAL);
+                    tokenizer->col += 2;
+                    tokenizer->pos += 2;
+                }
                 else
                 {
                     found = true;
@@ -378,10 +385,74 @@ void tokenizer_step(Tokenizer* tokenizer)
                 break;
             }
 
-            case '+' : set_next(tokenizer, TOK_PLUS);              found = true; tokenizer->col++; tokenizer->pos++; break;
-            case '-' : set_next(tokenizer, TOK_MINUS);             found = true; tokenizer->col++; tokenizer->pos++; break;
-            case '*' : set_next(tokenizer, TOK_STAR);              found = true; tokenizer->col++; tokenizer->pos++; break;
-            case '%' : set_next(tokenizer, TOK_PERCENT);           found = true; tokenizer->col++; tokenizer->pos++; break;
+            case '+' :
+            {
+                found = true;
+                if (tokenizer->buff[tokenizer->pos + 1] == '=')
+                {
+                    set_next(tokenizer, TOK_PLUS_EQUAL);
+                    tokenizer->col += 2;
+                    tokenizer->pos += 2;
+                }
+                else
+                {
+                    set_next(tokenizer, TOK_PLUS);
+                    tokenizer->col++;
+                    tokenizer->pos++;
+                }
+                break;
+            }
+            case '-' :
+            {
+                found = true;
+                if (tokenizer->buff[tokenizer->pos + 1] == '=')
+                {
+                    set_next(tokenizer, TOK_MINUS_EQUAL);
+                    tokenizer->col += 2;
+                    tokenizer->pos += 2;
+                }
+                else
+                {
+                    set_next(tokenizer, TOK_MINUS);
+                    tokenizer->col++;
+                    tokenizer->pos++;
+                }
+                break;
+            }
+            case '*' :
+            {
+                found = true;
+                if (tokenizer->buff[tokenizer->pos + 1] == '=')
+                {
+                    set_next(tokenizer, TOK_MUL_EQUAL);
+                    tokenizer->col += 2;
+                    tokenizer->pos += 2;
+                }
+                else
+                {
+                    set_next(tokenizer, TOK_STAR);
+                    tokenizer->col++;
+                    tokenizer->pos++;
+                }
+                break;
+            }
+            case '%' :
+            {
+                found = true;
+                if (tokenizer->buff[tokenizer->pos + 1] == '=')
+                {
+                    set_next(tokenizer, TOK_MOD_EQUAL);
+                    tokenizer->col += 2;
+                    tokenizer->pos += 2;
+                }
+                else
+                {
+                    set_next(tokenizer, TOK_PERCENT);
+                    tokenizer->col++;
+                    tokenizer->pos++;
+                }
+                break;
+            }
 
             case ',' : set_next(tokenizer, TOK_COMMA);             found = true; tokenizer->col++; tokenizer->pos++; break;
             case ';' : set_next(tokenizer, TOK_SEMICOLON);         found = true; tokenizer->col++; tokenizer->pos++; break;
@@ -658,6 +729,11 @@ void token_display(Token token, FILE* out_file)
         case TOK_PERCENT:           fprintf(out_file, "PERCENT\n");                                          break;
         case TOK_AMPERSAND:         fprintf(out_file, "AMPERSAND\n");                                        break;
         case TOK_EQUAL:             fprintf(out_file, "EQUAL\n");                                            break;
+        case TOK_PLUS_EQUAL:        fprintf(out_file, "PLUS EQUAL\n");                                       break;
+        case TOK_MINUS_EQUAL:       fprintf(out_file, "MINUS EQUAL\n");                                      break;
+        case TOK_MUL_EQUAL:         fprintf(out_file, "MUL EQUAL\n");                                        break;
+        case TOK_DIV_EQUAL:         fprintf(out_file, "DIV EQUAL\n");                                        break;
+        case TOK_MOD_EQUAL:         fprintf(out_file, "MOD EQUAL\n");                                        break;
         case TOK_2_EQUAL:           fprintf(out_file, "DOUBLE EQUAL\n");                                     break;
         case TOK_NOT:               fprintf(out_file, "NOT\n");                                              break;
         case TOK_NOT_EQUAL:         fprintf(out_file, "NOT EQUAL\n");                                        break;
