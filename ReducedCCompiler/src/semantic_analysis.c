@@ -119,7 +119,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                             symbol_set_flag(ref_symbol, SET);
                         else
                         {
-                            if ( ! symbol_is_flag_set(ref_symbol, SET))
+                            if ( ! symbol_is_flag_set(ref_symbol, SET) && ref_symbol->type == SYMBOL_LOCAL_VAR)
                             {
                                 fprintf(stderr, "(%d:%d):warning: '%s' is used uninitialized\n",
                                         node->line, node->col, ref_symbol->name);
@@ -156,14 +156,20 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             else
             {
                 // NODE_FUNCTION always has a NODE_SEQUENCE for parameters at index 0
+                assert(node->children[0]->type == NODE_SEQUENCE);
                 int nb_parameters = node->children[0]->nb_children;
                 function_symbol->nb_params = nb_parameters;
                 table->nb_variables = 0;
                 startScope(table);
-                for (int i = 0; i < node->nb_children; i++)
-                {
+
+                // Set the SET flag on function parameters as they are set by the call
+                semantic_analysis(node->children[0], table);
+                for (int i = 0; i < nb_parameters; i++)
+                    symbol_set_flag(&(table->symbols[table->scopes[table->current_scope] + i]), SET);
+
+                for (int i = 1; i < node->nb_children; i++)
                     semantic_analysis(node->children[i], table);
-                }
+
                 endScope(table);
                 // Don't allocate space on the stack for the parameters
                 node->nb_var = table->nb_variables - nb_parameters;

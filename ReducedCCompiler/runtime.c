@@ -296,7 +296,6 @@ int free(int ptr)
 
             if (rn_prev != INVALID_POINTER)
             {
-                int rn_prev_size = rn_prev[S_CELL_BEG];
                 rn_prev[N_CELL] = rn_next;
 
                 if (lneighbor_size > 0 // we are merging the two neighbors
