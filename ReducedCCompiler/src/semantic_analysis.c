@@ -81,7 +81,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             Symbol* var_symbol = declare(table, node->value.str_val, decl_type);
             if (var_symbol == NULL)
             {
-                fprintf(stderr, "Redeclaration of symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
+                fprintf(stderr, "(%d:%d):error: Redeclaration of symbol \"%s\".\n", node->line, node->col, node->value.str_val);
                 symbol_table_inc_error(table);
             }
             else
@@ -95,7 +95,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             Symbol* ref_symbol = search(table, node->value.str_val);
             if (ref_symbol == NULL)
             {
-                fprintf(stderr, "Reference to undeclared symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
+                fprintf(stderr, "(%d:%d):error: Reference to undeclared symbol \"%s\".\n", node->line, node->col, node->value.str_val);
                 symbol_table_inc_error(table);
             }
             else
@@ -104,8 +104,8 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 {
                     case SYMBOL_FUNC:
                     {
-                        fprintf(stderr, "Symbol \"%s\" denotes a function name, did you mean \"%s()\" at %d:%d\n",
-                                node->value.str_val, node->value.str_val, node->line, node->col);
+                        fprintf(stderr, "(%d:%d):error: Symbol \"%s\" denotes a function name, did you mean \"%s()\".\n",
+                                node->line, node->col, node->value.str_val, node->value.str_val);
                         symbol_table_inc_error(table);
                         break;
                     }
@@ -150,7 +150,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             Symbol* function_symbol = declare(table, node->value.str_val, SYMBOL_FUNC);
             if (function_symbol == NULL)
             {
-                fprintf(stderr, "Redeclaration of symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
+                fprintf(stderr, "(%d:%d):error: Redeclaration of symbol \"%s\".\n", node->line, node->col, node->value.str_val);
                 symbol_table_inc_error(table);
             }
             else
@@ -181,12 +181,12 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             Symbol* called_symbol = search(table, node->value.str_val);
             if (called_symbol == NULL)
             {
-                fprintf(stderr, "Call to undefined symbol \"%s\" at %d:%d\n", node->value.str_val, node->line, node->col);
+                fprintf(stderr, "(%d:%d):error: Call to undefined symbol \"%s\".\n", node->line, node->col, node->value.str_val);
                 symbol_table_inc_error(table);
             }
             else if (called_symbol->type != SYMBOL_FUNC)
             {
-                fprintf(stderr, "Symbol \"%s\" is not a function at %d:%d\n", node->value.str_val, node->line, node->col);
+                fprintf(stderr, "(%d:%d):error: Symbol \"%s\" is not a function.\n", node->line, node->col, node->value.str_val);
                 symbol_table_inc_error(table);
             }
             else
@@ -197,8 +197,8 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 int nb_params = called_symbol->nb_params;
                 if (nb_args != nb_params)
                 {
-                    fprintf(stderr, "Incorrect number of arguments to function \"%s()\" at %d:%d, expected %d arguments but %d given \n",
-                                    node->value.str_val, node->line, node->col, nb_params, nb_args);
+                    fprintf(stderr, "(%d:%d):error: Incorrect number of arguments to function \"%s()\", expected %d arguments but %d given.\n",
+                            node->line, node->col, node->value.str_val, nb_params, nb_args);
                     symbol_table_inc_error(table);
                 }
                 semantic_analysis(node->children[0], table);
@@ -216,7 +216,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 semantic_analysis(assignable, table);
             else
             {
-                fprintf(stderr, "%d:%d error : Left operand of assignement must be a lvalue\n", node->line, node->col);
+                fprintf(stderr, "(%d:%d):error: Left operand of assignement must be a lvalue.\n", node->line, node->col);
                 symbol_table_inc_error(table);
             }
             break;
