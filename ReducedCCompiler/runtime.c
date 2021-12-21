@@ -364,13 +364,13 @@ int memdump(int start, int end, int line_width)
     int i;
     putchar('&');
     putchar('\t');
-    for (i = 0;  i < line_width; i = i + 1)
+    for (i = 0;  i < line_width; i += 1)
     {
         printn(i);
         putchar('\t');
     }
     putchar('\n');
-    for (i = 0;  i < line_width + 1; i = i + 1)
+    for (i = 0;  i < line_width + 1; i += 1)
     {
         putchar('-');
         putchar('-');
@@ -379,7 +379,7 @@ int memdump(int start, int end, int line_width)
     }
 
     int cell_addr;
-    for (cell_addr = start; cell_addr < end; cell_addr = cell_addr + 1)
+    for (cell_addr = start; cell_addr < end; cell_addr += 1)
     {
         if ((cell_addr - start) % line_width == 0)
         {

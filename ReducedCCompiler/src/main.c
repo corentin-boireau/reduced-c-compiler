@@ -16,9 +16,10 @@
 #include "optimization.h"
 
 
-#define RCC_NAME      "rcc"
-#define RCC_LONG_NAME "Reduced C Compiler"
-#define RCC_VERSION   "0.1"
+#define RCC_NAME            "rcc"
+#define RCC_LONG_NAME       "Reduced C Compiler"
+#define RCC_VERSION         "0.1"
+#define RCC_RUNTIME_ENV_VAR "RCC_RUNTIME"
 
 #if defined(_WIN32) || defined(WIN32)
     #include <io.h>
@@ -86,16 +87,16 @@ int main(int argc, char* argv[])
     /* the global arg_xxx structs are initialised within the argtable */
     void* argtable[] =
     {
-        help                  = arg_litn(  "h", "help",                                      0, 1, "display this help and exit"),
-        version               = arg_litn( NULL, "version",                                   0, 1, "display version info and exit"),
-        verb                  = arg_litn(  "v", "verbose",                                   0, 1, "verbose output"),
-        no_runtime            = arg_litn( NULL, "no-runtime",                                0, 1, "no runtime"),
-        output                = arg_filen( "o", "output",  "<file>",                         0, 1, "output file"),
-        input                 = arg_filen(NULL, NULL,      "<file>",                         1, 1, "input file"),
-        runtime_filename      = arg_filen(NULL, "runtime", "<file>",                         0, 1, "runtime file (invalid when --no-runtime is specified)"),
-        stage                 = arg_strn( NULL, "stage",   "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
-        opti_const_fold       = arg_litn( NULL, "opti-const-fold",                           0, 1, "enable constant folding"),
-        end                   = arg_end(20),
+        input            = arg_filen(NULL, NULL,      "<file>",                         1, 1, "input file"),
+        output           = arg_filen( "o", "output",  "<file>",                         0, 1, "output file"),
+        verb             = arg_litn(  "v", "verbose",                                   0, 1, "verbose output"),
+        no_runtime       = arg_litn( NULL, "no-runtime",                                0, 1, "no runtime"),
+        runtime_filename = arg_filen(NULL, "runtime", "<file>",                         0, 1, "runtime file, default to environnment variable RCC_RUNTIME"),
+        stage            = arg_strn( NULL, "stage",   "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
+        opti_const_fold  = arg_litn( NULL, "opti-const-fold",                           0, 1, "enable constant folding"),
+        help             = arg_litn(  "h", "help",                                      0, 1, "display this help and exit"),
+        version          = arg_litn( NULL, "version",                                   0, 1, "display version info and exit"),
+        end              = arg_end(20),
     };
     register_argtable(argtable, sizeof(argtable) / sizeof(argtable[0])); // will be freed if an early cleanup is needed
 
@@ -171,31 +172,37 @@ int main(int argc, char* argv[])
     if (opti_const_fold->count > 0)
         opti |= OPTI_CONST_FOLD;
 
-    FILE* runtime_file;
+    FILE* runtime_file = NULL;
     if (no_runtime->count > 0)
     {
         if (runtime_filename->count > 0)
         {
-            fprintf(stderr, "%s: invalid option. \"--%s\" option is incompatible with \"--%s\" option.", RCC_NAME, runtime_filename->hdr.longopts, no_runtime->hdr.longopts);
+            fprintf(stderr, "%s: invalid option. \"--%s\" option is incompatible with \"--%s\" option.\n",
+                    RCC_NAME, runtime_filename->hdr.longopts, no_runtime->hdr.longopts);
             clear_and_exit(EXIT_FAILURE);
         }
-
-        runtime_file = NULL;
     }
     else
     {
+        char* runtime_path = NULL;
         if (runtime_filename->count > 0)
-        {
-            runtime_file = fopen(*(runtime_filename)->filename, "r");
-        }
+            runtime_path = *( (char**) (runtime_filename)->filename);
+        else
+            runtime_path = getenv(RCC_RUNTIME_ENV_VAR);
+
+        if (runtime_path != NULL)
+            runtime_file = fopen(runtime_path, "r");
         else
         {
-            runtime_file = fopen("runtime.c", "r");
+            fprintf(stderr, "%s: runtime path not provided. Please define the environnment variable %s.\nOtherwise use one of these options --runtime <file> or --no-runtime.\n",
+                    RCC_NAME, RCC_RUNTIME_ENV_VAR);
+            clear_and_exit(EXIT_FAILURE);
         }
+
 
         if (runtime_file == NULL)
         {
-            perror("failed to open the runtime file");
+            fprintf(stderr, "%s: Failed to open the runtime file : %s\n", RCC_NAME, runtime_path);
             clear_and_exit(EXIT_FAILURE);
         }
         register_file_to_close(runtime_file);
@@ -437,8 +444,7 @@ char* load_file_content_and_close(FILE* file)
     }
     else
     {
-        size_t nb_char_loaded = 0;
-        nb_char_loaded += fread(file_content + nb_char_loaded, sizeof(char), file_size, file);
+        size_t nb_char_loaded = fread(file_content, sizeof(char), file_size, file);
         // May be different from file_size, e.g. if line breaks are CRLF instead of LF
 
         if (ferror(file))
