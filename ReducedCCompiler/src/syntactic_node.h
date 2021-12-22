@@ -78,5 +78,6 @@ enum
     NODE_PROGRAM,
     NODE_CALL,
     NODE_RETURN,
+    NODE_COMPOUND,
 };
 #endif // SYNTACTIC_NODE_H

@@ -44,38 +44,14 @@ OperatorInfo get_operator_info(int token_type)
             break;
         }
         case TOK_PLUS_EQUAL:
-        {
-            op_info.priority      = 1;
-            op_info.associativity = RIGHT_TO_LEFT;
-            op_info.node_type     = NODE_ASSIGNMENT;
-            break;
-        }
         case TOK_MINUS_EQUAL:
-        {
-            op_info.priority      = 1;
-            op_info.associativity = RIGHT_TO_LEFT;
-            op_info.node_type     = NODE_ASSIGNMENT;
-            break;
-        }
         case TOK_MUL_EQUAL:
-        {
-            op_info.priority      = 1;
-            op_info.associativity = RIGHT_TO_LEFT;
-            op_info.node_type     = NODE_ASSIGNMENT;
-            break;
-        }
         case TOK_DIV_EQUAL:
-        {
-            op_info.priority      = 1;
-            op_info.associativity = RIGHT_TO_LEFT;
-            op_info.node_type     = NODE_ASSIGNMENT;
-            break;
-        }
         case TOK_MOD_EQUAL:
         {
             op_info.priority      = 1;
             op_info.associativity = RIGHT_TO_LEFT;
-            op_info.node_type     = NODE_ASSIGNMENT;
+            op_info.node_type     = NODE_COMPOUND;
             break;
         }
         case TOK_2_PIPE:
@@ -576,7 +552,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                 bool has_been_folded = false;
                 // Optimization of operations on constants
                 if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD)
-                    && node_info.node_type != NODE_ASSIGNMENT
+                    && node_info.node_type != NODE_ASSIGNMENT && node_info.node_type != NODE_COMPOUND
                     && operand1->type == NODE_CONST && operand2->type == NODE_CONST)
                 {
                     int value = -1;
@@ -691,31 +667,27 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
 
                 if ( ! has_been_folded)
                 {
-                    if (node_info.node_type != NODE_ASSIGNMENT)
+                    if (node_info.node_type != NODE_ASSIGNMENT && node_info.node_type != NODE_COMPOUND)
                     {
                         node = syntactic_node_create(node_info.node_type, token_operator.line, token_operator.col);
                         syntactic_node_add_child(node, operand1);
                         syntactic_node_add_child(node, operand2);
                     }
+                    else if (operand1->type != NODE_REF && operand1->type != NODE_DEREF)
+                    {
+                        fprintf(stderr, "(%d:%d):error: Left operand of assignement must be a lvalue.\n", operand1->line, operand1->col);
+                        syntactic_analyzer_inc_error(analyzer);
+                    }
                     else
                     {
                         node = syntactic_node_create(node_info.node_type, token_operator.line, token_operator.col);
-                        syntactic_node_add_child(node, operand1);
-                        if (token_operator.type == TOK_EQUAL)
+                        if (node_info.node_type == NODE_ASSIGNMENT)
                         {
+                            syntactic_node_add_child(node, operand1);
                             syntactic_node_add_child(node, operand2);
                         }
                         else
                         {
-                            SyntacticNode* ref_op1 = syntactic_node_create(operand1->type, operand1->line, operand1->col);
-                            size_t nb_char = strlen(operand1->value.str_val);
-                            ref_op1->value.str_val = malloc((nb_char + 1) * sizeof(char));
-                            if (ref_op1->value.str_val == NULL)
-                            {
-                                perror("Failed to allocate space for reference's name");
-                                exit(EXIT_FAILURE);
-                            }
-                            memcpy(ref_op1->value.str_val, operand1->value.str_val, (nb_char + 1) * sizeof(char));
                             SyntacticNode* arithmetic_op = NULL;
                             switch (token_operator.type)
                             {
@@ -724,8 +696,9 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                                 case TOK_MUL_EQUAL:   arithmetic_op = syntactic_node_create(NODE_MUL, token_operator.line, token_operator.col); break;
                                 case TOK_DIV_EQUAL:   arithmetic_op = syntactic_node_create(NODE_DIV, token_operator.line, token_operator.col); break;
                                 case TOK_MOD_EQUAL:   arithmetic_op = syntactic_node_create(NODE_MOD, token_operator.line, token_operator.col); break;
+                                default:              assert(false);
                             }
-                            syntactic_node_add_child(arithmetic_op, ref_op1);
+                            syntactic_node_add_child(arithmetic_op, operand1);
                             syntactic_node_add_child(arithmetic_op, operand2);
                             syntactic_node_add_child(node, arithmetic_op);
                         }
@@ -776,6 +749,7 @@ SyntacticNode* sr_prefix(SyntacticAnalyzer* analyzer)
         {
             assert(prefix->nb_children == 1);
             node = prefix->children[0];
+            node->parent = NULL; // Since the parent is deleted, the reference is removed
             free(prefix);
         }
         else if (prefix->type == NODE_REF)

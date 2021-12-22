@@ -95,6 +95,7 @@ void syntactic_node_display(const SyntacticNode* node, FILE *out_file)
         case NODE_CALL:                 fprintf(out_file, "CALL : name = %s\n", node->value.str_val);                                 break;
         case NODE_RETURN:               fprintf(out_file, "RETURN\n");                                                                break;
         case NODE_DEREF:                fprintf(out_file, "DEREF\n");                                                                 break;
+        case NODE_COMPOUND:             fprintf(out_file, "COMPOUND\n");                                                              break;
     }
 }
 

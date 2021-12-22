@@ -248,12 +248,24 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
             break;
         }
         case NODE_ASSIGNMENT :
+        case NODE_COMPOUND:
         {
-            SyntacticNode* assignable = node->children[0];
-            if (assignable->type == NODE_REF)
+            SyntacticNode* assignable;
+            if (node->type == NODE_ASSIGNMENT)
             {
                 generate_code(node->children[1], stream, loop_nb, nb_global_variables);
-                fprintf(stream, "        dup\n");
+                assignable = node->children[0];
+            }
+            else
+            {
+                generate_code(node->children[0], stream, loop_nb, nb_global_variables);
+                assignable = node->children[0]->children[0];
+            }
+
+            fprintf(stream, "        dup\n");
+
+            if (assignable->type == NODE_REF)
+            {
                 if (assignable->is_global)
                 {
                     fprintf(stream, "        push 0\n");
@@ -271,8 +283,6 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
             {
                 assert(assignable->nb_children == 1);
 
-                generate_code(node->children[1], stream, loop_nb, nb_global_variables);
-                fprintf(stream, "        dup\n");
                 generate_code(assignable->children[0], stream, loop_nb, nb_global_variables);
                 fprintf(stream, "        write\n");
             }

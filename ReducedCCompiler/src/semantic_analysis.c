@@ -104,7 +104,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 {
                     case SYMBOL_FUNC:
                     {
-                        fprintf(stderr, "(%d:%d):error: Symbol \"%s\" denotes a function name, did you mean \"%s()\".\n",
+                        fprintf(stderr, "(%d:%d):error: Symbol \"%s\" denotes a function name, did you mean \"%s()\" ?\n",
                                 node->line, node->col, node->value.str_val, node->value.str_val);
                         symbol_table_inc_error(table);
                         break;
@@ -211,13 +211,23 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
             semantic_analysis(node->children[1], table);
 
             SyntacticNode* assignable = node->children[0];
-            if (assignable->type == NODE_DEREF
-                || assignable->type == NODE_REF)
-                semantic_analysis(assignable, table);
-            else
+            assert(assignable->type == NODE_DEREF || assignable->type == NODE_REF);
+            semantic_analysis(assignable, table);
+            break;
+        }
+        case NODE_COMPOUND:
+        {
+            assert(node->nb_children == 1);
+            assert(node->children[0]->nb_children == 2);
+
+            semantic_analysis(node->children[0], table);
+            // TODO semantic_analysis() on the left operand of the assignment
+            SyntacticNode* ref_node = node->children[0]->children[0];
+            if (ref_node->type == NODE_REF)
             {
-                fprintf(stderr, "(%d:%d):error: Left operand of assignement must be a lvalue.\n", node->line, node->col);
-                symbol_table_inc_error(table);
+                Symbol* ref_symbol = search(table, ref_node->value.str_val);
+                if (ref_symbol != NULL && (ref_symbol->type == SYMBOL_LOCAL_VAR || ref_symbol->type == SYMBOL_GLOBAL_VAR))
+                    symbol_set_flag(ref_symbol, SET);
             }
             break;
         }
