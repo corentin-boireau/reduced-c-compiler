@@ -1,4 +1,5 @@
 int b;
+
 int printb()
 {
     print b;

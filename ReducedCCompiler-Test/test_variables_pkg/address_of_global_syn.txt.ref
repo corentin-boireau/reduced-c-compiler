@@ -1,0 +1,26 @@
+PROGRAM
+|--SEQUENCE
+   |--DECL : name = b, index = -1
+|--FUNCTION : name = printb
+   |--SEQUENCE
+   |--SEQUENCE
+      |--PRINT
+         |--REF : name = b, index = -1
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--SEQUENCE
+      |--SEQUENCE
+         |--DECL : name = a, index = -1
+         |--DROP
+            |--ASSIGNEMENT
+               |--REF : name = a, index = -1
+               |--ADDRESS
+                  |--REF : name = b, index = -1
+      |--DROP
+         |--ASSIGNEMENT
+            |--DEREF
+               |--REF : name = a, index = -1
+            |--CONST : value = 34
+      |--DROP
+         |--CALL : name = printb
+            |--SEQUENCE

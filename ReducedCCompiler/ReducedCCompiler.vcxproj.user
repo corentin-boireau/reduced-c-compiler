@@ -4,11 +4,11 @@
     <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>..\ReducedCCompiler-Test\test_unary_ops_pkg\unary_ops.c --no-runtime --opti-const-fold</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>..\test_op_addr_cancel_deref.c</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>..\ReducedCCompiler-Test\test_unary_ops_pkg\unary_ops.c --no-runtime --opti-const-fold</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>..\test_op_addr_cancel_deref.c</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

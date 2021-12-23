@@ -1,0 +1,46 @@
+PROGRAM
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--SEQUENCE
+      |--SEQUENCE
+         |--DECL : name = ptr_a, index = -1
+      |--DROP
+         |--ASSIGNEMENT
+            |--REF : name = ptr_a, index = -1
+            |--CONST : value = 0
+      |--PRINT
+         |--DEREF
+            |--REF : name = ptr_a, index = -1
+      |--PRINT
+         |--DEREF
+            |--ADD
+               |--REF : name = ptr_a, index = -1
+               |--CONST : value = 2
+      |--SEQUENCE
+         |--DECL : name = i, index = -1
+      |--BLOCK
+         |--DROP
+            |--ASSIGNEMENT
+               |--REF : name = i, index = -1
+               |--CONST : value = 0
+         |--LOOP
+            |--INVERTED CONDITION
+               |--LESS
+                  |--REF : name = i, index = -1
+                  |--CONST : value = 10
+               |--BREAK
+            |--SEQUENCE
+               |--PRINT
+                  |--DEREF
+                     |--ADD
+                        |--REF : name = ptr_a, index = -1
+                        |--REF : name = i, index = -1
+            |--CONTINUE LABEL
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = i, index = -1
+                  |--ADD
+                     |--REF : name = i, index = -1
+                     |--CONST : value = 1
+      |--RETURN
+         |--CONST : value = 0

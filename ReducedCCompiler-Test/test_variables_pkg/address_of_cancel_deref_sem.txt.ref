@@ -1,0 +1,42 @@
+PROGRAM
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--SEQUENCE
+      |--SEQUENCE
+         |--DECL : name = a, index = 0
+         |--DROP
+            |--ASSIGNEMENT
+               |--REF : name = a, index = 0 (local)
+               |--CONST : value = 3
+      |--SEQUENCE
+         |--DECL : name = b, index = 1
+         |--DROP
+            |--ASSIGNEMENT
+               |--REF : name = b, index = 1 (local)
+               |--REF : name = a, index = 0 (local)
+      |--PRINT
+         |--REF : name = b, index = 1 (local)
+      |--SEQUENCE
+         |--DECL : name = c, index = 2
+         |--DROP
+            |--ASSIGNEMENT
+               |--REF : name = c, index = 2 (local)
+               |--CONST : value = 3000
+      |--SEQUENCE
+         |--DECL : name = c_third, index = 3
+         |--DROP
+            |--ASSIGNEMENT
+               |--REF : name = c_third, index = 3 (local)
+               |--ADD
+                  |--REF : name = c, index = 2 (local)
+                  |--CONST : value = 2
+      |--DROP
+         |--ASSIGNEMENT
+            |--DEREF
+               |--ADD
+                  |--REF : name = c, index = 2 (local)
+                  |--CONST : value = 2
+            |--CONST : value = 4
+      |--PRINT
+         |--DEREF
+            |--REF : name = c_third, index = 3 (local)

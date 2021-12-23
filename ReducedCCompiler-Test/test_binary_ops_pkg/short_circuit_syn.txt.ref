@@ -1,0 +1,56 @@
+PROGRAM
+|--FUNCTION : name = log
+   |--SEQUENCE
+      |--DECL : name = x, index = -1
+   |--SEQUENCE
+      |--PRINT
+         |--REF : name = x, index = -1
+      |--RETURN
+         |--REF : name = x, index = -1
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--SEQUENCE
+      |--PRINT
+         |--OR
+            |--OR
+               |--OR
+                  |--OR
+                     |--CALL : name = log
+                        |--SEQUENCE
+                           |--CONST : value = 0
+                     |--CALL : name = log
+                        |--SEQUENCE
+                           |--EQUAL
+                              |--CONST : value = 2
+                              |--CONST : value = 3
+                  |--CALL : name = log
+                     |--SEQUENCE
+                        |--CONST : value = 0
+               |--CALL : name = log
+                  |--SEQUENCE
+                     |--CONST : value = 6
+            |--CALL : name = log
+               |--SEQUENCE
+                  |--CONST : value = 2
+      |--PRINT
+         |--AND
+            |--AND
+               |--AND
+                  |--AND
+                     |--CALL : name = log
+                        |--SEQUENCE
+                           |--CONST : value = 1
+                     |--CALL : name = log
+                        |--SEQUENCE
+                           |--LESS
+                              |--CONST : value = 2
+                              |--CONST : value = 3
+                  |--CALL : name = log
+                     |--SEQUENCE
+                        |--CONST : value = 6
+               |--CALL : name = log
+                  |--SEQUENCE
+                     |--CONST : value = 0
+            |--CALL : name = log
+               |--SEQUENCE
+                  |--CONST : value = 2

@@ -1,0 +1,47 @@
+.printb
+        push 0
+        read
+        push 1
+        sub
+        read
+        dbg
+        push 0
+        ret
+.main
+        resn 1
+        push 0
+        read
+        push 1
+        sub
+        dup
+        set 0
+        drop
+        push 34
+        dup
+        get 0
+        write
+        drop
+        prep printb
+        call 0
+        drop
+        push 0
+        ret
+.start
+       push 0
+       read
+       push 1
+       add
+       push 0
+       write
+       prep main
+       call 0
+       halt
+
+.putchar
+       send
+       push 0
+       ret
+
+.getchar
+       recv
+       ret

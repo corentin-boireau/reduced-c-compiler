@@ -1,0 +1,21 @@
+PROGRAM
+|--SEQUENCE
+   |--DECL : name = a, index = 0
+|--FUNCTION : name = main
+   |--SEQUENCE
+   |--SEQUENCE
+      |--DROP
+         |--ASSIGNEMENT
+            |--REF : name = a, index = 0 (global)
+            |--CONST : value = 1
+      |--BLOCK
+         |--SEQUENCE
+            |--DECL : name = a, index = 0
+            |--DROP
+               |--ASSIGNEMENT
+                  |--REF : name = a, index = 0 (local)
+                  |--CONST : value = 2
+         |--PRINT
+            |--REF : name = a, index = 0 (local)
+      |--PRINT
+         |--REF : name = a, index = 0 (global)

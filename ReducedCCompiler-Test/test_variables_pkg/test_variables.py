@@ -10,14 +10,14 @@ import tests_utils as tu
 def test_variables():
     LOG_DIR = "logs"
 
-    FILE_PREFIXES    = ["variables"]
+    FILE_PREFIXES    = ["variables", "global_var", "address_of_global", "address_of_cancel_deref", "pointer"]
     TEST_EXT         = ".c"
     SYNTACTIC_SUFFIX = "_syn"
     SEMANTIC_SUFFIX  = "_sem"
     MSM_EXT          = ".msm"
     EXEC_SUFFIX      = "_exec"
     OPTI_SUFFIX      = "_opti"
-    
+
     OUT_EXT       = ".txt"
     REF_EXT       = ".ref"
 
@@ -66,7 +66,7 @@ def test_variables():
         desc = "Running syntactical analysis on " + test_filename
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
-        
+
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
 
         if not success:
@@ -133,13 +133,13 @@ def test_variables():
 
         # OPTIMISATION ON CONSTANTS
         opti_msm_output_filename = FILE_PREFIXES[test_file_nb] + OPTI_SUFFIX + MSM_EXT
-        
+
         args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-fold", "-o", opti_msm_output_filename]
         desc = "Compiling " + test_filename + " with --opti-const-fold flag"
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
         success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
-        
+
         if not success:
             nb_errors += 1
             skip_next = True

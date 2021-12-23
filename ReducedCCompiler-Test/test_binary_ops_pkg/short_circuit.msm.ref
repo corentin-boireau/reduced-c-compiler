@@ -1,0 +1,113 @@
+.log
+        get 0
+        dbg
+        get 0
+        ret
+        push 0
+        ret
+.main
+        prep log
+        push 0
+        call 1
+        dup
+        jumpf falseor_3
+        drop
+        push 1
+        jump endor_3
+.falseor_3
+        prep log
+        push 2
+        push 3
+        cmpeq
+        call 1
+        or
+.endor_3
+        dup
+        jumpf falseor_2
+        drop
+        push 1
+        jump endor_2
+.falseor_2
+        prep log
+        push 0
+        call 1
+        or
+.endor_2
+        dup
+        jumpf falseor_1
+        drop
+        push 1
+        jump endor_1
+.falseor_1
+        prep log
+        push 6
+        call 1
+        or
+.endor_1
+        dup
+        jumpf falseor_0
+        drop
+        push 1
+        jump endor_0
+.falseor_0
+        prep log
+        push 2
+        call 1
+        or
+.endor_0
+        dbg
+        prep log
+        push 1
+        call 1
+        dup
+        jumpf endand_7
+        prep log
+        push 2
+        push 3
+        cmplt
+        call 1
+        and
+.endand_7
+        dup
+        jumpf endand_6
+        prep log
+        push 6
+        call 1
+        and
+.endand_6
+        dup
+        jumpf endand_5
+        prep log
+        push 0
+        call 1
+        and
+.endand_5
+        dup
+        jumpf endand_4
+        prep log
+        push 2
+        call 1
+        and
+.endand_4
+        dbg
+        push 0
+        ret
+.start
+       push 0
+       read
+       push 0
+       add
+       push 0
+       write
+       prep main
+       call 0
+       halt
+
+.putchar
+       send
+       push 0
+       ret
+
+.getchar
+       recv
+       ret
