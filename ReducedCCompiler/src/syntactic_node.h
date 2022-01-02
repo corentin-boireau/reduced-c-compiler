@@ -55,7 +55,7 @@ void syntactic_node_free_tree(SyntacticNode* tree);
 enum
 {
     NODE_INVALID = -1,      // Created when an unexpected token is found
-    NODE_CONST,             // Constant value
+    NODE_CONSTANT,             // Constant value
 
     // Prefix operators
     NODE_UNARY_MINUS,       // '-' to denote the corresponding negative value

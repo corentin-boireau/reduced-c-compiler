@@ -79,7 +79,7 @@ static void clear_and_exit(int exit_code);
 struct arg_lit *verb, *help, *version, *no_runtime;
 struct arg_file *output, *input, *runtime_filename;
 struct arg_str *stage;
-struct arg_lit *opti_const_fold;
+struct arg_lit *no_const_fold;
 struct arg_end *end;
 
 int main(int argc, char* argv[])
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
         no_runtime       = arg_litn( NULL, "no-runtime",                                0, 1, "no runtime"),
         runtime_filename = arg_filen(NULL, "runtime", "<file>",                         0, 1, "runtime file, default to environnment variable RCC_RUNTIME"),
         stage            = arg_strn( NULL, "stage",   "<lexical|syntactical|semantic>", 0, 1, "stop the compilation at this stage"),
-        opti_const_fold  = arg_litn( NULL, "opti-const-fold",                           0, 1, "enable constant folding"),
+        no_const_fold    = arg_litn( NULL, "no-const-fold",                             0, 1, "disable constant folding"),
         help             = arg_litn(  "h", "help",                                      0, 1, "display this help and exit"),
         version          = arg_litn( NULL, "version",                                   0, 1, "display version info and exit"),
         end              = arg_end(20),
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
     }
 
     optimization_t opti = NO_OPTIMIZATION;
-    if (opti_const_fold->count > 0)
+    if (no_const_fold->count == 0)
         opti |= OPTI_CONST_FOLD;
 
     FILE* runtime_file = NULL;
@@ -325,10 +325,17 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
                     printf("\nGenerated code :\n\n");
                 }
 
-                if(runtime_file != NULL)
-                    generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP, table.nb_glob_variables);
+                SyntacticNode** global_declarations = malloc(table.nb_glob_variables * sizeof(SyntacticNode*));
+                if (global_declarations == NULL)
+                {
+                    perror("Failed to allocate memory for the global_declarations array");
+                    exit(EXIT_FAILURE);
+                }
 
-                generate_program(usercode_analyzer.syntactic_tree, out_file, no_runtime->count == 0, table.nb_glob_variables);
+                if(runtime_file != NULL)
+                    generate_code(runtime_analyzer.syntactic_tree, out_file, NO_LOOP, table.nb_glob_variables, global_declarations);
+
+                generate_program(usercode_analyzer.syntactic_tree, out_file, no_runtime->count == 0, table.nb_glob_variables, global_declarations);
             }
         }
     }

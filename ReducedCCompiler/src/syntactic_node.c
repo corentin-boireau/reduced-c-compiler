@@ -59,7 +59,7 @@ void syntactic_node_display(const SyntacticNode* node, FILE *out_file)
     switch (node->type)
     {
         case NODE_INVALID:              fprintf(out_file, "INVALID\n");                                                               break;
-        case NODE_CONST:                fprintf(out_file, "CONST : value = %d\n", node->value.int_val);                               break;
+        case NODE_CONSTANT:                fprintf(out_file, "CONST : value = %d\n", node->value.int_val);                               break;
         case NODE_UNARY_MINUS:          fprintf(out_file, "UNARY_MINUS\n");                                                           break;
         case NODE_NEGATION:             fprintf(out_file, "NEGATION\n");                                                              break;
         case NODE_ADDRESS:              fprintf(out_file, "ADDRESS\n");                                                               break;

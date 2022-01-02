@@ -129,18 +129,33 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                     {
                         node->flags = ref_symbol->declaration->flags;
                         node->stack_offset = ref_symbol->stack_offset;
-                        if (node->parent->type == NODE_ASSIGNMENT && node->parent->children[0] == node)
+                        if (node->parent->type == NODE_ASSIGNMENT && node->parent->children[0] == node) // node is the variable to which is assigned a value
                         {
                             if ( ! syntactic_node_is_flag_set(node, CONST_FLAG))
                                 symbol_set_flag(ref_symbol, SET);
                             else
                             {
                                 if (node->parent->parent->type == NODE_DECL) // The assignment is an initialization, so the 'const' variable can be set
-                                    symbol_set_flag(ref_symbol, SET);
+                                {
+                                    if ( ! syntactic_node_is_flag_set(node, GLOBAL_FLAG))
+                                        symbol_set_flag(ref_symbol, SET);
+                                    else
+                                    {
+                                        SyntacticNode* right_op = node->parent->children[1];
+                                        if (right_op->type == NODE_CONSTANT)
+                                            symbol_set_flag(ref_symbol, SET);
+                                        else
+                                        {
+                                            fprintf(stderr, "(%d:%d):error: initializer element must be constant\n",
+                                                right_op->line, right_op->col);
+                                            symbol_table_inc_error(table);
+                                        }
+                                    }
+                                }
                                 else
                                 {
                                     fprintf(stderr, "(%d:%d):error: assignment of read-only variable '%s'\n",
-                                        node->line, node->col, node->value.str_val);
+                                        node->parent->line, node->parent->col, node->value.str_val);
                                     symbol_table_inc_error(table);
                                 }
                             }

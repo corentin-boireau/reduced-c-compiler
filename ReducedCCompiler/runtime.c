@@ -79,15 +79,18 @@ int scann(int ptr_n)
 * Pointers to block always contain the address of its first s_cell
 */
 
-int HEAP_SIZE;
+const int HEAP_SIZE = 16384; // 2^14
 int HEAP_START;
-int BLOCK_SIZE_MIN;
-int DATA_SIZE_MIN;
-int INVALID_POINTER;
-int NULL;
-int S_CELL_SIZE;
-int S_CELL_BEG;
-int N_CELL;
+const int INVALID_POINTER = -1;
+const int NULL = 0;
+const int S_CELL_SIZE = 1;
+const int S_CELL_BEG = 0;
+const int N_CELL = 1;
+const int BLOCK_SIZE_MIN = 4;
+const int DATA_SIZE_MIN = 2;
+
+const int INT_MAX = 2147483647;
+const int INT_MIN = -2147483647 - 1;
 
 int block_to_data_size(int block_size)
 {
@@ -121,16 +124,7 @@ int block_to_data_pointer(int block_pointer)
 
 int _Init()
 {
-    // Global variables init
-    HEAP_SIZE = 16384; // 2^14
     HEAP_START = *0;
-    INVALID_POINTER = -1;
-    NULL = 0;
-    S_CELL_SIZE = 1;
-    S_CELL_BEG = 0;
-    N_CELL = S_CELL_SIZE;
-    BLOCK_SIZE_MIN = 4;
-    DATA_SIZE_MIN = block_to_data_size(BLOCK_SIZE_MIN);
 
     // Heap initialization
     int first_free_block = HEAP_START + 1;

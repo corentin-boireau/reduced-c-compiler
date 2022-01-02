@@ -328,9 +328,17 @@ SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer)
         {
             global_decl = syntactic_node_create(NODE_FUNCTION, tok_identifier.line, tok_identifier.col);
             global_decl->value.str_val = tok_identifier.value.str_val; // Steal the pointer from the token to avoid a copy
+            global_decl->flags = specifiers;
+
+            if (syntactic_node_is_flag_set(global_decl, CONST_FLAG))
+            {
+                fprintf(stderr, "(%d:%d):warning: 'const' specifier ignored on function return type\n", global_decl->line, global_decl->col);
+                syntactic_analyzer_inc_warning(analyzer);
+            }
+
             SyntacticNode* seq = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
             // args
-            if (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS))
+            if ( ! tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_PARENTHESIS))
             {
                 do
                 {
@@ -358,16 +366,22 @@ SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer)
             SyntacticNode* var_decl = syntactic_node_create(NODE_DECL, tok_identifier.line, tok_identifier.col);
             var_decl->value.str_val = tok_identifier.value.str_val; // Steal the pointer from the token to avoid a copy
             syntactic_node_add_child(global_decl, var_decl);
+            if (tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
+            {
+                SyntacticNode* init = subrule_decl_initialization(analyzer, var_decl);
+                syntactic_node_add_child(var_decl, init);
+            }
 
             while (!tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON))
             {
                 tokenizer_accept(&(analyzer->tokenizer), TOK_COMMA);
-                // We don't allow global variable initialization -> too complex to check if the right operand is constant
-                subrule_single_decl(analyzer, global_decl, 0);
+                subrule_single_decl(analyzer, global_decl, true);
             }
+
+            for (int i = 0; i < global_decl->nb_children; i++)
+                global_decl->children[i]->flags = specifiers;
         }
 
-        global_decl->flags = specifiers;
     }
     else
     { // Unexpected token
@@ -597,7 +611,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                 // Optimization of operations on constants
                 if (is_opti_enabled(analyzer->optimizations, OPTI_CONST_FOLD)
                     && node_info.node_type != NODE_ASSIGNMENT && node_info.node_type != NODE_COMPOUND
-                    && operand1->type == NODE_CONST && operand2->type == NODE_CONST)
+                    && operand1->type == NODE_CONSTANT && operand2->type == NODE_CONSTANT)
                 {
                     int value = -1;
                     const int op1_val = operand1->value.int_val;
@@ -706,7 +720,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                     }
 
                     if(has_been_folded)
-                        node = syntactic_node_create_with_value(NODE_CONST, operand1->line, operand1->col, value);
+                        node = syntactic_node_create_with_value(NODE_CONSTANT, operand1->line, operand1->col, value);
                 }
 
                 if ( ! has_been_folded)
@@ -852,7 +866,7 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 
     if (tokenizer_check(&(analyzer->tokenizer), TOK_CONSTANT))
     { // A ---> const
-        node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col, analyzer->tokenizer.current.value.int_val);
+        node = syntactic_node_create_with_value(NODE_CONSTANT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col, analyzer->tokenizer.current.value.int_val);
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS))
     { // A ---> '(' E ')'
@@ -915,7 +929,7 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* anal
             assert(node->children[0] != NULL);
             SyntacticNode* constant = node->children[0];
 
-            if (constant->type == NODE_CONST)
+            if (constant->type == NODE_CONSTANT)
             {
                 optimized_node = constant;
                 if (constant->value.int_val == INT_MIN)
@@ -938,7 +952,7 @@ SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* anal
             assert(node->children[0] != NULL);
             SyntacticNode* constant = node->children[0];
 
-            if (constant->type == NODE_CONST)
+            if (constant->type == NODE_CONSTANT)
             {
                 optimized_node = constant;
                 optimized_node->value.int_val = ! constant->value.int_val;
