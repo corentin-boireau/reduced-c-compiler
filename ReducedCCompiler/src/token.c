@@ -370,7 +370,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                 if (valid)
                 {
                     free(const_char);
-                    tokenizer->next.type = TOK_CONST;
+                    tokenizer->next.type = TOK_CONSTANT;
                     tokenizer->next.value.int_val = value;
                 }
                 else
@@ -536,7 +536,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                         ascii_value[size] = '\0';
 
                         // Creating the constant token
-                        tokenizer->next.type = TOK_CONST;
+                        tokenizer->next.type = TOK_CONSTANT;
                         if (is_bin)
                         {
                             tokenizer->next.value.int_val = strtol(ascii_value + 2, NULL, 2); // Handles base 2 numbers
@@ -580,6 +580,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                     else if (strcmp(text, "continue") == 0)  tokenizer->next.type = TOK_CONTINUE;
                     else if (strcmp(text, "return") == 0)    tokenizer->next.type = TOK_RETURN;
                     else if (strcmp(text, "print") == 0)     tokenizer->next.type = TOK_PRINT;
+                    else if (strcmp(text, "const") == 0)     tokenizer->next.type = TOK_CONST_MODIFIER;
 
                     else // It is an identifier
                     {
@@ -630,6 +631,11 @@ bool tokenizer_check(Tokenizer* tokenizer, int token_type)
 static const char* TOKEN_REPR[] =
 {
     "'='",
+    "'+='",
+    "'-='",
+    "'*='",
+    "'/='",
+    "'%='",
     "'||'",
     "'&&'",
     "'!='",
@@ -663,6 +669,7 @@ static const char* TOKEN_REPR[] =
     "'continue'",
     "'return'",
     "'print'",
+    "'const'",
     "a numeric value",
     "an identifier",
     "end of file",
@@ -700,7 +707,7 @@ void token_display_given(Token token, FILE* out_file)
             fprintf(out_file, "'%c'", token.value.invalid_char);
             break;
         }
-        case TOK_CONST:
+        case TOK_CONSTANT:
         {
             fprintf(out_file, "'%d'", token.value.int_val);
             break;
@@ -720,7 +727,7 @@ void token_display(Token token, FILE* out_file)
         case TOK_INVALID_CHAR:      fprintf(out_file, "INVALID CHARACTER : %c\n", token.value.invalid_char); break;
         case TOK_INVALID_SEQ:       fprintf(out_file, "INVALID SEQUENCE : %s\n", token.value.str_val);       break;
         case TOK_NONE:              fprintf(out_file, "NONE\n");                                             break;
-        case TOK_CONST:             fprintf(out_file, "CONST : %d\n", token.value.int_val);                  break;
+        case TOK_CONSTANT:          fprintf(out_file, "CONSTANT : %d\n", token.value.int_val);               break;
         case TOK_IDENTIFIER:        fprintf(out_file, "IDENTIFIER : %s\n", token.value.str_val);             break;
         case TOK_PLUS:              fprintf(out_file, "PLUS\n");                                             break;
         case TOK_MINUS:             fprintf(out_file, "MINUS\n");                                            break;
@@ -761,6 +768,7 @@ void token_display(Token token, FILE* out_file)
         case TOK_CONTINUE:          fprintf(out_file, "CONTINUE\n");                                         break;
         case TOK_RETURN:            fprintf(out_file, "RETURN\n");                                           break;
         case TOK_PRINT:             fprintf(out_file, "PRINT\n");                                            break;
+        case TOK_CONST_MODIFIER:    fprintf(out_file, "CONST_MODIFIER\n");                                   break;
         case TOK_EOF:               fprintf(out_file, "EOF\n");                                              break;
     }
 }

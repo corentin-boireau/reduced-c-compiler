@@ -806,7 +806,7 @@ SyntacticNode* sr_atom(SyntacticAnalyzer* analyzer)
 
     SyntacticNode* node;
 
-    if (tokenizer_check(&(analyzer->tokenizer), TOK_CONST))
+    if (tokenizer_check(&(analyzer->tokenizer), TOK_CONSTANT))
     { // A ---> const
         node = syntactic_node_create_with_value(NODE_CONST, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col, analyzer->tokenizer.current.value.int_val);
     }
