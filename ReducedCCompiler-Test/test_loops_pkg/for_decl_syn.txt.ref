@@ -5,12 +5,10 @@ PROGRAM
       |--BLOCK
          |--SEQUENCE
             |--DECL : name = a, index = -1
-            |--DROP
                |--ASSIGNEMENT
                   |--REF : name = a, index = -1
                   |--CONST : value = 3
             |--DECL : name = b, index = -1
-            |--DROP
                |--ASSIGNEMENT
                   |--REF : name = b, index = -1
                   |--CONST : value = 8

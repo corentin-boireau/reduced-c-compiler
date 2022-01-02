@@ -4,13 +4,11 @@ PROGRAM
    |--SEQUENCE
       |--BLOCK
          |--SEQUENCE
-            |--DECL : name = a, index = 0
-            |--DROP
+            |--DECL : name = a, index = 0 (local)
                |--ASSIGNEMENT
                   |--REF : name = a, index = 0 (local)
                   |--CONST : value = 3
-            |--DECL : name = b, index = 1
-            |--DROP
+            |--DECL : name = b, index = 1 (local)
                |--ASSIGNEMENT
                   |--REF : name = b, index = 1 (local)
                   |--CONST : value = 8

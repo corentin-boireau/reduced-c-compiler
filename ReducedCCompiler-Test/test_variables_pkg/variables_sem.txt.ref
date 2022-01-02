@@ -3,10 +3,10 @@ PROGRAM
    |--SEQUENCE
    |--SEQUENCE
       |--SEQUENCE
-         |--DECL : name = a, index = 0
+         |--DECL : name = a, index = 0 (local)
       |--SEQUENCE
-         |--DECL : name = b, index = 1
-         |--DECL : name = c, index = 2
+         |--DECL : name = b, index = 1 (local)
+         |--DECL : name = c, index = 2 (local)
       |--PRINT
          |--ASSIGNEMENT
             |--REF : name = a, index = 0 (local)
@@ -41,14 +41,14 @@ PROGRAM
          |--REF : name = c, index = 2 (local)
       |--BLOCK
          |--SEQUENCE
-            |--DECL : name = a, index = 3
+            |--DECL : name = a, index = 3 (local)
          |--BLOCK
             |--DROP
                |--ASSIGNEMENT
                   |--REF : name = a, index = 3 (local)
                   |--CONST : value = 89
             |--SEQUENCE
-               |--DECL : name = b, index = 4
+               |--DECL : name = b, index = 4 (local)
             |--DROP
                |--ASSIGNEMENT
                   |--REF : name = b, index = 4 (local)

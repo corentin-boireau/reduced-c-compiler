@@ -730,7 +730,7 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority)
                             syntactic_node_add_child(node, operand1);
                             syntactic_node_add_child(node, operand2);
                         }
-                        else
+                        else // NODE_COMPOUND
                         {
                             SyntacticNode* arithmetic_op = NULL;
                             switch (token_operator.type)

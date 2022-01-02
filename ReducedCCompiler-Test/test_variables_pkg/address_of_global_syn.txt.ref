@@ -11,7 +11,6 @@ PROGRAM
    |--SEQUENCE
       |--SEQUENCE
          |--DECL : name = a, index = -1
-         |--DROP
             |--ASSIGNEMENT
                |--REF : name = a, index = -1
                |--ADDRESS

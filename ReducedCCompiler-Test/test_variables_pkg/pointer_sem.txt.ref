@@ -3,7 +3,7 @@ PROGRAM
    |--SEQUENCE
    |--SEQUENCE
       |--SEQUENCE
-         |--DECL : name = ptr_a, index = 0
+         |--DECL : name = ptr_a, index = 0 (local)
       |--DROP
          |--ASSIGNEMENT
             |--REF : name = ptr_a, index = 0 (local)
@@ -17,7 +17,7 @@ PROGRAM
                |--REF : name = ptr_a, index = 0 (local)
                |--CONST : value = 2
       |--SEQUENCE
-         |--DECL : name = i, index = 1
+         |--DECL : name = i, index = 1 (local)
       |--BLOCK
          |--DROP
             |--ASSIGNEMENT

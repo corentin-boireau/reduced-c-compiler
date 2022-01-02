@@ -258,7 +258,14 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 assert(ref_symbol != NULL);
                 assert(ref_symbol->declaration->type == NODE_DECL);
                 
-                symbol_set_flag(ref_symbol, SET);
+                if ( ! syntactic_node_is_flag_set(ref_node, CONST_FLAG))
+                    symbol_set_flag(ref_symbol, SET);
+                else
+                {
+                    fprintf(stderr, "(%d:%d):error: assignment of read-only variable '%s'\n",
+                        ref_node->line, ref_node->col, ref_node->value.str_val);
+                    symbol_table_inc_error(table);
+                }
             }
             break;
         }

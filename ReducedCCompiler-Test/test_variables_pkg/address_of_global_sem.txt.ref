@@ -1,6 +1,6 @@
 PROGRAM
 |--SEQUENCE
-   |--DECL : name = b, index = 0
+   |--DECL : name = b, index = 0 (global)
 |--FUNCTION : name = printb
    |--SEQUENCE
    |--SEQUENCE
@@ -10,8 +10,7 @@ PROGRAM
    |--SEQUENCE
    |--SEQUENCE
       |--SEQUENCE
-         |--DECL : name = a, index = 0
-         |--DROP
+         |--DECL : name = a, index = 0 (local)
             |--ASSIGNEMENT
                |--REF : name = a, index = 0 (local)
                |--ADDRESS

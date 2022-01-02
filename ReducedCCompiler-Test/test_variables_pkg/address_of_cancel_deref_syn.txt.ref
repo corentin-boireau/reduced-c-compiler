@@ -4,13 +4,11 @@ PROGRAM
    |--SEQUENCE
       |--SEQUENCE
          |--DECL : name = a, index = -1
-         |--DROP
             |--ASSIGNEMENT
                |--REF : name = a, index = -1
                |--CONST : value = 3
       |--SEQUENCE
          |--DECL : name = b, index = -1
-         |--DROP
             |--ASSIGNEMENT
                |--REF : name = b, index = -1
                |--REF : name = a, index = -1
@@ -18,13 +16,11 @@ PROGRAM
          |--REF : name = b, index = -1
       |--SEQUENCE
          |--DECL : name = c, index = -1
-         |--DROP
             |--ASSIGNEMENT
                |--REF : name = c, index = -1
                |--CONST : value = 3000
       |--SEQUENCE
          |--DECL : name = c_third, index = -1
-         |--DROP
             |--ASSIGNEMENT
                |--REF : name = c_third, index = -1
                |--ADD

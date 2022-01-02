@@ -3,7 +3,7 @@ PROGRAM
    |--SEQUENCE
    |--SEQUENCE
       |--SEQUENCE
-         |--DECL : name = x, index = 0
+         |--DECL : name = x, index = 0 (local)
       |--BLOCK
          |--DROP
             |--ASSIGNEMENT

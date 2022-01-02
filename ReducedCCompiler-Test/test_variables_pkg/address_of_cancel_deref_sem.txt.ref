@@ -3,28 +3,24 @@ PROGRAM
    |--SEQUENCE
    |--SEQUENCE
       |--SEQUENCE
-         |--DECL : name = a, index = 0
-         |--DROP
+         |--DECL : name = a, index = 0 (local)
             |--ASSIGNEMENT
                |--REF : name = a, index = 0 (local)
                |--CONST : value = 3
       |--SEQUENCE
-         |--DECL : name = b, index = 1
-         |--DROP
+         |--DECL : name = b, index = 1 (local)
             |--ASSIGNEMENT
                |--REF : name = b, index = 1 (local)
                |--REF : name = a, index = 0 (local)
       |--PRINT
          |--REF : name = b, index = 1 (local)
       |--SEQUENCE
-         |--DECL : name = c, index = 2
-         |--DROP
+         |--DECL : name = c, index = 2 (local)
             |--ASSIGNEMENT
                |--REF : name = c, index = 2 (local)
                |--CONST : value = 3000
       |--SEQUENCE
-         |--DECL : name = c_third, index = 3
-         |--DROP
+         |--DECL : name = c_third, index = 3 (local)
             |--ASSIGNEMENT
                |--REF : name = c_third, index = 3 (local)
                |--ADD
