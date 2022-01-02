@@ -10,11 +10,10 @@
 typedef struct Symbol_s Symbol;
 struct Symbol_s
 {
-    char*   name;
-    int     stack_offset;
-    int     type;
-    int     nb_params;
-    uint8_t flags;
+    SyntacticNode* declaration;
+    int            stack_offset;
+    int            nb_params;
+    uint8_t        flags;
 };
 
 #define SET  (1 << 0)
@@ -30,13 +29,6 @@ static inline bool symbol_is_flag_set(Symbol* symbol, uint8_t flag)
     assert(symbol != NULL);
     return (symbol->flags & flag) != 0;
 }
-
-enum
-{
-    SYMBOL_GLOBAL_VAR,
-    SYMBOL_LOCAL_VAR,
-    SYMBOL_FUNC,
-};
 
 #define MAX_SYMBOLS 500
 #define MAX_SCOPES  20

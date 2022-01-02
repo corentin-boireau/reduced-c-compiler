@@ -124,7 +124,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
         }
         case NODE_AND:
         {
-            if (SHORT_CIRUIT_ENABLED)
+            #if (SHORT_CIRUIT_ENABLED)
             {
                 int label_number = label_counter++;
                 generate_code(node->children[0], stream, loop_nb, nb_global_variables);
@@ -134,12 +134,13 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
                 fprintf(stream, "        and\n");
                 fprintf(stream, ".endand_%d\n", label_number);
             }
-            else
+            #else
             {
                 generate_code(node->children[0], stream, loop_nb, nb_global_variables);
                 generate_code(node->children[1], stream, loop_nb, nb_global_variables);
                 fprintf(stream, "        and\n");
             }
+            #endif
             break;
         }
         case NODE_OR:
@@ -231,10 +232,17 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
             break;
         }
         case NODE_DECL :
+        {
+            if (node->nb_children == 1)
+            {
+                generate_code(node->children[0], stream, loop_nb, nb_global_variables);
+                fprintf(stream, "        drop\n");
+            }
             break;
+        }
         case NODE_REF:
         {
-            if (node->is_global)
+            if (syntactic_node_is_flag_set(node, GLOBAL_FLAG))
             {
                 // End of data segment address is stored in memory cell 0
                 fprintf(stream, "        push 0\n");
@@ -266,7 +274,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
 
             if (assignable->type == NODE_REF)
             {
-                if (assignable->is_global)
+                if (syntactic_node_is_flag_set(assignable, GLOBAL_FLAG))
                 {
                     fprintf(stream, "        push 0\n");
                     fprintf(stream, "        read\n");
@@ -402,7 +410,7 @@ void generate_code(const SyntacticNode* node, FILE * stream, int loop_nb, int nb
             SyntacticNode* node_ref = node->children[0];
             assert(node_ref->type == NODE_REF);
 
-            if (node_ref->is_global)
+            if (syntactic_node_is_flag_set(node_ref, GLOBAL_FLAG))
             {
                 fprintf(stream, "        push 0\n");
                 fprintf(stream, "        read\n");

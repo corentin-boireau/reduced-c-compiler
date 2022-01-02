@@ -84,10 +84,11 @@ void syntactic_node_display(const SyntacticNode* node, FILE *out_file)
         case NODE_DECL:                 fprintf(out_file, "DECL : name = %s, index = %d%s%s\n", node->value.str_val, node->stack_offset,
                                         (node->stack_offset == NO_STACK_OFFSET) ? "" : 
                                         syntactic_node_is_flag_set(node, GLOBAL_FLAG) ? " (global)" : " (local)",
-                                        syntactic_node_is_flag_set(node, CONST_FLAG)  ? ""          : " (const)");                    break;
-        case NODE_REF:                  fprintf(out_file, "REF : name = %s, index = %d%s\n", node->value.str_val, node->stack_offset,
+                                        syntactic_node_is_flag_set(node, CONST_FLAG)  ? " (const)"  : "");                            break;
+        case NODE_REF:                  fprintf(out_file, "REF : name = %s, index = %d%s%s\n", node->value.str_val, node->stack_offset,
                                         (node->stack_offset == NO_STACK_OFFSET) ? "" : 
-                                        syntactic_node_is_flag_set(node, GLOBAL_FLAG) ? " (global)" : " (local)");                    break;
+                                        syntactic_node_is_flag_set(node, GLOBAL_FLAG) ? " (global)" : " (local)",
+                                        syntactic_node_is_flag_set(node, CONST_FLAG)  ? " (const)"  : "");                            break;
         case NODE_CONDITION:            fprintf(out_file, "CONDITION\n");                                                             break;
         case NODE_INVERTED_CONDITION:   fprintf(out_file, "INVERTED CONDITION\n");                                                    break;
         case NODE_LOOP:                 fprintf(out_file, "LOOP\n");                                                                  break;

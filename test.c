@@ -1,5 +1,5 @@
 //#include <stdlib.h>
-
+const int a;
 const const const const const const const const const const int const b()
 {
     // int* c = malloc(sizeof(int));

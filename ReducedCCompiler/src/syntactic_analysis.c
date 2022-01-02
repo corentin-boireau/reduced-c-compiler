@@ -321,7 +321,7 @@ SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer)
 
     if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
     {
-        specifiers = subrule_specifiers(analyzer, 0);
+        specifiers = subrule_specifiers(analyzer, specifiers);
         tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
         Token tok_identifier = analyzer->tokenizer.current;
         if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS))
@@ -397,13 +397,15 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         tokenizer_accept(&(analyzer->tokenizer), TOK_INT);
         specifiers = subrule_specifiers(analyzer, specifiers);
         node = subrule_decl_instruction(analyzer, true);
-        node->flags = specifiers;
+        for (int i = 0; i < node->nb_children; i++)
+            node->children[i]->flags = specifiers;
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
     { // I ---> 'int' specifier* ident ('=' E)? (',' ident ('=' E)? )* ';'
-        specifiers = subrule_specifiers(analyzer, 0);
+        specifiers = subrule_specifiers(analyzer, specifiers);
         node = subrule_decl_instruction(analyzer, true);
-        node->flags = specifiers;
+        for (int i = 0; i < node->nb_children; i++)
+            node->children[i]->flags = specifiers;
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_BRACE))
     { // I ---> '{' I* '}'
