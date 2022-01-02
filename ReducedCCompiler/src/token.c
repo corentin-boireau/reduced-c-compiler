@@ -580,7 +580,7 @@ void tokenizer_step(Tokenizer* tokenizer)
                     else if (strcmp(text, "continue") == 0)  tokenizer->next.type = TOK_CONTINUE;
                     else if (strcmp(text, "return") == 0)    tokenizer->next.type = TOK_RETURN;
                     else if (strcmp(text, "print") == 0)     tokenizer->next.type = TOK_PRINT;
-                    else if (strcmp(text, "const") == 0)     tokenizer->next.type = TOK_CONST_MODIFIER;
+                    else if (strcmp(text, "const") == 0)     tokenizer->next.type = TOK_CONST_SPECIFIER;
 
                     else // It is an identifier
                     {
@@ -768,7 +768,7 @@ void token_display(Token token, FILE* out_file)
         case TOK_CONTINUE:          fprintf(out_file, "CONTINUE\n");                                         break;
         case TOK_RETURN:            fprintf(out_file, "RETURN\n");                                           break;
         case TOK_PRINT:             fprintf(out_file, "PRINT\n");                                            break;
-        case TOK_CONST_MODIFIER:    fprintf(out_file, "CONST_MODIFIER\n");                                   break;
+        case TOK_CONST_SPECIFIER:   fprintf(out_file, "CONST_SPECIFIER\n");                                  break;
         case TOK_EOF:               fprintf(out_file, "EOF\n");                                              break;
     }
 }

@@ -3,6 +3,8 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <inttypes.h>
+#include <assert.h>
 
 #define NO_STACK_OFFSET -1
 
@@ -18,13 +20,28 @@ struct SyntacticNode_s
     int stack_offset;   // Only usefull for variable declaration and references
                         // Indicates its location on the stack
     int  nb_var;        // For functions
-    bool is_global;
     int  line;
     int  col;
     SyntacticNode* parent;
     SyntacticNode** children;
     int nb_children;
+    uint8_t flags;
 };
+
+#define GLOBAL_FLAG (1 << 0)
+#define CONST_FLAG  (1 << 1)
+
+static inline void syntactic_node_set_flag(SyntacticNode* node, uint8_t flag)
+{
+    assert(node != NULL);
+    node->flags |= flag;
+}
+
+static inline bool syntactic_node_is_flag_set(const SyntacticNode* node, uint8_t flag)
+{
+    assert(node != NULL);
+    return (node->flags & flag) != 0;
+}
 
 SyntacticNode* syntactic_node_create(int type, int line, int col);
 SyntacticNode* syntactic_node_create_with_value(int type, int line, int col, int value);

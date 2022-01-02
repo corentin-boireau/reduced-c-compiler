@@ -20,8 +20,25 @@ SyntacticNode* sr_expression_prio(SyntacticAnalyzer* analyzer, int priority); //
 
 SyntacticNode* opti_constant_prefix(SyntacticNode* node, SyntacticAnalyzer* analyzer);
 
-#define RIGHT_TO_LEFT   0
-#define LEFT_TO_RIGHT   1
+void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
+{
+    analyzer->nb_errors++;
+
+    if (analyzer->nb_errors > MAX_SYNTACTIC_ERROR)
+    {
+        syntactic_analyzer_report_and_exit(analyzer);
+    }
+}
+
+void syntactic_analyzer_inc_warning(SyntacticAnalyzer* analyzer)
+{
+    analyzer->nb_warnings++;
+}
+
+
+#define RIGHT_TO_LEFT 0
+#define LEFT_TO_RIGHT 1
+
 typedef struct OperatorInfo_s OperatorInfo;
 struct OperatorInfo_s
 {
@@ -155,7 +172,34 @@ OperatorInfo get_operator_info(int token_type)
 
 static inline bool is_binary_op(int token_type)
 {
-    return token_type < NB_BINARY_OPERATORS && token_type >= 0;
+    return 0 <= token_type && token_type < NB_BINARY_OPERATORS;
+}
+
+static inline bool is_flag_set(uint8_t flags, uint8_t flag_to_check)
+{
+    return (flags & flag_to_check) != 0;
+}
+static inline uint8_t set_flag(uint8_t flags, uint8_t flag_to_add)
+{
+    return flags | flag_to_add;
+}
+
+uint8_t subrule_specifiers(SyntacticAnalyzer* analyzer, uint8_t specifier_flags)
+{
+    while (tokenizer_check(&(analyzer->tokenizer), TOK_CONST_SPECIFIER))
+    {
+        if (is_flag_set(specifier_flags, CONST_FLAG))
+        {
+            fprintf(stderr, "(%d:%d):warning: duplicate 'const' declaration specifier\n", analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
+            syntactic_analyzer_inc_warning(analyzer);
+        }
+        else
+        {
+            specifier_flags = set_flag(specifier_flags, CONST_FLAG);
+        }
+    }
+
+    return specifier_flags;
 }
 
 SyntacticNode* subrule_decl_initialization(SyntacticAnalyzer* analyzer, SyntacticNode *decl)
@@ -173,16 +217,13 @@ SyntacticNode* subrule_decl_initialization(SyntacticAnalyzer* analyzer, Syntacti
     SyntacticNode* assignment = syntactic_node_create(NODE_ASSIGNMENT, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
     SyntacticNode* expr = sr_expression(analyzer);
 
-    SyntacticNode* drop = syntactic_node_create(NODE_DROP, assignment->line, assignment->col);
-
     syntactic_node_add_child(assignment, ref);
     syntactic_node_add_child(assignment, expr);
-    syntactic_node_add_child(drop, assignment);
 
-    return drop;
+    return assignment;
 }
 
-SyntacticNode* subrule_single_decl(SyntacticAnalyzer* analyzer, SyntacticNode* declaration_seq, int allow_init)
+SyntacticNode* subrule_single_decl(SyntacticAnalyzer* analyzer, SyntacticNode* declaration_seq, bool allow_init)
 {
     tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
     SyntacticNode* decl = syntactic_node_create(NODE_DECL, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
@@ -193,13 +234,13 @@ SyntacticNode* subrule_single_decl(SyntacticAnalyzer* analyzer, SyntacticNode* d
     if (allow_init && tokenizer_check(&(analyzer->tokenizer), TOK_EQUAL))
     {
         SyntacticNode* init = subrule_decl_initialization(analyzer, decl);
-        syntactic_node_add_child(declaration_seq, init);
+        syntactic_node_add_child(decl, init);
     }
 
     return decl;
 }
 
-SyntacticNode* subrule_decl_instruction(SyntacticAnalyzer* analyzer, int allow_init)
+SyntacticNode* subrule_decl_instruction(SyntacticAnalyzer* analyzer, bool allow_init)
 {
     SyntacticNode *declarations = syntactic_node_create(NODE_SEQUENCE, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
     subrule_single_decl(analyzer, declarations, allow_init);
@@ -211,21 +252,6 @@ SyntacticNode* subrule_decl_instruction(SyntacticAnalyzer* analyzer, int allow_i
     }
 
     return declarations;
-}
-
-void syntactic_analyzer_inc_error(SyntacticAnalyzer* analyzer)
-{
-    analyzer->nb_errors++;
-
-    if (analyzer->nb_errors > MAX_SYNTACTIC_ERROR)
-    {
-        syntactic_analyzer_report_and_exit(analyzer);
-    }
-}
-
-void syntactic_analyzer_inc_warning(SyntacticAnalyzer* analyzer)
-{
-    analyzer->nb_warnings++;
 }
 
 SyntacticAnalyzer syntactic_analyzer_create(char* source_buffer, optimization_t optimizations)
@@ -283,14 +309,19 @@ SyntacticNode* sr_grammar(SyntacticAnalyzer* analyzer)
     return program;
 }
 
+
+
 SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer)
 {
     assert(analyzer != NULL);
 
     SyntacticNode* global_decl = NULL;
 
+    uint8_t specifiers = subrule_specifiers(analyzer, 0);
+
     if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
     {
+        specifiers = subrule_specifiers(analyzer, 0);
         tokenizer_accept(&(analyzer->tokenizer), TOK_IDENTIFIER);
         Token tok_identifier = analyzer->tokenizer.current;
         if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_PARENTHESIS))
@@ -335,6 +366,8 @@ SyntacticNode* sr_global_declaration(SyntacticAnalyzer* analyzer)
                 subrule_single_decl(analyzer, global_decl, 0);
             }
         }
+
+        global_decl->flags = specifiers;
     }
     else
     { // Unexpected token
@@ -358,8 +391,21 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
     // Might also handle empty blocks (ex : "{}")
     // while (tokenizer_check(&(analyzer->tokenizer), TOK_SEMICOLON));
 
-
-    if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_BRACE))
+    uint8_t specifiers = subrule_specifiers(analyzer, 0);
+    if (specifiers != 0)
+    { // I ---> specifier* 'int' specifier* ident ('=' E)? (',' ident ('=' E)? )* ';'
+        tokenizer_accept(&(analyzer->tokenizer), TOK_INT);
+        specifiers = subrule_specifiers(analyzer, specifiers);
+        node = subrule_decl_instruction(analyzer, true);
+        node->flags = specifiers;
+    }
+    else if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
+    { // I ---> 'int' specifier* ident ('=' E)? (',' ident ('=' E)? )* ';'
+        specifiers = subrule_specifiers(analyzer, 0);
+        node = subrule_decl_instruction(analyzer, true);
+        node->flags = specifiers;
+    }
+    else if (tokenizer_check(&(analyzer->tokenizer), TOK_OPEN_BRACE))
     { // I ---> '{' I* '}'
         node = syntactic_node_create(NODE_BLOCK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
         while (!tokenizer_check(&(analyzer->tokenizer), TOK_CLOSE_BRACE))
@@ -373,10 +419,6 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         SyntacticNode* expr_printed = sr_expression(analyzer);
         syntactic_node_add_child(node, expr_printed);
         tokenizer_accept(&(analyzer->tokenizer), TOK_SEMICOLON);
-    }
-    else if (tokenizer_check(&(analyzer->tokenizer), TOK_INT))
-    { // I ---> 'int' ident ('=' E)? (',' ident ('=' E)? )* ';'
-        node = subrule_decl_instruction(analyzer, 1);
     }
     else if (tokenizer_check(&(analyzer->tokenizer), TOK_IF))
     { // I ---> 'if' '(' E ')' I ('else' I)?

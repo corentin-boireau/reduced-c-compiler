@@ -15,15 +15,15 @@ SyntacticNode* syntactic_node_create(int type, int line, int col)
     }
     node->type = type;
     node->stack_offset = NO_STACK_OFFSET;
-    node->is_global = false;
     node->nb_var = 0;
 
     node->line = line;
-    node->col  = col;
+    node->col = col;
 
     node->parent = NULL;
     node->children = NULL;
     node->nb_children = 0;
+    node->flags = 0;
 
     return node;
 }
@@ -81,9 +81,13 @@ void syntactic_node_display(const SyntacticNode* node, FILE *out_file)
         case NODE_OR:                   fprintf(out_file, "OR\n");                                                                    break;
         case NODE_ASSIGNMENT:           fprintf(out_file, "ASSIGNEMENT\n");                                                           break;
         case NODE_DROP:                 fprintf(out_file, "DROP\n");                                                                  break;
-        case NODE_DECL:                 fprintf(out_file, "DECL : name = %s, index = %d\n", node->value.str_val, node->stack_offset); break;
+        case NODE_DECL:                 fprintf(out_file, "DECL : name = %s, index = %d%s%s\n", node->value.str_val, node->stack_offset,
+                                        (node->stack_offset == NO_STACK_OFFSET) ? "" : 
+                                        syntactic_node_is_flag_set(node, GLOBAL_FLAG) ? " (global)" : " (local)",
+                                        syntactic_node_is_flag_set(node, CONST_FLAG)  ? ""          : " (const)");                    break;
         case NODE_REF:                  fprintf(out_file, "REF : name = %s, index = %d%s\n", node->value.str_val, node->stack_offset,
-                                        (node->stack_offset == NO_STACK_OFFSET) ? "" : node->is_global ? " (global)" : " (local)");   break;
+                                        (node->stack_offset == NO_STACK_OFFSET) ? "" : 
+                                        syntactic_node_is_flag_set(node, GLOBAL_FLAG) ? " (global)" : " (local)");                    break;
         case NODE_CONDITION:            fprintf(out_file, "CONDITION\n");                                                             break;
         case NODE_INVERTED_CONDITION:   fprintf(out_file, "INVERTED CONDITION\n");                                                    break;
         case NODE_LOOP:                 fprintf(out_file, "LOOP\n");                                                                  break;

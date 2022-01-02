@@ -89,7 +89,7 @@ enum
     TOK_CONTINUE,           // continue
     TOK_RETURN,             // return
     TOK_PRINT,              // print
-    TOK_CONST_MODIFIER,     // const
+    TOK_CONST_SPECIFIER,    // const
 
     TOK_CONSTANT,           // Numeric value
     TOK_IDENTIFIER,         // Identifier (text that is not a keyword)
