@@ -37,27 +37,6 @@ void generate_program(SyntacticNode* program, FILE * stream, int is_init_called,
         "        push 0"      "\n" \
         "        write"
 
-    #define ASM_RUNTIME \
-        ".start"              "\n" \
-        INIT_DATA_SEGMENT     "\n" \
-        CALL_INIT             "\n" \
-        CALL_MAIN             "\n" \
-        "        halt"        "\n" \
-                              "\n" \
-        PUTCHAR_PRIMITIVE     "\n" \
-                              "\n" \
-        GETCHAR_PRIMITIVE     "\n"
-
-     #define ASM_RUNTIME_WITHOUT_INIT \
-        ".start"              "\n" \
-        INIT_DATA_SEGMENT     "\n" \
-        CALL_MAIN             "\n" \
-        "        halt"        "\n" \
-                              "\n" \
-        PUTCHAR_PRIMITIVE     "\n" \
-                              "\n" \
-        GETCHAR_PRIMITIVE     "\n"
-
     generate_code(program, stream, NO_LOOP, nb_global_variables, global_declarations);
 
     fprintf(stream, ".start"             "\n");

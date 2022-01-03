@@ -1,13 +1,13 @@
 //#include <stdlib.h>
-// const const int const b()
-// {
-//     // int* c = malloc(sizeof(int));
-//     int c = 3;
-//     return c;
-// }
+const const int const b()
+{
+    // int* c = malloc(sizeof(int));
+    int c = 3;
+    return c;
+}
 
 
-const int a = 23;
+int a = 51 + 33 * 3;
 
 int main()
 {
