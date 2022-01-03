@@ -6,8 +6,8 @@
 #include <string.h>
 
 
-void startScope(SymbolTable* table);
-void endScope(SymbolTable* table);
+void start_scope(SymbolTable* table);
+void end_scope(SymbolTable* table);
 // Declares a new symbol with the given name and increments the nb_variables counter.
 Symbol* declare(SymbolTable* table, SyntacticNode* declaration);
 Symbol* search(SymbolTable* table, char* name);
@@ -180,12 +180,12 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
         }
         case NODE_BLOCK :
         {
-            startScope(table);
+            start_scope(table);
             for (int i = 0; i < node->nb_children; i++)
             {
                 semantic_analysis(node->children[i], table);
             }
-            endScope(table);
+            end_scope(table);
             break;
         }
         case NODE_FUNCTION :
@@ -203,7 +203,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 int nb_parameters = node->children[0]->nb_children;
                 function_symbol->nb_params = nb_parameters;
                 table->nb_variables = 0;
-                startScope(table);
+                start_scope(table);
 
                 // Set the SET flag on function parameters as they are set by the call
                 semantic_analysis(node->children[0], table);
@@ -213,7 +213,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
                 for (int i = 1; i < node->nb_children; i++)
                     semantic_analysis(node->children[i], table);
 
-                endScope(table);
+                end_scope(table);
                 // Don't allocate space on the stack for the parameters
                 node->nb_var = table->nb_variables - nb_parameters;
             }
@@ -295,7 +295,7 @@ void semantic_analysis(SyntacticNode* node, SymbolTable* table)
     }
 }
 
-void startScope(SymbolTable* table)
+void start_scope(SymbolTable* table)
 {
     assert(table != NULL);
 
@@ -308,7 +308,7 @@ void startScope(SymbolTable* table)
     table->scopes[table->current_scope] = table->nb_symbols;
 }
 
-void endScope(SymbolTable* table)
+void end_scope(SymbolTable* table)
 {
     assert(table != NULL);
 

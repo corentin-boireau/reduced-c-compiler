@@ -4,7 +4,8 @@ int printn(int n)
     {
         putchar('-');
         int last_digit = -(n % 10);
-        printn(-(n / 10));
+        if (n <= -10)
+            printn(-(n / 10));
         putchar('0' + last_digit);
     }
     else
@@ -48,9 +49,7 @@ int scann(int ptr_n)
             character = getchar();
         }
         if (character > 0 && nb_digits > 0)
-        {
             *ptr_n = value * sign;
-        }
     }
 
     return nb_digits;

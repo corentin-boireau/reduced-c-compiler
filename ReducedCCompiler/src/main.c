@@ -281,7 +281,7 @@ void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE
 
     if (usercode_analyzer.syntactic_tree == NULL)
     {
-        fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
+        fprintf(stderr, "%s: error. The source file is empty\n", RCC_NAME);
     }
     else
     {
@@ -354,7 +354,7 @@ void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimi
 
     if (usercode_analyzer.syntactic_tree == NULL)
     {
-        fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
+        fprintf(stderr, "%s: error. The source file is empty\n", RCC_NAME);
     }
     else
     {
@@ -398,7 +398,7 @@ void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimis
 
     if (usercode_analyzer.syntactic_tree == NULL)
     {
-        fprintf(stderr, "%s: error. The source file is empty", RCC_NAME);
+        fprintf(stderr, "%s: error. The source file is empty\n", RCC_NAME);
     }
     else
     {
