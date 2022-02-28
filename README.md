@@ -25,10 +25,10 @@ A runtime is also provided with some basic functions for input/output and memory
 - #### On Linux
 
 	**Prerequisites** :
-  - GNU Make 4.3
+  - CMake 3.22.1
   - gcc 11.2.0
 
-  Run `make` in the root directory.
+  Run `cmake -S . -B bin && cmake --build bin` in the root directory.
 
 ### Environnment setup
 
