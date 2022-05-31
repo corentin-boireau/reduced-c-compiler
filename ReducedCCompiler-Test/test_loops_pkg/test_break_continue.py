@@ -12,11 +12,8 @@ def test_break_continue():
 
     FILE_PREFIXES = ["break", "continue"]
     TEST_EXT         = ".c"
-    SYNTACTIC_SUFFIX = "_syn"
-    SEMANTIC_SUFFIX  = "_sem"
     MSM_EXT          = ".msm"
     EXEC_SUFFIX      = "_exec"
-    OPTI_SUFFIX      = "_opti"
     
     OUT_EXT       = ".txt"
     REF_EXT       = ".ref"

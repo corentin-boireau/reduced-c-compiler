@@ -12,11 +12,8 @@ def test_unary_ops():
 
     FILE_PREFIXES    = ["unary_ops"]
     TEST_EXT         = ".c"
-    SYNTACTIC_SUFFIX = "_syn"
-    SEMANTIC_SUFFIX  = "_sem"
     MSM_EXT          = ".msm"
     EXEC_SUFFIX      = "_exec"
-    OPTI_SUFFIX      = "_opti"
     
     OUT_EXT       = ".txt"
     REF_EXT       = ".ref"
@@ -33,30 +30,7 @@ def test_unary_ops():
 
     for test_file_nb in range(0, len(FILE_PREFIXES)):
 
-        # SYNTACTIC ANALYSIS
         test_filename = FILE_PREFIXES[test_file_nb] + TEST_EXT
-        syn_output_filename = FILE_PREFIXES[test_file_nb] + SYNTACTIC_SUFFIX + OUT_EXT
-        syn_ref_filename = syn_output_filename + REF_EXT
-
-        args = [RCC_PATH, "--no-runtime",  test_filename, "--stage", "syntactic", "-o", syn_output_filename]
-        desc = "Running syntactical analysis on " + test_filename
-        test_nb_str = tu.convert_test_nb_to_string(test_nb)
-        out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
-        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
-        success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
-
-        if not success:
-            nb_errors += 1
-            skip_next = True
-
-        test_nb += 1
-        success = tu.test_compare_files(syn_output_filename, syn_ref_filename, test_nb, skip_test=skip_next)
-
-        if not success:
-            nb_errors += 1
-
-        skip_next = False
-        test_nb += 1
 
         # CODE GENERATION
         msm_output_filename = FILE_PREFIXES[test_file_nb] + MSM_EXT
@@ -72,12 +46,6 @@ def test_unary_ops():
         if not success:
             nb_errors += 1
             skip_next = True
-
-        test_nb += 1
-        success = tu.test_compare_files(msm_output_filename, msm_ref_filename, test_nb, skip_test=skip_next)
-
-        if not success:
-            nb_errors += 1
 
         test_nb += 1
 
@@ -102,48 +70,6 @@ def test_unary_ops():
 
         test_nb += 1
         success = tu.test_compare_files(exec_output_filename, exec_ref_filename, test_nb, skip_test=skip_next)
-
-        if not success:
-            nb_errors += 1
-
-        skip_next = False
-        test_nb += 1
-
-        # OPTIMISATION ON CONSTANTS
-        opti_msm_output_filename = FILE_PREFIXES[test_file_nb] + OPTI_SUFFIX + MSM_EXT
-        
-        args = [RCC_PATH, "--no-runtime",  test_filename, "--opti-const-fold", "-o", opti_msm_output_filename]
-        desc = "Compiling " + test_filename + " with --opti-const-fold flag"
-        test_nb_str = tu.convert_test_nb_to_string(test_nb)
-        out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
-        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
-        success = tu.test_run_process(desc, args, test_nb, out_filename=out_filename, err_filename=err_filename, skip_test=skip_next)
-        
-        if not success:
-            nb_errors += 1
-            skip_next = True
-
-        test_nb += 1
-
-        opti_exec_output_filename = FILE_PREFIXES[test_file_nb] + OPTI_SUFFIX + EXEC_SUFFIX + OUT_EXT
-        opti_exec_input_filename = opti_msm_output_filename
-
-        args = [MSM_PATH]
-        desc = "Running " + opti_msm_output_filename
-        test_nb_str = tu.convert_test_nb_to_string(test_nb)
-        err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
-        success = tu.test_run_process(desc, args, test_nb,
-                                      in_filename=opti_exec_input_filename,
-                                      out_filename=opti_exec_output_filename,
-                                      err_filename=err_filename,
-                                      skip_test=skip_next)
-
-        if not success:
-            nb_errors += 1
-            skip_next = True
-
-        test_nb += 1
-        success = tu.test_compare_files(opti_exec_output_filename, exec_output_filename, test_nb, skip_test=skip_next)
 
         if not success:
             nb_errors += 1
