@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     }
     else if (nb_errors > 0)
     {
-        /* Display the error details contained in the arg_end struct.*/
+        /* Display the error details contained in the arg_end struct. */
         arg_print_errors(stdout, end, RCC_NAME);
         printf("Try '%s --help' for more information.\n", RCC_NAME);
         clear_and_exit(EXIT_FAILURE);
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
     return exitcode;
 }
 
-void compile_file(FILE * in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file)
+void compile_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE* runtime_file)
 {
     SymbolTable table = symbol_table_create();
 

@@ -521,10 +521,6 @@ SyntacticNode* sr_instruction(SyntacticAnalyzer* analyzer)
         SyntacticNode* instruction = sr_instruction(analyzer);
         SyntacticNode *node_break = syntactic_node_create(NODE_BREAK, analyzer->tokenizer.current.line, analyzer->tokenizer.current.col);
 
-        // As we don't want to create an additional scope, we put a sequence in place of the block in instruction
-        if (instruction->type == NODE_BLOCK)
-            instruction->type = NODE_SEQUENCE;
-
         syntactic_node_add_child(inv_cond, expr2);
         syntactic_node_add_child(inv_cond, node_break);
 
