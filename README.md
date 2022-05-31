@@ -53,14 +53,14 @@ ___
 ```
 Reduced C Compiler.
 
-Usage: rcc [-vh] <file> [-o <file>] [--no-runtime] [--runtime=<file>] [--stage=<lexical|syntactical|semantic>] [--opti-const-fold] [--version]
+Usage: rcc [-vh] <file> [-o <file>] [--no-runtime] [--runtime=<file>] [--stage=<lexical|syntactical|semantic>] [--no-const-fold] [--version]
   <file>                                   input file
   -o, --output=<file>                      output file
   -v, --verbose                            verbose output
   --no-runtime                             no runtime
   --runtime=<file>                         runtime file, default to environnment variable RCC_RUNTIME
   --stage=<lexical|syntactical|semantic>   stop the compilation at this stage
-  --opti-const-fold                        enable constant folding
+  --no-const-fold                          disable constant folding
   -h, --help                               display this help and exit
   --version                                display version info and exit
 ```
