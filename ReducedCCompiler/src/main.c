@@ -50,30 +50,6 @@ void syntactic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimi
 void semantic_analysis_on_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file);
 void compile_file(FILE* in_file, int verbose, unsigned char optimisations, FILE* out_file, FILE * runtime_file);
 
-static struct
-{
-    FILE** files;
-    int    nb_files;
-    int    max_files;
-
-} g_to_close = { NULL, 0, 0};
-
-static void init_files_to_close(int nb_files);
-static void register_file_to_close(FILE* file);
-static void unregister_file_to_close(FILE* file);
-
-static struct
-{
-    void** argtable;
-    int    nb_args;
-
-} g_argtable_to_free = { NULL, 0 };
-
-static void register_argtable(void** argtable_ref, int nb_args);
-static void unregister_argtable();
-
-static void clear_and_exit(int exit_code);
-
 
 /* global arg_xxx structs */
 struct arg_lit *verb, *help, *version, *no_runtime;
@@ -98,12 +74,7 @@ int main(int argc, char* argv[])
         version          = arg_litn( NULL, "version",                                   0, 1, "display version info and exit"),
         end              = arg_end(20),
     };
-    register_argtable(argtable, sizeof(argtable) / sizeof(argtable[0])); // will be freed if an early cleanup is needed
-
-    // There will be 3 files opened : input_file, output_file and runtime_file
-    init_files_to_close(3);
-
-    int  exitcode = EXIT_SUCCESS;
+    int exitcode = EXIT_SUCCESS;
 
     int nb_errors;
     nb_errors = arg_parse(argc, argv, argtable);
@@ -115,19 +86,19 @@ int main(int argc, char* argv[])
         printf("Usage: %s", RCC_NAME);
         arg_print_syntax(stdout, argtable, "\n");
         arg_print_glossary(stdout, argtable, "  %-40s %s\n");
-        clear_and_exit(EXIT_SUCCESS);
+        exit(EXIT_SUCCESS);
     }
     else if (version->count > 0)
     {
         printf("%s %s\n", RCC_LONG_NAME, RCC_VERSION);
-        clear_and_exit(EXIT_SUCCESS);
+        exit(EXIT_SUCCESS);
     }
     else if (nb_errors > 0)
     {
         /* Display the error details contained in the arg_end struct. */
         arg_print_errors(stdout, end, RCC_NAME);
         printf("Try '%s --help' for more information.\n", RCC_NAME);
-        clear_and_exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     FILE* source_file = NULL;
@@ -139,12 +110,12 @@ int main(int argc, char* argv[])
         if (errno == EACCES)
         {
             fprintf(stderr, "%s: error. %s : Permission denied\n", RCC_NAME, *(input->filename));
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         else if (errno == ENOENT)
         {
             fprintf(stderr, "%s: error. %s : No such file or directory\n", RCC_NAME, *(input->filename));
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -152,10 +123,8 @@ int main(int argc, char* argv[])
     if (source_file == NULL)
     {
         perror("failed to open the source file");
-        clear_and_exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
-
-    register_file_to_close(source_file);
 
     if (output->count > 0)
     {
@@ -163,9 +132,8 @@ int main(int argc, char* argv[])
         if (output_file == NULL)
         {
             fprintf(stderr, "%s: error. Failed to open the output file \"%s\"\n", RCC_NAME, *(output->filename));
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
-        register_file_to_close(output_file);
     }
 
     optimization_t opti = NO_OPTIMIZATION;
@@ -179,7 +147,7 @@ int main(int argc, char* argv[])
         {
             fprintf(stderr, "%s: invalid option. \"--%s\" option is incompatible with \"--%s\" option.\n",
                     RCC_NAME, runtime_filename->hdr.longopts, no_runtime->hdr.longopts);
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
     }
     else
@@ -196,16 +164,15 @@ int main(int argc, char* argv[])
         {
             fprintf(stderr, "%s: runtime path not provided. Please define the environnment variable %s.\nOtherwise use one of these options --runtime <file> or --no-runtime.\n",
                     RCC_NAME, RCC_RUNTIME_ENV_VAR);
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
 
 
         if (runtime_file == NULL)
         {
             fprintf(stderr, "%s: Failed to open the runtime file : %s\n", RCC_NAME, runtime_path);
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
-        register_file_to_close(runtime_file);
     }
 
     // Stage handling
@@ -231,19 +198,12 @@ int main(int argc, char* argv[])
         {
             fprintf(stderr, "%s: invalid option. Unknown stage \"%s\"\nValid stages : \"%s\", \"%s\", \"%s\"",
                 RCC_NAME, *(stage->sval), STAGE_LEXICAL, STAGE_SYNTACTIC, STAGE_SEMANTIC);
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
     }
 
-    if (output_file != stdout)
-    {
-        fclose(output_file);
-        unregister_file_to_close(output_file);
-    }
-
-    /* deallocate each non-null entry in argtable[] */
+    fclose(output_file);
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
-    unregister_argtable();
 
     return exitcode;
 }
@@ -292,7 +252,7 @@ void compile_file(FILE* in_file, int verbose, unsigned char optimisations, FILE*
             else
                 fprintf(stderr, "%s: error. %d errors found during syntactical analysis : compilation aborted\n", RCC_NAME, usercode_analyzer.nb_errors);
 
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         else
         {
@@ -316,14 +276,12 @@ void compile_file(FILE* in_file, int verbose, unsigned char optimisations, FILE*
                 else
                     fprintf(stderr, "%s: error. %d errors found during semantic analysis : compilation aborted\n", RCC_NAME, table.nb_errors);
 
-                clear_and_exit(EXIT_FAILURE);
+                exit(EXIT_FAILURE);
             }
             else
             {
                 if (verbose)
-                {
                     printf("\nGenerated code :\n\n");
-                }
 
                 SyntacticNode** global_declarations = malloc(table.nb_glob_variables * sizeof(SyntacticNode*));
                 if (global_declarations == NULL)
@@ -447,7 +405,7 @@ char* load_file_content_and_close(FILE* file)
     if (file_content == NULL)
     {
         perror("Failed to allocate the buffer for the file content");
-        clear_and_exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
     else
     {
@@ -457,81 +415,12 @@ char* load_file_content_and_close(FILE* file)
         if (ferror(file))
         {
             fprintf(stderr, "%s: error. Failed to read content from the file\n", RCC_NAME);
-            clear_and_exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         fclose(file);
-        unregister_file_to_close(file);
 
         file_content[nb_char_loaded] = '\0';
     }
 
     return file_content;
-}
-
-static void init_files_to_close(int max_files)
-{
-    if ((g_to_close.files = malloc(max_files * sizeof(FILE*))) == NULL)
-    {
-        fprintf(stderr, "%s: error. Failed to allocate memory for FILE* array of \"fileg_to_close\"", RCC_NAME);
-        clear_and_exit(EXIT_FAILURE);
-    }
-    else
-    {
-        memset(g_to_close.files, 0, max_files * sizeof(FILE*)); // Setting all the values to NULL
-        g_to_close.max_files = max_files;
-    }
-}
-
-static void register_file_to_close(FILE* file)
-{
-    assert(g_to_close.files != NULL);
-    assert(file != NULL);
-    assert(g_to_close.nb_files < g_to_close.max_files);
-
-    g_to_close.files[g_to_close.nb_files++] = file;
-}
-
-static void unregister_file_to_close(FILE* file)
-{
-    assert(g_to_close.files != NULL);
-
-    int i = 0;
-    while (i < g_to_close.nb_files && g_to_close.files[i] != file)
-    {
-        i++;
-    }
-
-    assert(i < g_to_close.nb_files); // This function should not be called if file is not in the list
-
-    g_to_close.files[i] = NULL;
-}
-
-static void register_argtable(void** argtable_ref, int nb_args)
-{
-    g_argtable_to_free.argtable = argtable_ref;
-    g_argtable_to_free.nb_args  = nb_args;
-}
-static void unregister_argtable()
-{
-    assert(g_argtable_to_free.argtable != NULL);
-
-    g_argtable_to_free.argtable = NULL;
-}
-
-static void clear_and_exit(int exit_code)
-{
-    if (g_to_close.files != NULL)
-    {
-        for (int i = 0; i < g_to_close.nb_files; i++)
-        {
-            if (g_to_close.files[i] != NULL)
-                fclose(g_to_close.files[i]);
-        }
-        free(g_to_close.files);
-    }
-
-    if(g_argtable_to_free.argtable != NULL)
-        arg_freetable(g_argtable_to_free.argtable, g_argtable_to_free.nb_args);
-
-    exit(exit_code);
 }
