@@ -10,7 +10,7 @@ import tests_utils as tu
 def test_loops():
     LOG_DIR = "logs"
 
-    FILE_PREFIXES = ["while", "do_while", "for", "for_decl"]
+    FILE_PREFIXES = ["while", "do_while", "for", "for_decl", "var_shadowing", "var_shadowing2"]
     TEST_EXT      = ".c"
     MSM_EXT       = ".msm"
     EXEC_SUFFIX   = "_exec"
