@@ -14,25 +14,15 @@ A runtime is also provided with some basic functions for input/output and memory
 
 ###  Building
 
-- ####  On Windows
+  **Prerequisites** :
+  - CMake 3.20.0
+  - A C99 compiler
 
-	**Prerequisites** :
-
-	- Visual Studio 2019
-
-	Open the solution file `ReducedCCompiler.sln` in Visual Studio and build it with `Ctrl + Shift + b`.
-
-- #### On Linux
-
-	**Prerequisites** :
-  - CMake 3.22.1
-  - gcc 11.2.0
-
-  Run `cmake -S . -B bin && cmake --build bin` in the root directory.
+  Run `cmake -S . -B build && cmake --build build` in the root directory.
 
 ### Environnment setup
 
-It is recommended to add `bin/ReducedCCompiler/Debug-x64` and `bin/MiniStackMachine/Debug-x64` to your `PATH` to use easily `rcc` and `msm` executables.
+It is recommended to add `c-msm/bin/` to your `PATH` to use easily `rcc` and `msm` executables.
 
 It is also recommended to set an environnement variable `RCC_RUNTIME` containing `ReducedCCompiler/runtime.c`.
 
@@ -41,12 +31,11 @@ ___
 
 ##  Running Tests
 
-**Prerequisites** :
+  **Prerequisites** :
   - Python 3.7
-
-On Windows, open the `ReducedCCompiler-Test` project in Visual Studio and run it without debugging `Ctrl + F5` (to avoid buggy display).
-
-On Linux, run `make test` in the root directory.
+  ```console
+    cmake --build build -- test
+  ```
 ___
 
 ## Usage

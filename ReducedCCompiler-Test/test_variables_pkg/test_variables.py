@@ -1,4 +1,3 @@
-import subprocess
 import os
 import sys
 
@@ -11,15 +10,12 @@ def test_variables():
     LOG_DIR = "logs"
 
     FILE_PREFIXES = ["variables", "global_var", "address_of_global", "address_of_cancel_deref", "pointer"]
-    TEST_EXT      = ".c"
-    MSM_EXT       = ".msm"
-    EXEC_SUFFIX   = "_exec"
-
-    OUT_EXT       = ".txt"
-    REF_EXT       = ".ref"
-
-    RCC_PATH = "../../bin/ReducedCCompiler/Debug-x64/rcc"
-    MSM_PATH = "../../bin/MiniStackMachine/Debug-x64/msm"
+    
+    TEST_EXT    = ".c"
+    MSM_EXT     = ".msm"
+    EXEC_SUFFIX = "_exec"
+    OUT_EXT     = ".txt"
+    REF_EXT     = ".ref"
 
     test_nb = 1
     nb_errors = 0
@@ -34,9 +30,8 @@ def test_variables():
         
         # CODE GENERATION
         msm_output_filename = FILE_PREFIXES[test_file_nb] + MSM_EXT
-        msm_ref_filename = msm_output_filename + REF_EXT
 
-        args = [RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
+        args = [tu.RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
         desc = "Compiling " + test_filename
         out_filename = LOG_DIR + "/out_" + str(test_nb) + ".txt"
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
@@ -51,7 +46,7 @@ def test_variables():
         exec_input_filename = msm_output_filename
         exec_ref_filename = exec_output_filename + REF_EXT
 
-        args = [MSM_PATH]
+        args = [tu.MSM_PATH]
         desc = "Running " + msm_output_filename
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
         success = tu.test_run_process(desc, args, test_nb,

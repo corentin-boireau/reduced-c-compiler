@@ -1,13 +1,19 @@
 import os
 import subprocess
 
+# TODO: Should be passed as options to the test script or retrieved from env variables
+RCC_PATH = "../../c-msm/bin/rcc"
+MSM_PATH = "../../c-msm/bin/msm"
+RUNTIME_PATH = "../../c-msm/ReducedCCompiler/runtime.c"
+
+
 # Weird trick to get ANSI escape sequences working on Windows
 os.system("")
-RED="\033[31m"
-CYAN="\033[34m"
-GREY="\033[90m"
-RESET="\033[0m"
-BOLD="\033[1m"
+RED   = "\033[31m"
+CYAN  = "\033[34m"
+GREY  = "\033[90m"
+RESET = "\033[0m"
+BOLD  = "\033[1m"
 
 def to_success(str):
     return CYAN + str + RESET

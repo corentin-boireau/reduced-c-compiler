@@ -1,4 +1,3 @@
-import subprocess
 import os
 import sys
 
@@ -11,23 +10,12 @@ def test_memory():
     LOG_DIR = "logs"
 
     FILE_PREFIXES = ["malloc_edge_case", "simple_reuse_freeblock", "reuse_block_diff_length", "split_blocks", "right_merge", "left_merge"]
-    TEST_EXT         = ".c"
-    SYNTACTIC_SUFFIX = "_syn"
-    SEMANTIC_SUFFIX  = "_sem"
-    MSM_EXT          = ".msm"
-    EXEC_SUFFIX      = "_exec"
-    OPTI_SUFFIX      = "_opti"
+    TEST_EXT      = ".c"
+    MSM_EXT       = ".msm"
     
     OUT_EXT       = ".txt"
     REF_EXT       = ".ref"
     
-    OUT_EXT       = ".txt"
-    REF_EXT       = ".ref"
-
-    RCC_PATH = "../../bin/ReducedCCompiler/Debug-x64/rcc"
-    MSM_PATH = "../../bin/MiniStackMachine/Debug-x64/msm"
-    RUNTIME_PATH = "../../ReducedCCompiler/runtime.c"
-
     test_nb = 1
     nb_errors = 0
     skip_next = False
@@ -40,9 +28,8 @@ def test_memory():
 
         # CODE GENERATION
         msm_output_filename = FILE_PREFIXES[test_file_nb] + MSM_EXT
-        msm_ref_filename = msm_output_filename + REF_EXT
 
-        args = [RCC_PATH, "--runtime", RUNTIME_PATH, test_filename, "-o", msm_output_filename]
+        args = [tu.RCC_PATH, "--runtime", tu.RUNTIME_PATH, test_filename, "-o", msm_output_filename]
         desc = "Compiling " + test_filename
         test_nb_str = str(test_nb) if test_nb >= 100 else "0" + str(test_nb) if test_nb >= 10 else "00" + str(test_nb)
         out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
@@ -60,7 +47,7 @@ def test_memory():
         exec_input_filename = msm_output_filename
         exec_ref_filename = exec_output_filename + REF_EXT
 
-        args = [MSM_PATH]
+        args = [tu.MSM_PATH]
         desc = "Running " + msm_output_filename
         err_filename = LOG_DIR + "/err_" + str(test_nb) + ".txt"
         success = tu.test_run_process(desc, args, test_nb,

@@ -9,16 +9,16 @@ import tests_utils as tu
 def test_lexical():
     LOG_DIR = "logs"
 
-    FILE_PREFIXES = ["valid",
-                    "mix",
-                    "junk"]
+    FILE_PREFIXES = [
+        "valid",
+        "mix",
+        "junk",
+    ]
 
     TEST_EXT      = ".c"
     LEXICAL_EXT   = "_lex"
     OUT_EXT       = ".txt"
     REF_EXT       = ".ref"
-
-    RCC_PATH = "../../bin/ReducedCCompiler/Debug-x64/rcc"
 
     test_nb = 1
     nb_errors = 0
@@ -32,7 +32,7 @@ def test_lexical():
         lex_output_filename = FILE_PREFIXES[test_file_nb] + LEXICAL_EXT + OUT_EXT
         lex_ref_filename = lex_output_filename + REF_EXT
 
-        args = [RCC_PATH, "--no-runtime",  test_filename, "--stage", "lexical", "-o", lex_output_filename]
+        args = [tu.RCC_PATH, "--no-runtime",  test_filename, "--stage", "lexical", "-o", lex_output_filename]
         desc = "Running lexical analysis on " + test_filename
         test_nb_str = tu.convert_test_nb_to_string(test_nb)
         out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"

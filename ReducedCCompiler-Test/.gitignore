@@ -1,0 +1,4 @@
+*.txt
+*.msm
+__pycache__/
+logs/

@@ -1,4 +1,3 @@
-import subprocess
 import os
 import sys
 
@@ -11,19 +10,12 @@ def test_binary_ops():
     LOG_DIR = "logs"
 
     FILE_PREFIXES = ["binary_ops", "short_circuit"]
-    TEST_EXT      = ".c"
-    MSM_EXT       = ".msm"
-    EXEC_SUFFIX   = "_exec"
-    OPTI_SUFFIX   = "_opti"
-
-    OUT_EXT       = ".txt"
-    REF_EXT       = ".ref"
-
-    OUT_EXT       = ".txt"
-    REF_EXT       = ".ref"
-
-    RCC_PATH = "../../bin/ReducedCCompiler/Debug-x64/rcc"
-    MSM_PATH = "../../bin/MiniStackMachine/Debug-x64/msm"
+    
+    TEST_EXT    = ".c"
+    MSM_EXT     = ".msm"
+    EXEC_SUFFIX = "_exec"
+    OUT_EXT     = ".txt"
+    REF_EXT     = ".ref"
 
     test_nb = 1
     nb_errors = 0
@@ -37,9 +29,8 @@ def test_binary_ops():
 
         # CODE GENERATION
         msm_output_filename = FILE_PREFIXES[test_file_nb] + MSM_EXT
-        msm_ref_filename = msm_output_filename + REF_EXT
 
-        args = [RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
+        args = [tu.RCC_PATH, "--no-runtime",  test_filename, "-o", msm_output_filename]
         desc = "Compiling " + test_filename
         test_nb_str = tu.convert_test_nb_to_string(test_nb)
         out_filename = LOG_DIR + "/out_" + test_nb_str + ".txt"
@@ -57,7 +48,7 @@ def test_binary_ops():
         exec_input_filename = msm_output_filename
         exec_ref_filename = exec_output_filename + REF_EXT
         
-        args = [MSM_PATH]
+        args = [tu.MSM_PATH]
         desc = "Running " + msm_output_filename
         test_nb_str = tu.convert_test_nb_to_string(test_nb)
         err_filename = LOG_DIR + "/err_" + test_nb_str + ".txt"
