@@ -4,6 +4,8 @@
 #include <streambuf>
 #include <string_view>
 
+#include "Tokenizer.h"
+
 void print_usage(std::ostream& outStream)
 {
     outStream <<
@@ -21,9 +23,9 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    std::string_view inputFilename(argv[1]);
-    std::ifstream inputStream(inputFilename.data());
-    if ( ! inputStream.is_open())
+    std::string inputFilename(argv[1]);
+    std::ifstream inputStream(inputFilename);
+    if (not inputStream.is_open())
     {
         std::cerr << "Failed to open input file \"" << inputFilename << "\"\n";
         exit(EXIT_FAILURE);
@@ -35,7 +37,7 @@ int main(int argc, char** argv)
     {
         std::string_view outputFilename(argv[2]);
         outFile.open(outputFilename.data());
-        if ( ! outFile.is_open())
+        if (not outFile.is_open())
         {
             std::cerr << "Failed to open output file \"" << outputFilename << "\"\n";
             exit(EXIT_FAILURE);
@@ -46,6 +48,11 @@ int main(int argc, char** argv)
         outBuf = std::cout.rdbuf();
 
     std::ostream outputStream(outBuf);
+    
+    Tokenizer tokenizer(std::move(inputFilename), inputStream);
+
+    for (token_t const& token : tokenizer)
+        outputStream << "lol\n";
 
     char c;
     while (inputStream.get(c))

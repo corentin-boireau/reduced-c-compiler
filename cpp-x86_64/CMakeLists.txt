@@ -13,4 +13,6 @@ file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 add_executable(rcc
     src/main.cpp
-)
+    src/Tokenizer.cpp
+    src/Token.cpp
+ )
